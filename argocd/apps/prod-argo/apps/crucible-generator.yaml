@@ -1,0 +1,42 @@
+#generate and deploy apps defined in the crucible folder
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: appset-crucible-gauntlet-prod
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://code.gauntlet-core.sei.cmu.edu/manifests/gauntlet-prod/gauntlet-prod-argo.git
+      revision: HEAD
+      files:
+      - path: "apps/crucible/*.json"
+  template:
+    metadata:
+      name: '{{app.project_name}}'
+    spec:
+      project: project-crucible-gauntlet-prod
+      source:
+        repoURL: https://code.gauntlet-core.sei.cmu.edu/manifests/gauntlet-prod/gauntlet-prod-k8s.git
+        targetRevision: '{{app.project_branch}}'
+        path: "gauntlet-prod"
+        plugin:
+          name: argocd-vault-plugin-helm-multi
+          env:
+            - name: HELM_ARGS
+              value: '{{app.helm_args}}'
+            - name: CHART_VERSION
+              value: '{{app.helm_chart_version}}'
+            - name: HELM_REPO
+              value: '{{app.helm_repo}}'
+            - name: HELM_CHART
+              value: '{{app.helm_chart_name}}'
+            - name: HELM_RELEASE_NAME
+              value: '{{app.project_name}}'
+      destination:
+        server: https://cwd-gauntlet-prod-k8s-dns-io7cx2vb.hcp.usgovvirginia.cx.aks.containerservice.azure.us:443
+        namespace: gauntlet
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: false

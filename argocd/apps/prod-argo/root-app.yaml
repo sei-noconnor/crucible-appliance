@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: -fortress-prod-app
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: apps
+    repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-argo.git
+    targetRevision: HEAD
+    directory:
+      recurse: false
+  sources: []
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
