@@ -14,4 +14,4 @@ spec:
     - namespace: default
       server: '*'
   sourceRepos:
-    - 'https://code.gauntlet-core.sei.cmu.edu/manifests/gauntlet-prod/gauntlet-prod-k8s.git'
+    - 'https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git'

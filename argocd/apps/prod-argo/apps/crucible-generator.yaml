@@ -17,7 +17,7 @@ spec:
     spec:
       project: project-crucible-gauntlet-prod
       source:
-        repoURL: https://code.gauntlet-core.sei.cmu.edu/manifests/gauntlet-prod/gauntlet-prod-k8s.git
+        repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
         targetRevision: '{{app.project_branch}}'
         path: "gauntlet-prod"
         plugin:
@@ -34,7 +34,7 @@ spec:
             - name: HELM_RELEASE_NAME
               value: '{{app.project_name}}'
       destination:
-        server: https://cwd-gauntlet-prod-k8s-dns-io7cx2vb.hcp.usgovvirginia.cx.aks.containerservice.azure.us:443
+        server: https://kubernetes.default.svc
         namespace: gauntlet
       syncPolicy:
         automated:
