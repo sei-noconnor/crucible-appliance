@@ -1,0 +1,127 @@
+# hin gallery sei/gallery -f gallery.values.yaml
+gallery-api:
+  image:
+    tag: "1.5.1"
+    pullPolicy: "IfNotPresent"
+
+# Ingress configuration example for NGINX
+# TLS and Host URLs need configured
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
+      nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    hosts:
+      - host: fortress.sei.cmu.edu
+        paths:
+          - path: /gallery/(api|swagger|hubs)
+            pathType: Prefix
+    tls:
+      - secretName: appliance-cert
+        hosts:
+         - fortress.sei.cmu.edu
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+
+  env:
+    PathBase: "/gallery"
+    # CORS policy settings.
+    # The first entry should be the URL to Gallery
+    CorsPolicy__Origins__0: https://fortress.sei.cmu.edu
+
+    # Connection String to database
+    # database requires the 'uuid-ossp' extension installed
+    ConnectionStrings__PostgreSQL: <path:fortress-prod/data/gallery#gallery-db-connection-string> 
+
+    # OAuth2 Identity Client for Application
+    Authorization__Authority: https://fortress.sei.cmu.edu/keycloak/realms/crucible
+    Authorization__AuthorizationUrl: https://fortress.sei.cmu.edu/keycloak/realms/crucible/protocol/openid-connect/auth
+    Authorization__TokenUrl: https://fortress.sei.cmu.edu/keycloak/realms/crucible/protocol/openid-connect/token
+    Authorization__AuthorizationScope: "gallery-api"
+    Authorization__ClientId: gallery-api
+    Authorization__ClientName: Gallery API
+
+    # OAuth2 Identity Client /w Password
+    ResourceOwnerAuthorization__Authority: https://fortress.sei.cmu.edu/keycloak/realms/crucible
+    ResourceOwnerAuthorization__ClientId: gallery-admin
+    ResourceOwnerAuthorization__UserName: <path:fortress-prod/data/shared#crucible-admin-user>
+    ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass>
+    ResourceOwnerAuthorization__Scope: "steamfitter-api player-api vm-api"
+
+    ClientSettings__SteamfitterApiUrl: https://fortress.sei.cmu.edu/steamfitter/api
+    ClientSettings__IsEmailActive: "true"
+
+    Logging__Debug__LogLevel__System: "Warning"
+    Logging__Debug__LogLevel__Default: "Warning"
+    Logging__Debug__LogLevel__Microsoft: "Warning"
+    Logging__Debug__FormatterName: "json"
+    Logging__Debug__FormatterOptions__SingleLine: true
+    Logging__Debug__FormatterOptions__TimestampFormat: "HH:mm:ss"
+    Logging__Debug__FormatterOptions__UseUtcTimestamp: true
+    Logging__Console__LogLevel__System: "Warning"
+    Logging__Console__LogLevel__Default: "Warning"
+    Logging__Console__LogLevel__Microsoft: "Warning"
+    Logging__Console__FormatterName: "json"
+    Logging__Console__FormatterOptions__SingleLine: true
+    Logging__Console__FormatterOptions__TimestampFormat: "HH:mm:ss"
+    Logging__Console__FormatterOptions__UseUtcTimestamp: true
+
+
+gallery-ui:
+  # Docker image release version
+  image:
+    tag: "1.5.2"
+    pullPolicy: "IfNotPresent"
+
+  # Ingress configuration example for NGINX
+  # TLS and Host URLs need configured
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - host: fortress.sei.cmu.edu
+        paths:
+          - path: /gallery
+            pathType: Prefix
+    tls:
+      - secretName: appliance-cert
+        hosts:
+         - fortress.sei.cmu.edu
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 10Mi
+
+  env:
+    APP_BASEHREF: "/gallery"
+  # Config app settings with a JSON file.
+  # These values correspond to an OpenID connect client and
+  # some basic configuration
+  settings: |-
+    {
+      "ApiUrl": "https://fortress.sei.cmu.edu/gallery",
+      "OIDCSettings": {
+        "authority": "https://fortress.sei.cmu.edu/keycloak/realms/crucible",
+        "client_id": "gallery-ui",
+        "redirect_uri": "https://fortress.sei.cmu.edu/gallery/auth-callback",
+        "post_logout_redirect_uri": "https://fortress.sei.cmu.edu/gallery",
+        "response_type": "code",
+        "scope": "openid profile gallery-api",
+        "automaticSilentRenew": true,
+        "silent_redirect_uri": "https://fortress.sei.cmu.edu/gallery/auth-callback-silent"
+      },
+      "AppTitle": "Gallery",
+      "AppTopBarHexColor": "#2d69b4",
+      "AppTopBarHexTextColor": "#FFFFFF",
+      "AppTopBarText": "Gallery  -  Keeping you in the know!",
+      "AppTopBarImage": "/gallery/assets/img/monitor-dashboard-white.png",
+      "UseLocalAuthStorage": false,
+      "IsEmailActive": true
+    }
