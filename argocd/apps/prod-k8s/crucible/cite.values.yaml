@@ -10,16 +10,16 @@ cite-ui:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
     hosts:
-      - host: fortress.sei.cmu.edu
+      - host: <path:fortress-prod/data/shared#domain>"
         paths:
           - path: /cite
             pathType: Prefix
     tls:
       - secretName: appliance-cert
         hosts:
-          - fortress.sei.cmu.edu
+          - <path:fortress-prod/data/shared#domain>
 
   resources:
     requests:
@@ -32,17 +32,17 @@ cite-ui:
   # some basic configuration
   settings: |
     {
-    "ApiUrl": "https://fortress.sei.cmu.edu/cite",
-    "GalleryApiUrl": "https://fortress.sei.cmu.edu/gallery",
+    "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/cite",
+    "GalleryApiUrl": "https://<path:fortress-prod/data/shared#domain>/gallery",
      "OIDCSettings": {
-        "authority": "https://fortress.sei.cmu.edu/keycloak/realms/crucible",
-        "client_id": "cite-ui",
-        "redirect_uri": "https://fortress.sei.cmu.edu/cite/auth-callback",
-        "post_logout_redirect_uri": "https://fortress.sei.cmu.edu/cite",
+        "authority": "https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible",
+        "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_cite-ui",
+        "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite/auth-callback",
+        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite",
         "response_type": "code",
         "scope": "openid profile cite-api",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://fortress.sei.cmu.edu/cite/auth-callback-silent"
+        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite/auth-callback-silent"
       },
 
     "AppTitle": "CITE",
@@ -65,19 +65,19 @@ cite-api:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
       nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
-      - host: fortress.sei.cmu.edu
+      - host: <path:fortress-prod/data/shared#domain>
         paths:
           - path: /cite/(api|swagger|hubs)
             pathType: Prefix
     tls:
       - secretName: appliance-cert
         hosts:
-          - fortress.sei.cmu.edu
+          - <path:fortress-prod/data/shared#domain>
   resources:
     requests:
       cpu: 1000m
@@ -87,7 +87,7 @@ cite-api:
     PathBase: "/cite"
     # CORS policy settings.
     # The first entry should be the URL to CITE
-    CorsPolicy__Origins__0: https://fortress.sei.cmu.edu
+  CorsPolicy__Origins__0: https://<path:fortress-prod/data/shared#domain>
 
     # Connection String to database
     ConnectionStrings__PostgreSQL: <path:fortress-prod/data/cite#cite-db-connection-string> 
@@ -98,21 +98,21 @@ cite-api:
     Database__OfficialScoreTeamTypeName: "Official Score Contributor"
 
     # OAuth2 Identity Client for Application
-    Authorization__Authority: https://fortress.sei.cmu.edu/keycloak/realms/crucible
-    Authorization__AuthorizationUrl: https://fortress.sei.cmu.edu/keycloak/realms/crucible/protocol/openid-connect/auth
-    Authorization__TokenUrl: https://fortress.sei.cmu.edu/keycloak/realms/crucible/protocol/openid-connect/token
+    Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
+    Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/auth
+    Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/token
     Authorization__AuthorizationScope: "openid cite-api"
-    Authorization__ClientId: "cite-api"
+    Authorization__ClientId: "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_cite-api"
     Authorization__ClientName: "CITE API"
 
     # OAuth2 Identity Client /w Password
-    ResourceOwnerAuthorization__Authority: https://fortress.sei.cmu.edu/keycloak/realms/crucible
-    ResourceOwnerAuthorization__ClientId:  cite-admin
+    ResourceOwnerAuthorization__Authority: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
+    ResourceOwnerAuthorization__ClientId:  <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_cite-admin
     ResourceOwnerAuthorization__UserName: <path:fortress-prod/data/shared#crucible-admin-user>
     ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass>
     ResourceOwnerAuthorization__Scope: "gallery-api"
 
-    ClientSettings__GalleryApiUrl: https://fortress.sei.cmu.edu/gallery
+    ClientSettings__GalleryApiUrl: https://<path:fortress-prod/data/shared#domain>/gallery
 
     Logging__Debug__LogLevel__System: "Warning"
     Logging__Debug__LogLevel__Default: "Warning"
@@ -172,15 +172,24 @@ cite-api:
           ],
           "Users": [
             {
-              "Id": "9fd3c38e-58b0-4af1-80d1-1895af91f1f9",
-              "Name": "Admin"
+              "Id": "<path:fortress-prod/data/cite#cite-user-0-id>",
+              "Name": "<path:fortress-prod/data/cite#cite-user-0-name>"
+            },
+            {
+              "Id": "<path:fortress-prod/data/cite#cite-user-1-id>",
+              "Name": "<path:fortress-prod/data/cite#cite-user-1-name>"
             }
           ],
           "UserPermissions": [
             {
-              "UserId": "9fd3c38e-58b0-4af1-80d1-1895af91f1f9",
+              "UserId": "<path:fortress-prod/data/cite#cite-user-0-id>",
               "PermissionId": "2f82cb36-4c0a-4b60-857f-c4f2a9e70817"
+            },
+            {
+              "UserId": "<path:fortress-prod/data/cite#cite-user-1-id>",
+              "PermissionId": "c881417e-02f1-4232-b06b-723901120e20"
             }
+
           ],
           "TeamTypes": [
             {
@@ -805,7 +814,7 @@ cite-api:
           "TeamUsers": [
             {
               "Id": "e31d500d-f0a9-4e43-9526-5fd2a6c4bd7b",
-              "UserId": "9fd3c38e-58b0-4af1-80d1-1895af91f1f9",
+              "UserId": "<path:fortress-prod/data/cite#cite-user-0-id>",
               "TeamId": "54644c9c-8cf7-40e6-b645-9b2f83cb8314"
             }
           ],
@@ -840,7 +849,7 @@ cite-api:
           "RoleUsers": [
             {
               "Id": "fb1e1e65-23c5-4c9a-8cea-b0b54fb29d4f",
-              "UserId":"9fd3c38e-58b0-4af1-80d1-1895af91f1f9",
+              "UserId": "<path:fortress-prod/data/cite#cite-user-0-id>",
               "RoleId": "59266893-644e-4159-bb85-8bd01f64d8c8"
             }
           ]
