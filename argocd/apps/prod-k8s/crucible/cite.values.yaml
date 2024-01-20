@@ -40,7 +40,7 @@ cite-ui:
         "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite/auth-callback",
         "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite",
         "response_type": "code",
-        "scope": "openid profile cite-api",
+        "scope": "openid profile cite-api gallery-api",
         "automaticSilentRenew": true,
         "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite/auth-callback-silent"
       },
