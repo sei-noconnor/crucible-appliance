@@ -87,7 +87,7 @@ cite-api:
     PathBase: "/cite"
     # CORS policy settings.
     # The first entry should be the URL to CITE
-  CorsPolicy__Origins__0: https://<path:fortress-prod/data/shared#domain>
+    CorsPolicy__Origins__0: https://<path:fortress-prod/data/shared#domain>
 
     # Connection String to database
     ConnectionStrings__PostgreSQL: <path:fortress-prod/data/cite#cite-db-connection-string> 
