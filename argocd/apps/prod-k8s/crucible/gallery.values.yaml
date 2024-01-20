@@ -43,12 +43,12 @@ gallery-api:
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/auth
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/token
     Authorization__AuthorizationScope: "gallery-api"
-    Authorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_gallery-api
+    Authorization__ClientId: "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_gallery-api"
     Authorization__ClientName: Gallery API
 
     # OAuth2 Identity Client /w Password
     ResourceOwnerAuthorization__Authority: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
-    ResourceOwnerAuthorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_gallery-admin
+    ResourceOwnerAuthorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_gallery-admin"
     ResourceOwnerAuthorization__UserName: <path:fortress-prod/data/shared#crucible-admin-user>
     ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass>
     ResourceOwnerAuthorization__Scope: "steamfitter-api player-api vm-api"
@@ -123,5 +123,6 @@ gallery-ui:
       "AppTopBarText": "Gallery  -  Keeping you in the know!",
       "AppTopBarImage": "/gallery/assets/img/monitor-dashboard-white.png",
       "UseLocalAuthStorage": false,
-      "IsEmailActive": true
+      "IsEmailActive": false,
+      "useAccessTokenExpirtationRedirect": true
     }

@@ -33,7 +33,6 @@ blueprint-api:
     # The first entry should be the URL to Blueprint
     CorsPolicy__Origins__0: https://<path:fortress-prod/data/shared#domain>
     
-    CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
 
     # Connection String to database
