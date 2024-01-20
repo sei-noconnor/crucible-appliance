@@ -1,0 +1,10 @@
+{
+    "app": {
+        "project_name" : "gallery",
+        "project_branch" : "HEAD",
+        "helm_repo" : "https://helm.cmusei.dev/charts",
+        "helm_chart_name" : "gallery",
+        "helm_chart_version" : "1.4.1",
+        "helm_args" : "-f gallery.values.yaml"
+    }
+}
