@@ -40,7 +40,7 @@ cite-ui:
         "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite/auth-callback",
         "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite",
         "response_type": "code",
-        "scope": "openid profile cite-api",
+        "scope": "openid profile cite-api gallery-api",
         "automaticSilentRenew": true,
         "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/cite/auth-callback-silent"
       },
@@ -101,7 +101,7 @@ cite-api:
     Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/auth
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/token
-    Authorization__AuthorizationScope: "openid cite-api gallery-api"
+    Authorization__AuthorizationScope: "openid cite-api"
     Authorization__ClientId: "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_cite-api"
     Authorization__ClientName: "CITE API"
 
