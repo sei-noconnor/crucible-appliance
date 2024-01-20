@@ -112,7 +112,7 @@ cite-api:
     ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass>
     ResourceOwnerAuthorization__Scope: "cite-api gallery-api"
 
-    ClientSettings__GalleryApiUrl: https://<path:fortress-prod/data/shared#domain>/gallery/api
+    ClientSettings__GalleryApiUrl: https://<path:fortress-prod/data/shared#domain>/gallery
 
     Logging__Debug__LogLevel__System: "Warning"
     Logging__Debug__LogLevel__Default: "Warning"
