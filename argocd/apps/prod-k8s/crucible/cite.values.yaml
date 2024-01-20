@@ -110,7 +110,7 @@ cite-api:
     ResourceOwnerAuthorization__ClientId:  <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_cite-admin
     ResourceOwnerAuthorization__UserName: <path:fortress-prod/data/shared#crucible-admin-user>
     ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass>
-    ResourceOwnerAuthorization__Scope: "gallery-api"
+    ResourceOwnerAuthorization__Scope: "cite-api gallery-api"
 
     ClientSettings__GalleryApiUrl: https://<path:fortress-prod/data/shared#domain>/gallery/api
 
