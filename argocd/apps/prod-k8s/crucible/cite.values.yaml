@@ -12,7 +12,7 @@ cite-ui:
     annotations:
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>"
+      - host: <path:fortress-prod/data/shared#domain>
         paths:
           - path: /cite
             pathType: Prefix
