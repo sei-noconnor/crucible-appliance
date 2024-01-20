@@ -13,14 +13,14 @@ blueprint-api:
       nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
       nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: "<path:fortress-prod/data/shared#domain>"
         paths:
           - path: /blueprint/(api|swagger|hubs)
             pathType: Prefix
     tls:
       - secretName: appliance-cert
         hosts:
-         - <path:fortress-prod/data/shared#domain>
+         - "<path:fortress-prod/data/shared#domain>"
 
   resources:
     requests:
@@ -78,14 +78,14 @@ blueprint-ui:
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
       nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: "<path:fortress-prod/data/shared#domain>"
         paths:
           - path: /blueprint(/|$)(.*)
             pathType: Prefix
     tls:
       - secretName: appliance-cert
         hosts:
-         - <path:fortress-prod/data/shared#domain>
+         - "<path:fortress-prod/data/shared#domain>"
 
   resources:
     requests:
