@@ -111,6 +111,7 @@ player-ui:
       - secretName: appliance-cert
         hosts:
           - <path:fortress-prod/data/shared#domain>
+
   extraVolumes: |
     - name: fortress-branding-vol
       configMap:
