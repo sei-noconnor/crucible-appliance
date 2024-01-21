@@ -121,7 +121,7 @@ player-ui:
 
   extraVolumeMounts: |
     - name: fortress-branding-vol
-      mountPath: /usr/share/nginx/html/assets/img/alloy.ico
+      mountPath: /usr/share/nginx/html/assets/img/player.ico
       subPath: player.ico
     - name: fortress-branding-vol
       mountPath: /usr/share/nginx/html/assets/img/crucible-logo-light.png
@@ -130,7 +130,7 @@ player-ui:
       mountPath: /usr/share/nginx/html/assets/img/crucible-logo-dark.png
       subPath: crucible-logo-dark.png
     - name: fortress-branding-svg-vol
-      mountPath: /usr/share/nginx/html/assets/svg-icons/ic_crucible_alloy.svg
+      mountPath: /usr/share/nginx/html/assets/svg-icons/ic_crucible_player.svg
       subPath: ic_crucible_player.svg
 
   env:
