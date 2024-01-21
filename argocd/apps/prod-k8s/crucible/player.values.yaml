@@ -71,7 +71,10 @@ player-api:
     # CorsPolicy__SupportsCredentials: false
     # Connection String to database
     # database requires the 'uuid-ossp' extension installed
-    ConnectionStrings__PostgreSQL: "<path:fortress-prod/data/player#player-api-db-connection-stringplayer-api-db-connection-string>ss-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
+    ConnectionStrings__PostgreSQL: "<path:fortress-prod/data/player#player-api-db-connection-stringplayer-api-db-connection-string>"
+    
+    # OAuth2 Identity Client for Application
+    Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
     Authorization__AuthorizationScope: "player-api"
