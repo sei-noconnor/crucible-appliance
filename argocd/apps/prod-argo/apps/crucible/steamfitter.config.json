@@ -1,0 +1,10 @@
+{
+    "app": {
+        "project_name" : "steamfitter",
+        "project_branch" : "HEAD",
+        "helm_repo" : "https://helm.cmusei.dev/charts",
+        "helm_chart_name" : "steamfitter",
+        "helm_chart_version" : "1.4.2",
+        "helm_args" : "-f steamfitter.values.yaml"
+    }
+}
