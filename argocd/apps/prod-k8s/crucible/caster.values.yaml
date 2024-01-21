@@ -71,7 +71,7 @@ caster-api:
     SEI_CRUCIBLE_PLAYER_API_URL: https://<path:fortress-prod/data/shared#domain>/player/api/
     SEI_CRUCIBLE_CASTER_API_URL: https://<path:fortress-prod/data/shared#domain>/caster/api/
     SEI_IDENTITY_TOK_URL: https://<path:fortress-prod/data/shared#domain>/identity/connect/token
-    SEI_IDENTITY_CLIENT_ID: <path:fortress-prod/data/caster#caster-api-sei-id-client-secret>
+    SEI_IDENTITY_CLIENT_ID: <path:fortress-prod/data/caster#caster-api-sei-id-client-id>
     SEI_IDENTITY_CLIENT_SECRET: <path:fortress-prod/data/caster#caster-api-sei-id-client-secret>
     SEI_IDENTITY_API_URL: https://<path:fortress-prod/data/shared#domain>/identity/api/
 
