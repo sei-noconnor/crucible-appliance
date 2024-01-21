@@ -53,7 +53,7 @@ alloy-api:
     ResourceOwnerAuthorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
     ResourceOwnerAuthorization__ClientId: "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_alloy-admin"
     #ResourceOwnerAuthorization__ClientSecret: ""
-    ResourceOwnerAuthorization__UserName: "<path:fortress-prod/data/shared#crucible-admin-user" 
+    ResourceOwnerAuthorization__UserName: "<path:fortress-prod/data/shared#crucible-admin-user>" 
     ResourceOwnerAuthorization__Password: "<path:fortress-prod/data/shared#crucible-admin-pass>" 
     ResourceOwnerAuthorization__Scope: 'alloy-api player-api caster-api steamfitter-api vm-api'
 
