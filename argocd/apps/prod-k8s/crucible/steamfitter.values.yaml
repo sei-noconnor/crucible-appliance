@@ -1,0 +1,147 @@
+steamfitter-api:
+  image:
+    repository: cmusei/steamfitter-api
+    tag: '3.7.2'
+    pullPolicy: IfNotPresent
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
+      nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    hosts:
+      - host: <path:fortress-prod/data/shared#domain>
+        paths:
+          - path: /steamfitter/(api|swagger|hubs)
+            pathType: Prefix
+    tls:
+      - secretName: appliance-cert
+        hosts:
+         - <path:fortress-prod/data/shared#domain>
+  certificateMap: "appliance-root-ca"
+
+  
+  env:
+    PathBase: "/steamfitter"
+    # Connection String to database
+    ConnectionStrings__PostgreSQL: "<path:fortress-prod/data/steamfitter#steamfitter-api-connection-string>"
+
+    CorsPolicy__Origins__0: https://<path:fortress-prod/data/shared#domain>
+    CorsPolicy__AllowAnyMethod: true
+    CorsPolicy__AllowAnyHeader: true
+    Logging__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__System: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__Microsoft: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__System: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__Microsoft: "<path:fortress-prod/data/shared#crucible-log-level>"
+    # OAuth2 Identity Client for Application
+    Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
+    Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
+    Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
+    Authorization__AuthorizationScope: "steamfitter-api vm-api"
+    Authorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_steamfitter-api
+    Authorization__ClientName: "Steamfitter API"
+
+    # OAuth2 Identity Client /w Password
+    ResourceOwnerAuthorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
+    ResourceOwnerAuthorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_steamfitter-admin
+    ResourceOwnerAuthorization__UserName: <path:fortress-prod/data/shared#crucible-admin-user> #TODO
+    ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass> #TODO
+    ResourceOwnerAuthorization__Scope: "vm-api"
+
+    ClientSettings__urls__steamfitterApi: https://<path:fortress-prod/data/shared#domain>/steamfitter
+    ClientSettings__urls__vmApi: https://<path:fortress-prod/data/shared#domain>/vm
+
+    # Stackstorm Configuration
+    # TODO - Document Stackstorm dependencies
+    VmTaskProcessing__ApiType: st2
+    VmTaskProcessing__ApiUsername: "administrator"
+    VmTaskProcessing__ApiPassword: "<path:fortress-prod/data/steamfitter#steamfitter-api-vm-task-api-pass>"
+    VmTaskProcessing__ApiBaseUrl: "https://<path:fortress-prod/data/shared#domain>/stackstorm"
+    VmTaskProcessing__ApiParameters__clusters: domain-c3283495
+
+    # Basic seed data to jumpstart deployement
+    # TODO - Document Seed data
+    SeedData__Users__0__id: "<path:fortress-prod/data/shared#oauth-admin-guid>"
+    SeedData__Users__0__name:  "administrator@<path:fortress-prod/data/shared#domain>"
+    SeedData__Users__1__id: "<path:fortress-prod/data/shared#oauth-crucible-admin-guid>"
+    SeedData__Users__1__name:  "<path:fortress-prod/data/shared#crucible-admin-user>"
+    
+
+    SeedData__UserPermissions__0__UserId: "<path:fortress-prod/data/shared#oauth-admin-guid>"
+    SeedData__UserPermissions__0__PermissionId: "00000000-0000-0000-0000-000000000001"
+    SeedData__UserPermissions__1__UserId: "<path:fortress-prod/data/shared#oauth-crucible-admin-guid>"
+    SeedData__UserPermissions__1__PermissionId: "00000000-0000-0000-0000-000000000001"
+
+steamfitter-ui:
+  image:
+    repository: cmusei/steamfitter-ui
+    pullPolicy: IfNotPresent
+    tag: "3.7.4"
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
+      nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
+      nginx.ingress.kubernetes.io/use-regex: "true"
+    hosts:
+      - host: <path:fortress-prod/data/shared#domain>
+        paths:
+          - path: "/steamfitter(/|$)(.*)"
+            pathType: Prefix
+    tls:
+      - secretName: appliance-cert
+        hosts:
+        - <path:fortress-prod/data/shared#domain>
+
+  extraVolumes: |
+    - name: fortress-branding-vol
+      configMap:
+        name: branding-ico
+    - name: fortress-branding-svg-vol
+      configMap:
+        name: branding-svg
+
+  extraVolumeMounts: |
+    - name: fortress-branding-vol
+      mountPath: /usr/share/nginx/html/assets/img/alloy.ico
+      subPath: steamfitter.ico
+    - name: fortress-branding-vol
+      mountPath: /usr/share/nginx/html/assets/img/crucible-logo-light.png
+      subPath: crucible-logo-light.png
+    - name: fortress-branding-vol
+      mountPath: /usr/share/nginx/html/assets/img/crucible-logo-dark.png
+      subPath: crucible-logo-dark.png
+    - name: fortress-branding-svg-vol
+      mountPath: /usr/share/nginx/html/assets/svg-icons/ic_crucible_alloy.svg
+      subPath: ic_crucible_steamfitter.svg
+  env: 
+    ## basehref is path to the app
+    APP_BASEHREF: "/steamfitter"
+
+  # Config app settings with a JSON file.
+  # These values correspond to an OpenID connect client
+  settings: |- 
+    {
+      "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/steamfitter",
+      "VmApiUrl": "https://<path:fortress-prod/data/shared#domain>/vm",
+      "ApiPlayerUrl": "https://<path:fortress-prod/data/shared#domain>/player",
+      "OIDCSettings": {
+          "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
+          "client_id": "steamfitter-ui",
+          "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/steamfitter/auth-callback",
+          "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/steamfitter",
+          "response_type": "code",
+          "scope": "openid profile steamfitter-api vm-api player-api",
+          "automaticSilentRenew": true,
+          "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/steamfitter/auth-callback-silent"
+      },
+      "AppTitle": "Steamfitter",
+      "AppTopBarHexColor": "#EF3A47",
+      "AppTopBarHexTextColor": "#FFFFFF",
+      "UseLocalAuthStorage": true
+    }
