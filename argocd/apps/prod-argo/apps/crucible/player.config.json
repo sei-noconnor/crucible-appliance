@@ -4,7 +4,7 @@
         "project_branch" : "HEAD",
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart_name" : "player",
-        "helm_chart_version" : "1.4.4",
+        "helm_chart_version" : "1.4.3",
         "helm_args" : "-f player.values.yaml"
     }
 }
