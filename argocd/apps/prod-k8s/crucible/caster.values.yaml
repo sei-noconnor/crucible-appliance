@@ -65,7 +65,7 @@ caster-api:
     SEI_CRUCIBLE_PASSWORD: <path:fortress-prod/data/shared#crucible-admin-pass>
     SEI_CRUCIBLE_AUTH_URL: https://<path:fortress-prod/data/shared#domain>/identity/connect/authorize
     SEI_CRUCIBLE_TOK_URL: https://<path:fortress-prod/data/shared#domain>/identity/connect/token
-    SEI_CRUCIBLE_CLIENT_ID: <path:fortress-prod/data/caster#caster-api-client-id>
+    SEI_CRUCIBLE_CLIENT_ID: <path:fortress-prod/data/caster#caster-api-crucible-client-id>
     SEI_CRUCIBLE_CLIENT_SECRET: <path:fortress-prod/data/caster#caster-api-crucible-client-secret>
     SEI_CRUCIBLE_VM_API_URL: https://<path:fortress-prod/data/shared#domain>/vm/api/
     SEI_CRUCIBLE_PLAYER_API_URL: https://<path:fortress-prod/data/shared#domain>/player/api/
