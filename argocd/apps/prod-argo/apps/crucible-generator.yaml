@@ -21,7 +21,7 @@ spec:
         targetRevision: '{{app.project_branch}}'
         path: "crucible"
         plugin:
-          name: avp-helm-multi
+          name: argocd-vault-plugin-helm-multi
           env:
             - name: HELM_ARGS
               value: '{{app.helm_args}}'
