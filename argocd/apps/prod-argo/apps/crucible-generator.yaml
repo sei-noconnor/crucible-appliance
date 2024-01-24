@@ -33,6 +33,8 @@ spec:
               value: '{{app.helm_chart_name}}'
             - name: HELM_RELEASE_NAME
               value: '{{app.project_name}}'
+            - name: HTTP_PROXY
+              value: 'http://proxy.sei.cmu.edu:8080'
       destination:
         server: https://kubernetes.default.svc
         namespace: default
