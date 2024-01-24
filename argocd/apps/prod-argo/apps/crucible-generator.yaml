@@ -15,7 +15,7 @@ spec:
     metadata:
       name: '{{app.project_name}}'
     spec:
-      project: project-crucible-fortress-prod
+      project: default
       source:
         repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
         targetRevision: '{{app.project_branch}}'
