@@ -152,7 +152,7 @@ player-ui:
         "response_type": "code",
         "scope": "openid profile player-api",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/player/auth-callback-silent"
+        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/player/auth-callback-silent.html"
       },
       "NotificationsSettings": {
         "url": "https://<path:fortress-prod/data/shared#domain>/player/hubs",
