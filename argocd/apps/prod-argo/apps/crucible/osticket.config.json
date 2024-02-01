@@ -1,0 +1,10 @@
+{
+    "app": {
+        "project_name" : "osticket",
+        "project_branch" : "osticket",
+        "helm_repo" : "https://helm.cmusei.dev/charts",
+        "helm_chart_name" : "osticket",
+        "helm_chart_version" : "1.17.5",
+        "helm_args" : "-f osticket.values.yaml"
+    }
+}
