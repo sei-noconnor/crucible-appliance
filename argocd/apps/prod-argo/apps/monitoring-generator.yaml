@@ -36,7 +36,7 @@ spec:
             - name: HTTP_PROXY
               value: 'http://proxy.sei.cmu.edu:8080'
       destination:
-        server: https://cwd-gauntlet-prod-k8s-dns-io7cx2vb.hcp.usgovvirginia.cx.aks.containerservice.azure.us:443
+        server: https://kubernetes.default.svc
         namespace: monitoring
       syncPolicy:
         automated:
