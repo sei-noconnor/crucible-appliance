@@ -381,7 +381,7 @@ console-ui:
   image:
     repository: cmusei/vm-console-ui
     pullPolicy: IfNotPresent
-    tag: "3.2.0"
+    tag: "3.2"
 
   # Ingress configuration example for NGINX
   # TLS and Host URLs need configured
