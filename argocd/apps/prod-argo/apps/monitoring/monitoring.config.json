@@ -1,0 +1,10 @@
+{
+    "app": {
+        "project_name" : "kube-prometheus-stack",
+        "project_branch" : "HEAD",
+        "helm_repo" : "https://prometheus-community.github.io/helm-charts",
+        "helm_chart_name" : "kube-prometheus-stack",
+        "helm_chart_version" : "56.6.0",
+        "helm_args" : "-n monitoring -f kube-prometheus-stack.values.yaml"
+    }
+}
