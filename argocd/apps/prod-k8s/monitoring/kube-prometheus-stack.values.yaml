@@ -938,7 +938,7 @@ grafana:
   namespaceOverride: ""
 
   envFromSecrets:
-    - name: webproxy-secret
+    - name: webproxy-info
       optional: true
 
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
