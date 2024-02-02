@@ -4,7 +4,7 @@
         "project_branch" : "HEAD",
         "helm_repo" : "https://prometheus-community.github.io/helm-charts",
         "helm_chart_name" : "kube-prometheus-stack",
-        "helm_chart_version" : "56.6.2",
+        "helm_chart_version" : "56.3.0",
         "helm_args" : "-n monitoring -f kube-prometheus-stack.values.yaml"
     }
 }
