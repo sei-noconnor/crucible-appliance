@@ -941,6 +941,16 @@ grafana:
     - name: webproxy-info
       optional: true
 
+  extraVolumeMounts:
+  - name: plugins
+    mountPath: /var/lib/grafana/plugins
+    subPath: configs/grafana/plugins
+    readOnly: false
+
+  extraVolumes:
+  - name: plugins
+    existingClaim: monitoring-plugins
+
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
   ##
   forceDeployDatasources: false
