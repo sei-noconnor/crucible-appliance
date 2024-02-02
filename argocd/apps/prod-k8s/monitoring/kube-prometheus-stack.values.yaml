@@ -936,12 +936,8 @@ alertmanager:
 grafana:
   enabled: true
   namespaceOverride: ""
-
-  envFromSecrets:
-    - name: webproxy-info
-      optional: true
-
-  extraVolumeMounts:
+  
+extraVolumeMounts:
   - name: plugins
     mountPath: /var/lib/grafana/plugins
     subPath: configs/grafana/plugins
