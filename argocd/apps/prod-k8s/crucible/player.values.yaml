@@ -313,6 +313,12 @@ vm-api:
     Vsphere__DsName: "iso"
     Vsphere__BaseFolder: "/player-player-api/isos"
 
+    #Proxmox settings
+    Proxmox__Enabled: true
+    Proxmox__Host: g14.cwd.cert.org
+    Proxmox__Port: 443
+    Proxmox__Token: <path:fortress-prod/data/player#proxmox-token>
+
     # Rewrite Host settings
     # See "consoleIngress" section above for usage
     RewriteHost__RewriteHost: true
