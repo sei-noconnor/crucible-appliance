@@ -324,7 +324,7 @@ vm-api:
     RewriteHost__RewriteHost: true
     RewriteHost__RewriteHostUrl: "<path:fortress-prod/data/shared#domain>/connect"
     RewriteHost__RewriteHostQueryParam: "vmhost"
-    ConsoleUrls__Vsphere__Url: "https://<path:fortress-prod/data/shared#domain>/console"
+    ConsoleUrls__DefaultUrl: "https://<path:fortress-prod/data/shared#domain>/console"
 
     VmUsageLogging__Enabled: true
     VmUsageLogging__PostgreSQL: "<path:fortress-prod/data/player#player-vm-api-logging-connection-string>"
