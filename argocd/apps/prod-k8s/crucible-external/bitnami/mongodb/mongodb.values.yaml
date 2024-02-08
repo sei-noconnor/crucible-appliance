@@ -1,0 +1,34 @@
+image:
+  registry: docker.io
+  repository: bitnami/mongodb
+  tag: 7.0.5-debian-11-r6
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  debug: false
+
+auth:
+  enabled: true
+  rootUser: mongo
+  rootPassword: "<path:fortress-prod/data/steamfitter#steamfitter-api-vm-task-api-pass>"
+  usernames:
+    - <path:fortress-prod/data/stackstorm#stackstorm-mongo-user>
+  passwords:
+    - <path:fortress-prod/data/stackstorm#stackstorm-mongo-pass>
+  databases:
+    - st2
+  
+service:
+  nameOverride: "mongodb"
+  type: ClusterIP
+  port: 27017
+  portName: mongodb
+
+persistence:
+  enabled: true
+  storageClass: "longhorn"
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+  annotations: {}
+  mountPath: /bitnami/mongodb
+  
