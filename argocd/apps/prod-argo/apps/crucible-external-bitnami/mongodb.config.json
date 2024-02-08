@@ -1,0 +1,8 @@
+{
+    "app": {
+        "project_name" : "mongodb",
+        "helm_chart" : "oci://registry-1.docker.io/bitnamicharts/mongodb",
+        "helm_chart_version" : "14.8.3",
+        "helm_args" : "-n default -f bitnami/mongodb/mongodb.values.yaml" 
+    }
+}

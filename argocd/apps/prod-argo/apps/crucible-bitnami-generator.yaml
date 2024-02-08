@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: appset-crucible-bitnami-gauntlet-prod
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-argo.git
+      revision: HEAD
+      files:
+      - path: "apps/crucible-external-bitnami/*.json"
+  template:
+    metadata:
+      name: '{{app.project_name}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
+        targetRevision: HEAD
+        path: "cruible-external/bitnami"
+        plugin:
+          name: avp-helm-multi-oci
+          env:
+            - name: HELM_ARGS
+              value: '{{app.helm_args}}'
+            - name: CHART_VERSION
+              value: '{{app.helm_chart_version}}'
+            - name: HELM_CHART
+              value: '{{app.helm_chart}}'
+            - name: HELM_RELEASE_NAME
+              value: '{{app.project_name}}'
+            - name: HTTP_PROXY
+              value: 'http://proxy.sei.cmu.edu:8080'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: false
