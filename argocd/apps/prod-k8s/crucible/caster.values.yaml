@@ -4,6 +4,15 @@ caster-api:
     repository: cmusei/caster-api
     tag: "3.3.0"
     pullPolicy: IfNotPresent
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - fortress-ctrl-01.sei.cmu.edu
   ingress:
     enabled: true
     annotations:
@@ -139,6 +148,15 @@ caster-ui:
     repository: cmusei/caster-ui
     tag: "3.3.0"
     pullPolicy: IfNotPresent
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - fortress-ctrl-01.sei.cmu.edu
 
   ingress:
     enabled: true
