@@ -3503,7 +3503,7 @@ prometheus:
 
     ## Maximum size of metrics
     ##
-    retentionSize: ""
+    retentionSize: "125GB"
 
     ## Allow out-of-order/out-of-bounds samples ingested into Prometheus for a specified duration
     ## See https://prometheus.io/docs/prometheus/latest/configuration/configuration/#tsdb
@@ -3611,7 +3611,7 @@ prometheus:
           accessModes: ["ReadWriteMany"]
           resources:
             requests:
-              storage: 100Gi
+              storage: 150Gi
     ## Using PersistentVolumeClaim
     ##
     #  volumeClaimTemplate:
