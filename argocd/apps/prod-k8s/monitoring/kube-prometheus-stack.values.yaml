@@ -3758,6 +3758,7 @@ prometheus:
       fsGroup: 2000
       seccompProfile:
         type: RuntimeDefault
+      fsGroupChangePolicy: "OnRootMismatch"
 
     ## Priority class assigned to the Pods
     ##
