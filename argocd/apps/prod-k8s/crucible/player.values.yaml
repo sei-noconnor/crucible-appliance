@@ -462,6 +462,7 @@ console-ui:
         "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/console/auth-callback-silent.html"
       },
       "UseLocalAuthStorage": true,
+      "DebugLogging": true,
       "VmResolutionOptions": [
         { "width": 2560, "height": 1600 },
         { "width": 1920, "height": 1440 },
