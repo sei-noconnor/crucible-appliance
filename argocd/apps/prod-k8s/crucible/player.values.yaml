@@ -292,6 +292,7 @@ vm-api:
     # The second entry should be the URL to Console App
     CorsPolicy__Origins__0: "https://<path:fortress-prod/data/shared#domain>"
     CorsPolicy__Origins__1: "http://localhost:4303"
+    CorsPolicy__Origins__2: "https://code.<path:fortress-prod/data/shared#domain>"
     # CorsPolicy__AllowAnyOrigin: true
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
@@ -345,7 +346,7 @@ vm-api:
     # Rewrite Host settings
     # See "consoleIngress" section above for usage
     RewriteHost__RewriteHost: true
-    RewriteHost__RewriteHostUrl: "<path:fortress-prod/data/shared#domain>/connect"
+    RewriteHost__RewriteHostUrl: "code.<path:fortress-prod/data/shared#domain>/connect"
     RewriteHost__RewriteHostQueryParam: "vmhost"
     ConsoleUrls__DefaultUrl: "https://<path:fortress-prod/data/shared#domain>/console"
 
