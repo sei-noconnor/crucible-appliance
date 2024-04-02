@@ -90,7 +90,7 @@ player-ui:
   # Docker image release version
   image:
     repository: cmusei/player-ui
-    tag: "3.2.5"
+    tag: "3.2.6"
     pullPolicy: IfNotPresent
 
   # Ingress configuration example for NGINX
@@ -358,7 +358,7 @@ vm-ui:
   image:
     repository: cmusei/vm-ui
     pullPolicy: IfNotPresent
-    tag: "3.4.0"
+    tag: "3.4.1"
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
