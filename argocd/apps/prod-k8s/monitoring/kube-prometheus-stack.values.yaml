@@ -320,13 +320,21 @@ alertmanager:
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 12h
-      receiver: 'null'
+      receiver: 'sei-smtp'
       routes:
       - receiver: 'null'
         matchers:
           - alertname = "Watchdog"
     receivers:
     - name: 'null'
+    - name: sei-smtp
+      email_configs:
+      - to: apwilkey@sei.cmu.edu
+        send_resolved: false
+        from: noreply@sei.cmu.edu
+        smarthost: smtp.sei.cmu.edu:25
+        hello: sei.cmu.edu
+        require_tls: false
     templates:
     - '/etc/alertmanager/config/*.tmpl'
 
