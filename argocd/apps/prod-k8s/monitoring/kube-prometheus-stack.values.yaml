@@ -976,6 +976,11 @@ grafana:
         #root_url: '%(protocol)s://%(domain)s:%(http_port)s/monitoring/'
       root_url: https://fortress.sei.cmu.edu/monitoring
       serve_from_sub_path: true
+      smtp:
+        enabled: true
+        host: smtp.sei.cmu.edu:25
+        user: fortress-noreply@sei.cmu.edu
+    #pass: password123
         #    auth.generic_oauth:
         #      enabled: false
         #      name: Keycloak
