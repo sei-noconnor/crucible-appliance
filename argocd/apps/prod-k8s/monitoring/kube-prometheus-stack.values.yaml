@@ -329,7 +329,7 @@ alertmanager:
     - name: 'null'
     - name: sei-smtp
       email_configs:
-      - to: apwilkey@sei.cmu.edu
+      - to: '<path:fortress-prod/data/grafana#alertmanager-email-accts>'
         send_resolved: false
         from: noreply@sei.cmu.edu
         smarthost: smtp.sei.cmu.edu:25
