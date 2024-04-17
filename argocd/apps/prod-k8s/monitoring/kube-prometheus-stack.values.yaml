@@ -325,6 +325,7 @@ alertmanager:
       - receiver: 'null'
         matchers:
           - alertname = "Watchdog"
+          - severity = "warning"
     receivers:
     - name: 'null'
     - name: sei-smtp
