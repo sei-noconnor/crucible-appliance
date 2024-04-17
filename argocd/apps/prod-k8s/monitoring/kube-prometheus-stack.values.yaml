@@ -325,9 +325,12 @@ alertmanager:
       - receiver: 'null'
         matchers:
           - alertname = "Watchdog"
+      - receiver: 'warning-dump'
+        matchers:
           - severity = "warning"
     receivers:
     - name: 'null'
+    - name : 'warning-dump'
     - name: sei-smtp
       email_configs:
       - to: '<path:fortress-prod/data/grafana#alertmanager-email-accts>'
