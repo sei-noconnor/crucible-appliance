@@ -493,6 +493,6 @@ console-ui:
         { "name": "Slowest", "value": 500 }
       ],
       "WMKS": {
-        "RetryConnectionInterval": 30000
+        "RetryConnectionInterval": 0
       }
     }
