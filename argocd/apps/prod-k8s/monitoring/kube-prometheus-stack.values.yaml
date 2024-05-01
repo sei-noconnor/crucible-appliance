@@ -735,7 +735,7 @@ alertmanager:
 
     ## Size is the expected size of the alertmanager cluster. The controller will eventually make the size of the
     ## running cluster equal to the expected size.
-    replicas: 1
+    replicas: 3
 
     ## Time duration Alertmanager shall retain data for. Default is '120h', and must match the regular expression
     ## [0-9]+(ms|s|m|h) (milliseconds seconds minutes hours).
@@ -949,15 +949,15 @@ grafana:
   enabled: true
   namespaceOverride: ""
   
-  extraVolumeMounts:
-  - name: plugins
-    mountPath: /var/lib/grafana/plugins
-    subPath: configs/grafana/plugins
-    readOnly: false
+  extraVolumeMounts: []
+  #- name: plugins
+  #  mountPath: /var/lib/grafana/plugins
+  #  subPath: configs/grafana/plugins
+  #  readOnly: false
 
-  extraVolumes:
-  - name: plugins
-    existingClaim: monitoring-plugins
+  extraVolumes: []
+  #- name: plugins
+  #  existingClaim: monitoring-plugins
 
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
   ##
@@ -2183,7 +2183,7 @@ prometheusOperator:
 
       ## Number of replicas
       ##
-      replicas: 1
+      replicas: 3
 
       # Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
       podDisruptionBudget: {}
@@ -3541,7 +3541,7 @@ prometheus:
     ## Number of replicas of each shard to deploy for a Prometheus deployment.
     ## Number of replicas multiplied by shards is the total number of Pods created.
     ##
-    replicas: 1
+    replicas: 3
 
     ## EXPERIMENTAL: Number of shards to distribute targets onto.
     ## Number of replicas multiplied by shards is the total number of Pods created.
