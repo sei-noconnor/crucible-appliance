@@ -325,16 +325,24 @@ alertmanager:
       - receiver: 'null'
         matchers:
           - alertname = "Watchdog"
-      - receiver: 'warning-dump'
+      - receiver: 'warning-watch'
         matchers:
           - severity = "warning"
     receivers:
     - name: 'null'
-    - name : 'warning-dump'
+    - name : 'warning-watch'
+      email_configs:
+      - to: '<path:fortress-prod/data/grafana#alertmanager-email-warning-accts>'
+        send_resolved: false
+        from: noreply@sei.cmu.edu
+        smarthost: smtp.sei.cmu.edu:25
+        hello: sei.cmu.edu
+        require_tls: false
+    templates:
     - name: sei-smtp
       email_configs:
       - to: '<path:fortress-prod/data/grafana#alertmanager-email-accts>'
-        send_resolved: false
+        send_resolved: true
         from: noreply@sei.cmu.edu
         smarthost: smtp.sei.cmu.edu:25
         hello: sei.cmu.edu
