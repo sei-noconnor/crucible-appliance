@@ -1,7 +1,7 @@
 # hin gallery sei/gallery -f gallery.values.yaml
 gallery-api:
   image:
-    tag: "1.5.1"
+    tag: "1.6.0"
     pullPolicy: "IfNotPresent"
 
 # Ingress configuration example for NGINX
@@ -75,7 +75,7 @@ gallery-api:
 gallery-ui:
   # Docker image release version
   image:
-    tag: "1.5.2"
+    tag: "1.6.0"
     pullPolicy: "IfNotPresent"
 
   # Ingress configuration example for NGINX
