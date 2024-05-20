@@ -2,7 +2,7 @@
     "app": {
         "project_name" : "postgresql",
         "helm_chart" : "oci://registry-1.docker.io/bitnamicharts/postgresql",
-        "helm_chart_version" : "15.3.3",
+        "helm_chart_version" : "12.5.7",
         "helm_args" : "-n default -f postgresql/postgresql.values.yaml" 
     }
 }
