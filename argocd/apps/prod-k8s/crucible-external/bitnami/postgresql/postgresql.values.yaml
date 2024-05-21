@@ -55,3 +55,10 @@ resources:
   limits:
     cpu: "2.5"
     memory: 1024Mi
+
+## @section Metrics Parameters
+##
+metrics:
+  ## @param metrics.enabled Start a prometheus exporter
+  ##
+  enabled: true
