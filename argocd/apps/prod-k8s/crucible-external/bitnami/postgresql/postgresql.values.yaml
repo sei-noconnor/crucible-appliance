@@ -57,3 +57,6 @@ primary:
       cpu: "2.5"
       memory: 1024Mi
 
+metrics:
+  enabled: true
+
