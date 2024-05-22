@@ -48,11 +48,12 @@ image:
 architecture: standalone
   ## @param primary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
   ## Example:
-resources:
-  requests:
-    cpu: "2.0"
-    memory: 512Mi
-  limits:
-    cpu: "2.5"
-    memory: 1024Mi
+primary:
+  resources:
+    requests:
+      cpu: "2.0"
+      memory: 512Mi
+    limits:
+      cpu: "2.5"
+      memory: 1024Mi
 
