@@ -3678,6 +3678,9 @@ prometheus:
       - job_name: postgres
         static_configs:
         - targets: ['10.43.174.63:9187']
+      - job_name: ingress-nginx
+        static_configs:
+        - targets: ['10.43.81.160:10254','ingress-nginx-metrics']
     # - job_name: kube-etcd
     #   kubernetes_sd_configs:
     #     - role: node
