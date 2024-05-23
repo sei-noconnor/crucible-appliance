@@ -25,7 +25,7 @@ global:
       postgresPassword: "<path:fortress-prod/data/postgresql#default-admin-pass>"
       username: ""
       password: ""
-      database: ""
+      database: "postgres"
       existingSecret: ""
     ## @param global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
     ##
@@ -57,3 +57,5 @@ primary:
       cpu: "2.5"
       memory: 1024Mi
 
+metrics:
+  enabled: true
