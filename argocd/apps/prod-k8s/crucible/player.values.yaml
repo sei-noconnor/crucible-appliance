@@ -172,7 +172,7 @@ vm-api:
   image:
     repository: cmusei/vm-api
     pullPolicy: IfNotPresent
-    tag: "3.6.1"
+    tag: "3.6.2"
   
   affinity:
     nodeAffinity:
