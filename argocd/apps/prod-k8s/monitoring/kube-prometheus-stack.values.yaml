@@ -3677,7 +3677,7 @@ prometheus:
     additionalScrapeConfigs:
       - job_name: postgres
         static_configs:
-        - targets: ['postgresql-metrics:9187']
+        - targets: ['10.43.174.63:9187']
     # - job_name: kube-etcd
     #   kubernetes_sd_configs:
     #     - role: node
