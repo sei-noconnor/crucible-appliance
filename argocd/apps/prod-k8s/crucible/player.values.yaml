@@ -172,7 +172,7 @@ vm-api:
   image:
     repository: cmusei/vm-api
     pullPolicy: IfNotPresent
-    tag: "3.5.3"
+    tag: "3.6.1"
   
   affinity:
     nodeAffinity:
@@ -328,18 +328,19 @@ vm-api:
 
     # VCenter settings
     #
-    # A privileged vCenter used is required to read and write files
+    # A privileged vCenter user is required to read and write files
     #
     # A datastore needs to be created for Player to store files.  This is
     # typically an NFS share in the format:  <DATASTORE>/player/
     #
     # - DsName denotes the DataStore name
     # - BaseFolder is the folder inside the DataStore to use
-    Vsphere__Host: "<path:fortress-prod/data/vsphere#vsphere-server>"
-    Vsphere__Username: "<path:fortress-prod/data/vsphere#vsphere-user>"
-    Vsphere__Password: "<path:fortress-prod/data/vsphere#vsphere-pass>"
-    Vsphere__DsName: "iso"
-    Vsphere__BaseFolder: "/player-player-api/isos"
+    Vsphere__Hosts__0__Enabled: true
+    Vsphere__Hosts__0__Address: "<path:fortress-prod/data/vsphere#vsphere-server>"
+    Vsphere__Hosts__0__Username: "<path:fortress-prod/data/vsphere#vsphere-user>"
+    Vsphere__Hosts__0__Password: "<path:fortress-prod/data/vsphere#vsphere-pass>"
+    Vsphere__Hosts__0__DsName: "iso"
+    Vsphere__Hosts__0__BaseFolder: "/player-player-api/isos"
 
     #Proxmox settings
     Proxmox__Enabled: true
@@ -362,7 +363,7 @@ vm-ui:
   image:
     repository: cmusei/vm-ui
     pullPolicy: IfNotPresent
-    tag: "3.4.6"
+    tag: "3.4.7"
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -426,7 +427,7 @@ console-ui:
   image:
     repository: cmusei/vm-console-ui
     pullPolicy: IfNotPresent
-    tag: "3.2.8"
+    tag: "3.2.9"
 
   # Ingress configuration example for NGINX
   # TLS and Host URLs need configured
