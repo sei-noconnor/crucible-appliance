@@ -56,7 +56,9 @@ primary:
     limits:
       cpu: "2.5"
       memory: 1024Mi
-
+  extendedConfiguration: |
+    max_connections=150
+    
 metrics:
   enabled: true
   resourcesPreset: "micro"
