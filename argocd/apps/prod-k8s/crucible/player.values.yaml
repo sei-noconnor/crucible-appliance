@@ -3,10 +3,34 @@ player-api:
   # Docker image release version
   image:
     repository: cmusei/player-api
-    tag: "3.2.3"
+    tag: "3.2.4"
     pullPolicy: IfNotPresent
   # Ingress configuration example for NGINX
   # TLS and Host URLs need configured
+  probes:
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      timeoutSeconds: 10
+      failureThreshold: 6
+      successThreshold: 1
+
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 5
+      periodSeconds: 30
+      timeoutSeconds: 10
+      failureThreshold: 6
+      successThreshold: 1
+
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 1
+      failureThreshold: 15
+      successThreshold: 1
   ingress:
     enabled: true
     annotations:
