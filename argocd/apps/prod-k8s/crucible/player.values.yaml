@@ -387,7 +387,7 @@ vm-ui:
   image:
     repository: cmusei/vm-ui
     pullPolicy: IfNotPresent
-    tag: "3.4.7"
+    tag: "3.4.8"
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
