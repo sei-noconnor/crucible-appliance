@@ -75,7 +75,7 @@ gallery-api:
 gallery-ui:
   # Docker image release version
   image:
-    tag: "1.6.0"
+    tag: "1.6.1"
     pullPolicy: "IfNotPresent"
 
   # Ingress configuration example for NGINX
