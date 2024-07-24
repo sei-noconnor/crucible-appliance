@@ -39,4 +39,5 @@ terraform.rc
 **/output
 **/*.zip
 **/tools
+.vscode
 

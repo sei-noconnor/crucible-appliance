@@ -63,7 +63,7 @@ source "vsphere-iso" "this" {
 
   export {
     output_directory = "./output"
-    output_format = "ova"
+    output_format = "ovf"
   }
 
 }
@@ -72,6 +72,33 @@ build {
   sources = [
     "source.vsphere-iso.this"
   ]
+
+  provisioner "file" {
+    destination = "/home/${var.ssh_username}/appliance"
+    sources = [
+      "./scripts",
+    ]
+  }
+
+  provisioner "shell" {
+    execute_command   = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+    environment_vars  = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "SSH_USERNAME=${var.ssh_username}",
+    ]
+    scripts            = [
+      "./scripts/01-expand-volume.sh",
+      "./scripts/02-deps.sh",
+    ]
+  }
+
+  provisioner "shell" {
+    execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+    inline = [
+      "dd if=/dev/zero of=~/zerofill bs=1M",
+      "rm -f ~/zerofill"
+    ]
+  }
 
   provisioner "shell-local" {
     inline = ["echo the address is: $PACKER_HTTP_ADDR and build name is: $PACKER_BUILD_NAME"]
