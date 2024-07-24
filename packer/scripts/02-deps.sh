@@ -20,7 +20,7 @@ sudo apt update -y && sudo NEEDRESTART_MODE=a apt-get dist-upgrade --yes && sudo
 ##### Install Dependencies #####
 ################################
 # Install Apt Packages
-apt-get install -y jq nfs-common postgresql-client
+apt-get install -y jq nfs-common postgresql-client make
 
 # Install K3s
 sudo mkdir -p /etc/rancher/k3s
@@ -50,6 +50,11 @@ sudo NEEDRESTART_MODE=a apt install --yes ./k9s_linux_amd64.deb
 #tar -xvzf k9s.tar.gz
 #sudo -s mv ./k9s /usr/local/bin/k9s
 rm k9s_linux_amd64.deb
+
+# Install CFSSL for certificate generation
+curl -sLo /usr/local/bin/cfssl https://github.com/cloudflare/cfssl/releases/download/v1.6.3/cfssl_1.6.3_linux_amd64
+curl -sLo /usr/local/bin/cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.6.3/cfssljson_1.6.3_linux_amd64
+chmod +x /usr/local/bin/cfssl*
 
 
 
