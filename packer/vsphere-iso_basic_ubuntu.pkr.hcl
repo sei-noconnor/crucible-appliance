@@ -28,8 +28,8 @@ source "vsphere-iso" "this" {
   ssh_username = "ubuntu"
   ssh_password = "ubuntu"
   ssh_timeout  = "30m"
-
-  /* Uncomment when running on vcsim
+/*
+  Uncomment when running on vcsim
   ssh_host     = "127.0.0.1"
   ssh_port     = 2222
 
@@ -46,7 +46,7 @@ source "vsphere-iso" "this" {
   disk_controller_type = ["pvscsi"]
   datastore            = var.datastore
   storage {
-    disk_size             = 102400
+    disk_size             = 8192
     disk_thin_provisioned = true
   }
 

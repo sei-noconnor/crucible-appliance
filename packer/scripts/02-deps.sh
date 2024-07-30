@@ -10,6 +10,11 @@
 ###############
 PACKER_DIR="/Users/noconnor/source/crucible/Crucible.Appliance.Argo/packer"
 APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
+MIRRORS=$(cat <<EOF
+mirrors:
+  "*":
+EOF
+)
 
 ######################
 ###### Update OS #####
@@ -20,18 +25,22 @@ sudo apt update -y && sudo NEEDRESTART_MODE=a apt-get dist-upgrade --yes && sudo
 ##### Install Dependencies #####
 ################################
 # Install Apt Packages
-apt-get install -y jq nfs-common postgresql-client make
+sudo apt install -y jq nfs-common postgresql-client make
+
+# Install yq
+sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
 
 # Install K3s
 sudo mkdir -p /etc/rancher/k3s
 mkdir -p ~/.kube
 sudo echo "nameserver 10.0.1.1" >> /etc/rancher/k3s/resolv.conf
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --disable servicelb --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin" sh - 
+sudo echo "$MIRRORS" > /etc/rancher/k3s/registries.yaml
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin" sh -
 sudo -u $SSH_USERNAME mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i 's/default/crucible-appliance/g' ~/.kube/config
 sed -i "s/127.0.0.1/$APPLIANCE_IP/g" ~/.kube/config
-chown $SSH_USERNAME:$SSH_USERNAME ~/.kube/config
+sudo chown $SSH_USERNAME:$SSH_USERNAME ~/.kube/config
 chmod go-r ~/.kube/config
 
 # Install Kubectl

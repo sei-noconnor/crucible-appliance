@@ -4,7 +4,7 @@
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
 # project root or contact permission@sei.cmu.edu for full terms.
 #
-# ./generate-certs <gencert arguments>
+# ./generate-certs <domain> <gencert arguments>
 DOMAIN=$1
 shift
 ARGS=$*
@@ -138,4 +138,4 @@ if [ ! -f "$SCRIPTS_DIR/../dist/ssl/root-ca.pem" ]; then
 else
   echo "Certificates exists not overwriting"
 fi
-# sed -ri "s|(signer:) \"\"|\1 $(base64 -w0 host.pfx)|" ../common/identity.values.yaml
+
