@@ -35,7 +35,8 @@ kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd
 
 kubectl wait deployment argocd-repo-server \
 --for=condition=Available \
---namespace=argocd
+--namespace=argocd \
+--timeout=1m
 
 kubectl config set-context --current --namespace=argocd
 argocd login --core
