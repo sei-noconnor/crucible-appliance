@@ -33,10 +33,11 @@ echo "VALUES_DIR: ${VALUES_DIR}"
 kubectl create namespace argocd
 kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd
 
-kubectl wait deployment argocd-repo-server \
+kubectl wait deployment \
+--all \
 --for=condition=Available \
 --namespace=argocd \
---timeout=1m
+--timeout=5m
 
 kubectl config set-context --current --namespace=argocd
 argocd login --core
