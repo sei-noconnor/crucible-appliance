@@ -17,10 +17,6 @@ SCRIPTS_DIR="${PWD}"
 
 echo "Current directory: ${SCRIPTS_DIR}"  # Additional feedback
 
-echo "Removing helm charts"
-helm delete vault -n vault
-kubectl delete namespace vault
-
 echo "Deleting existing Argo CD installation..."
 kubectl delete -f ../../argocd/manifests/core-install.yaml --wait -n argocd 
 
