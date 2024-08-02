@@ -27,6 +27,9 @@ copy the variable file `cp ./packer/vars.auto.pkrvars.hcl.example ./packer/vars.
 1. download and install the OVFTool from VMware [ovftool](https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest)
 1. Install it based on the [instructions](https://docs.vmware.com/en/VMware-Telco-Cloud-Operations/1.3.0/deployment-guide-130/GUID-95301A42-F6F6-4BA9-B3A0-A86A268754B6.html).
 
+## argocd
+We want to manage the cluster with argocd so that simple patches from git repositories can be imported and used in an offline environment. 
+
 
 
 

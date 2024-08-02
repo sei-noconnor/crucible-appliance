@@ -28,10 +28,6 @@ clean:
 	rm -rf ./cache
 	rm -rf ./packer/output
 
-unseal:
-	bash ./scripts/unseal_vault.sh
-
-
 .PHONY: all clean init build argo reset
 
 all: generate_certs
