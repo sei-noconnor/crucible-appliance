@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # Copyright 2022 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
@@ -138,4 +138,20 @@ if [ ! -f "$SCRIPTS_DIR/../dist/ssl/root-ca.pem" ]; then
 else
   echo "Certificates exists not overwriting"
 fi
+# make sure certificates are ready for cert-manager
+CERTS_SRC="$(readlink -m $SCRIPTS_DIR/../dist/ssl)"
+CERTS_DEST="$(readlink -m $SCRIPTS_DIR/../argocd/apps/cert-manager/kustomize/base/files/ssl)"
 
+if [ ! -d "$CERTS_DEST" ]; then 
+  echo "$CERTS_DEST does NOT exist...Creating..."
+  mkdir -p "$CERTS_DEST"
+fi
+
+if [ ! -f "$CERTS_DEST/tls.crt" ]; then 
+  cp "$CERTS_SRC/root-ca.pem" "$CERTS_DEST/root-ca.pem"
+  cp "$CERTS_SRC/int-ca.pem" "$CERTS_DEST/int-ca.pem"
+  cd $CERTS_DEST
+  cat int-ca.pem root-ca.pem > tls.crt
+  cp "$CERTS_SRC/root-ca-key.pem" "$CERTS_DEST/tls.key"
+  cd $SCRIPTS_DIR
+fi
