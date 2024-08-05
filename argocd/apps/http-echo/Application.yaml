@@ -1,19 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: postgres
+  name: http-echo
+  namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: postgres
+    namespace: default
     server: https://kubernetes.default.svc
   project: default
   syncPolicy:
     automated:
       prune: true
+    syncOptions:
+    - CreateNamespace=true
   source:
-    path: postgres/kustomize/overlays/appliance
+    path: http-echo/kustomize/overlays/appliance
     repoURL: file:///tmp/apps
-    targetRevision: master
+    targetRevision: HEAD
     kustomize:
+      namePrefix: appliance-
+      

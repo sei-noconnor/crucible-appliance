@@ -14,17 +14,22 @@ echo "Changing to script directory..."
 DIR=$(dirname "${BASH_SOURCE[0]}")
 cd "$DIR" || exit  # Handle potential errors with directory change
 SCRIPTS_DIR="${PWD}"
+APPS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/apps/)"
 
 echo "Current directory: ${SCRIPTS_DIR}"  # Additional feedback
+kubectl config set-context --current --namespace argocd
 
 echo "Deleting APP[http-echo]"
-argocd --core app delete http-echo -y --wait 
+kubectl delete -f $APPS_DIR/http-echo/Application.yaml
+# argocd --core app delete http-echo -y --wait 
 
 echo "Deleting APP[postgres]"
-argocd --core app delete postgres -y --wait 
+kubectl delete -f $APPS_DIR/postgres/Application.yaml
+# argocd --core app delete postgres -y --wait 
 
 echo "Deleting APP[nginx]"
-argocd --core app delete nginx -y --wait 
+kubectl delete -f $APPS_DIR/nginx/Application.yaml
+# argocd --core app delete nginx -y --wait 
 
 echo "Deleting existing Argo CD installation..."
 kubectl delete -f ../../argocd/manifests/core-install.yaml --wait -n argocd 
