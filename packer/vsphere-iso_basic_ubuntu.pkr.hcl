@@ -56,7 +56,7 @@ source "vsphere-iso" "this" {
     network = var.network_name
   }
 
-  cd_files = ["./meta-data", "./user-data"]
+  cd_files = ["./packer/meta-data", "./packer/user-data"]
   cd_label = "cidata"
   
   boot_command = ["<wait>e<down><down><down><end> autoinstall ds=nocloud;<F10>"]
@@ -73,10 +73,31 @@ build {
     "source.vsphere-iso.this"
   ]
 
+  provisioner "shell" {
+    execute_command   = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+    environment_vars  = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "SSH_USERNAME=${var.ssh_username}",
+    ]
+    inline = [
+      "sudo apt update && sudo apt install make"
+    ]
+  }
+
+  provisioner "shell" {
+    environment_vars  = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "SSH_USERNAME=${var.ssh_username}",
+    ]
+    inline = [
+      "mkdir /home/${var.ssh_username}/appliance"
+    ]
+  }
+
   provisioner "file" {
     destination = "/home/${var.ssh_username}/appliance"
     sources = [
-      "./scripts",
+      "./",
     ]
   }
 
@@ -86,9 +107,9 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "SSH_USERNAME=${var.ssh_username}",
     ]
-    scripts            = [
-      "./scripts/01-expand-volume.sh",
-      "./scripts/02-deps.sh",
+    inline            = [
+      "cd /home/$SSH_USERNAME/appliance",
+      "make init"
     ]
   }
 
