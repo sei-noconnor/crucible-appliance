@@ -20,15 +20,15 @@ echo "Current directory: ${SCRIPTS_DIR}"  # Additional feedback
 kubectl config set-context --current --namespace argocd
 
 echo "Deleting APP[http-echo]"
-kubectl delete -f $APPS_DIR/http-echo/Application.yaml
+kubectl delete --wait -f $APPS_DIR/http-echo/Application.yaml
 # argocd --core app delete http-echo -y --wait 
 
 echo "Deleting APP[postgres]"
-kubectl delete -f $APPS_DIR/postgres/Application.yaml
+kubectl delete --wait -f $APPS_DIR/postgres/Application.yaml
 # argocd --core app delete postgres -y --wait 
 
 echo "Deleting APP[nginx]"
-kubectl delete -f $APPS_DIR/nginx/Application.yaml
+kubectl delete --wait  -f $APPS_DIR/nginx/Application.yaml
 # argocd --core app delete nginx -y --wait 
 
 echo "Deleting existing Argo CD installation..."
