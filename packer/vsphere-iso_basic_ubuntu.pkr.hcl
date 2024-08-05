@@ -46,7 +46,7 @@ source "vsphere-iso" "this" {
   disk_controller_type = ["pvscsi"]
   datastore            = var.datastore
   storage {
-    disk_size             = 8192
+    disk_size             = 15366
     disk_thin_provisioned = true
   }
 
