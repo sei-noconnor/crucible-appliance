@@ -58,6 +58,11 @@ kubectl exec $POD -- bash -c "cd /tmp/apps && \
 echo "Sleeping..."
 kubectl apply -f $APPS_DIR/nginx/kustomize/overlays/appliance/Application.yaml
 kubectl apply -f $APPS_DIR/http-echo/kustomize/overlays/appliance/Application.yaml
+kubectl apply -f $APPS_DIR/postgres/kustomize/overlays/appliance/Application.yaml
+
+time=10
+echo "Sleeping $time seconds to wait for apps to sync"
+sleep $time
 
 echo "waiting for all apps to become available"
 kubectl wait deployment \
@@ -65,9 +70,19 @@ kubectl wait deployment \
 --for=condition=Available \
 --namespace=argocd \
 --timeout=5m
-
-echo "Sleeping 30 seconds to ensure all apps are updated"
-sleep 30
+kubectl wait pods \
+appliance-postgresql-0 \
+--for=condition=Ready \
+--namespace=postgres \
+--timeout=5m
+kubectl wait deployment \
+--all \
+--for=condition=Available \
+--namespace=default \
+--timeout=5m
+time=10
+echo "Sleeping $time seconds to ensure all apps are updated"
+sleep $time
 
 
 

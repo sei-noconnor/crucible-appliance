@@ -20,6 +20,9 @@ echo "Current directory: ${SCRIPTS_DIR}"  # Additional feedback
 echo "Deleting APP[http-echo]"
 argocd --core app delete http-echo -y --wait 
 
+echo "Deleting APP[postgres]"
+argocd --core app delete postgres -y --wait 
+
 echo "Deleting APP[nginx]"
 argocd --core app delete nginx -y --wait 
 
