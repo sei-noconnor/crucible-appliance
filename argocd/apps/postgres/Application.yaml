@@ -18,7 +18,7 @@ spec:
   source:
     path: postgres/kustomize/overlays/appliance
     repoURL: file:///tmp/apps
-    targetRevision: master
+    targetRevision: HEAD
     kustomize:
       commonLabels:
         foo: bar
