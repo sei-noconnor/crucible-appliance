@@ -8,6 +8,7 @@ helmCharts:
   repo: https://charts.bitnami.com/bitnami
   releaseName: appliance
   valuesFile: files/keycloak.values.yaml
+  valuesMerge: merge
 resources: 
 - namespace.yaml
 
