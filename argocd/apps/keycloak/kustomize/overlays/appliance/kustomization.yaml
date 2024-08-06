@@ -1,58 +1,33 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-### Secrets ###
-secretGenerator:
-  - name: dod-certs
-    files:
-    - ca.crt=files/issuers-dod-certs.crt
-    namespace: ingress-nginx
-  - name: keycloak-truststore
-    files:
-    - truststore.jks=files/truststore.jks
-  
-### ConfigMap ###  
-configMapGenerator:
-  - name: keycloak-import
-    files:
-      - realm.json=files/crucible.json
-      - customreg.yaml=files/crucible.yaml
-
-generatorOptions:
-  disableNameSuffixHash: true
-
 resources:
 - ../../base
 
-labels:
-- pairs:
-    config: keycloak
-  includeSelectors: true
-
-patches:
-- patch: |-
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-import
-      namespace: keycloak
-    type: Opaque
-    data:
-      quarkus.properties: |-
-        quarkus.http.non-application-root-path=/
-        # custom redirects
-        quarkus.kc-routing.path-redirect./=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/account
-        quarkus.kc-routing.path-redirect./${OAUTH_PROVIDER}=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/account
-        quarkus.kc-routing.path-redirect./${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/account/admin=/${OAUTH_PROVIDER}/admin/crucible/console
-        quarkus.kc-routing.path-redirect./${OAUTH_PROVIDER}/register=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/protocol/openid-connect/registrations?client_id=account&response_type=code
-        quarkus.kc-routing.path-prefix./oauth/authorize=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/protocol/openid-connect/auth
-        quarkus.kc-routing.path-filter./api/v4/user=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/protocol/openid-connect/userinfo
-        quarkus.kc-routing.path-filter./oauth/token=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/protocol/openid-connect/token
-        # block metrics and health enpoints from being exposed through the istio ingress
-        quarkus.kc-routing.path-recursive-block./${OAUTH_PROVIDER}/metrics=8443
-        quarkus.kc-routing.path-recursive-block./${OAUTH_PROVIDER}/health=8443
-  target: 
-    kind: Secret
-    name: keycloak-import
-    namespace: keycloak
-    labelSelector: "config=keycloak"
+# patches:
+# - patch: |-
+#     apiVersion: v1
+#     kind: Secret
+#     metadata:
+#       name: keycloak-import
+#       namespace: keycloak
+#     type: Opaque
+#     data:
+#       quarkus.properties: |-
+#         quarkus.http.non-application-root-path=/
+#         # custom redirects
+#         quarkus.kc-routing.path-redirect./=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/account
+#         quarkus.kc-routing.path-redirect./${OAUTH_PROVIDER}=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/account
+#         quarkus.kc-routing.path-redirect./${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/account/admin=/${OAUTH_PROVIDER}/admin/crucible/console
+#         quarkus.kc-routing.path-redirect./${OAUTH_PROVIDER}/register=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/protocol/openid-connect/registrations?client_id=account&response_type=code
+#         quarkus.kc-routing.path-prefix./oauth/authorize=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/protocol/openid-connect/auth
+#         quarkus.kc-routing.path-filter./api/v4/user=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/protocol/openid-connect/userinfo
+#         quarkus.kc-routing.path-filter./oauth/token=/${OAUTH_PROVIDER}/${OAUTH_AUTHORITY_URL}/protocol/openid-connect/token
+#         # block metrics and health enpoints from being exposed through the istio ingress
+#         quarkus.kc-routing.path-recursive-block./${OAUTH_PROVIDER}/metrics=8443
+#         quarkus.kc-routing.path-recursive-block./${OAUTH_PROVIDER}/health=8443
+#   target: 
+#     kind: Secret
+#     name: keycloak-import
+#     namespace: keycloak
+#     labelSelector: "config=keycloak"
