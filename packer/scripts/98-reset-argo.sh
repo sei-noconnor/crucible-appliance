@@ -31,6 +31,11 @@ echo "Deleting APP[cert-manager]"
 kubectl delete --wait -f $APPS_DIR/cert-manager/Application.yaml
 # argocd --core app delete cert-manager -y --wait 
 
+echo "Deleting APP[keycloak]"
+kubectl delete --wait -f $APPS_DIR/keycloak/Application.yaml
+# argocd --core app delete keycloak -y --wait 
+
+
 echo "Deleting APP[postgres]"
 kubectl delete --wait -f $APPS_DIR/postgres/Application.yaml
 # argocd --core app delete postgres -y --wait 
