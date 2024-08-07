@@ -7,6 +7,6 @@ helmCharts:
   version: 12.8.0
   repo: https://charts.bitnami.com/bitnami
   releaseName: appliance
-  valuesFile: files/postgresql.values.yaml
+  valuesFile: files/postgres.values.yaml
 resources: 
 - namespace.yaml

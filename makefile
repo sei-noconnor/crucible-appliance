@@ -14,7 +14,7 @@ generate_certs:
 	./scripts/k3s-ca-gen.sh
 	./scripts/distribute_certs.sh $(SSL_DIR)/server/tls/
 	
-init:
+init: generate_certs
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME=ubuntu sudo -E -S bash ./packer/scripts/02-deps.sh && \
 	bash ./packer/scripts/03-init-argo.sh
