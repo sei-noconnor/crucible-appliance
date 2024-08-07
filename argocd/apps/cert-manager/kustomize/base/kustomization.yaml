@@ -9,16 +9,10 @@ secretGenerator:
     type: "kubernetes.io/tls"
 generatorOptions:
   disableNameSuffixHash: true
-helmCharts:
-- name: cert-manager
-  includeCRDs: true
-  version: v1.15.2
-  repo: https://charts.jetstack.io
-  releaseName: appliance
-  valuesFile: "files/cert-manager.values.yaml"
 resources: 
 - namespace.yaml
 - ClusterIssuer.yaml
+
 
 
 

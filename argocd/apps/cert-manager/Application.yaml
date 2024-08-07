@@ -15,8 +15,13 @@ spec:
       prune: true
     syncOptions:
     - CreateNamespace=true
-  source:
-    path: cert-manager/kustomize/overlays/appliance
+  sources:
+  - path: cert-manager/manifests
+    repoURL: file:///tmp/apps
+    targetRevision: HEAD
+    directory:
+      recurse: true
+  - path: cert-manager/kustomize/overlays/appliance
     repoURL: file:///tmp/apps
     targetRevision: HEAD
     kustomize:
