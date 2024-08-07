@@ -40,6 +40,7 @@ terraform.rc
 **/*.zip
 **/tools
 .vscode
+.skratch
 **/dist
 **/cache
 **/*/ssl

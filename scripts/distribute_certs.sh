@@ -16,5 +16,7 @@ fi
 
 for i in "${dst_dirs[@]}"; do
     echo "copying certificates to $i"
-    cp -R $src_dir $i
+    cat $src_dir/intermediate-ca.pem $src_dir/root-ca.pem > $src_dir/root-chain.pem
+    cp -R $src_dir/{root*,intermediate*} $i
+    
 done

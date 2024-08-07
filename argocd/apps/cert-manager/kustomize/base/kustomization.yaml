@@ -4,8 +4,8 @@ namespace: cert-manager
 secretGenerator:
   - name: root-ca
     files: 
-    - tls.crt=$(cat files/intermediate-ca.crt files/root-ca.crt)
-    - tls.key=files/root-ca.key
+    - tls.crt=files/root-chain.pem
+    - tls.key=files/intermediate-ca.key
     type: "kubernetes.io/tls"
 generatorOptions:
   disableNameSuffixHash: true
@@ -15,10 +15,7 @@ helmCharts:
   version: v1.15.2
   repo: https://charts.jetstack.io
   releaseName: appliance
-  valuesInline:
-    installCRDs: true
-    cainjector:
-      enabled: true
+  valuesFile: "files/cert-manager.values.yaml"
 resources: 
 - namespace.yaml
 - ClusterIssuer.yaml
