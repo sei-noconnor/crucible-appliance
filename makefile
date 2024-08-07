@@ -2,11 +2,18 @@
 SHELL := /bin/bash
 DOMAIN ?= crucible.dev
 ADMIN_PASS ?= ubuntu
-
+SSL_DIR ?= dist/ssl
+APPS_DIR ?= argocd/apps
+ENVIRONMENT ?= DEV
+export SSL_DIR
+export APPS_DIR
+export ADMIN_PASS
 
 generate_certs:
-	./scripts/generate_certs.sh	${DOMAIN} -loglevel 3
-
+	./scripts/generate_root_ca.sh
+	./scripts/k3s-ca-gen.sh
+	./scripts/distribute_certs.sh $(SSL_DIR)
+	
 init:
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME=ubuntu sudo -E -S bash ./packer/scripts/02-deps.sh && \
