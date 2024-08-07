@@ -44,4 +44,8 @@ terraform.rc
 **/dist
 **/cache
 **/*/ssl
+**/*/charts
+**/*/*.pem
+**/*/*.crt
+**/*/*.key
 
