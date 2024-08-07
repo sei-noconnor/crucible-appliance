@@ -91,7 +91,7 @@ build {
     ]
     inline = [
       "mkdir /home/${var.ssh_username}/appliance",
-      'grep -qxF "ENVIRONMENT=APPLIANCE" "/etc/environment" || echo "ENVIRONMENT=APPLIANCE" >> "/etc/environment"'
+      "grep -qxF 'ENVIRONMENT=APPLIANCE' '/etc/environment' || echo 'ENVIRONMENT=APPLIANCE' >> '/etc/environment'"
     ]
   }
 
