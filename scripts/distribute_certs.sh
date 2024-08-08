@@ -1,13 +1,16 @@
 #!/bin/bash 
 # Check if an image list file is provided
 if [[ $# -eq 0 ]]; then
+
     echo "Usage: $0 <src_dir>"
     exit 1
 fi
 k3s_cert_dir=/var/lib/rancher/k3s
-src_dir=$1
+src_dir=$(realpath $1)
+echo "Full PATH is $src_dir"
+script_dir=$(dirname "$0")
 shift
-dst_dirs=('argocd/apps/cert-manager/kustomize/base/files')
+dst_dirs=$(realpath "$script_dir/../argocd/apps/cert-manager/kustomize/base/files")
 
 if [ $ENVIRONMENT == APPLIANCE ]; then 
     echo "Script Run on Appliance, copying"
@@ -21,9 +24,9 @@ fi
 
 for dir in "${dst_dirs[@]}"; do
     if [ ! -d $dir ]; then 
-        mkdir -p $i
+        mkdir -p $dir
     fi 
-    echo "copying certificates to $i"
+    echo "copying certificates to $dir"
     cat $src_dir/intermediate-ca.pem $src_dir/root-ca.pem > $src_dir/root-chain.pem
-    cp -R $src_dir/{root*,intermediate*} $i
+    cp -R $src_dir/{root-*,intermediate-*} $dir
 done
