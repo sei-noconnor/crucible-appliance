@@ -17,7 +17,7 @@ generate_certs:
 init: generate_certs
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME=ubuntu sudo -E -S bash ./packer/scripts/02-deps.sh && \
-	bash ./packer/scripts/03-init-argo.sh
+	./packer/scripts/03-init-argo.sh
 
 argo: 
 	bash ./packer/scripts/03-init-argo.sh
@@ -25,12 +25,12 @@ argo:
 build:
 	rm -rf ./packer/output && \
 	rm -rf ./output && \
-	./packer/scripts/04-update-vars.sh
-	packer init ./packer && \ 
+	./packer/scripts/04-update-vars.sh ./appliance.yaml
+	packer init ./packer
 	packer build -force -on-error=abort ./packer
 
 reset:
-	bash ./packer/scripts/98-reset-argo.sh
+	./packer/scripts/98-reset-argo.sh
 
 clean:
 	rm -rf ./dist && \
