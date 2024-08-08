@@ -105,7 +105,7 @@ auth:
   adminUser: admin
   ## @param auth.adminPassword Keycloak administrator password for the new user
   ##
-  adminPassword: "${ADMIN_PASS}"
+  adminPassword: "postgres"
   ## @param auth.existingSecret Existing secret containing Keycloak admin password
   ##
   existingSecret: ""
@@ -264,7 +264,7 @@ args: []
 #   - name: KC_DB_URL_DATABASE
 #     value: "keycloak"
 #   - name: KC_HOSTNAME
-#     value: ${DOMAIN}
+#     value: crucible.dev
 #   - name: KC_HOSTNAME_STRICT
 #     value: "false"
 #   - name: KC_HOSTNAME_STRICT_HTTPS
@@ -286,7 +286,7 @@ args: []
   # - name: KC_METRICS_ENABLED
   #   value: "true"
   # - name: DOMAIN
-  #   value: ${DOMAIN}"
+  #   value: crucible.dev"
   # - name: KC_HTTPS_TRUST_STORE_FILE
   #   value: /opt/bitnami/keycloak/spi-certs/truststore.jks
   # - name: KC_HTTPS_TRUST_STORE_PASSWORD
@@ -650,7 +650,7 @@ ingress:
   ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
   ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
   ##
-  ingressClassName: ""
+  ingressClassName: "nginx"
   ## @param ingress.pathType Ingress path type
   ##
   pathType: Prefix
@@ -659,7 +659,7 @@ ingress:
   apiVersion: ""
   ## @param ingress.hostname Default host for the ingress record (evaluated as template)
   ##
-  hostname: ${DOMAIN}
+  hostname: crucible.dev
   ## @param ingress.path Default path for the ingress record
   ##
   path: "/(keycloak)(/|$)(.*)"
@@ -682,6 +682,9 @@ ingress:
     nginx.ingress.kubernetes.io/auth-tls-verify-client: "optional"
     nginx.ingress.kubernetes.io/auth-tls-secret: "ingress-nginx/dod-certs"
     nginx.ingress.kubernetes.io/auth-tls-verify-depth: "2"
+    cert-manager.io/cluster-issuer: ca-issuer
+    
+
     ###### NGINX    #######
     # nginx.ingress.kubernetes.io/configuration-snippet: |
     #   proxy_set_header ssl-client-cert $ssl_client_escaped_cert;
@@ -1162,11 +1165,11 @@ postgresql:
 ## @param externalDatabase.existingSecretPasswordKey Name of an existing secret key containing the database credentials
 ##
 externalDatabase:
-  host: "${POSTGRES_SERVER}"
+  host: "appliance-postgresql.postgres.svc.cluster.local"
   port: 5432
-  user: "${POSTGRES_USER}"
+  user: "postgres"
   database: keycloak
-  password: "${POSTGRES_PASS}"
+  password: "postgres"
   existingSecret: ""
   existingSecretPasswordKey: ""
 

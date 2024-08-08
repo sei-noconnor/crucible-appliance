@@ -16,9 +16,9 @@ spec:
     syncOptions:
     - CreateNamespace=true
   source:
-    path: argocd/apps/keycloak/kustomize/overlays/appliance
-    repoURL: https://github.com/NicCOConnor/crucible-appliance-argo.git
-    targetRevision: keycloak
+    path: keycloak/kustomize/overlays/appliance
+    repoURL: file:///tmp/apps
+    targetRevision: HEAD
     kustomize:
       commonLabels:
         foo: bar

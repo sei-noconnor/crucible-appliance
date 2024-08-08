@@ -22,10 +22,15 @@ secretGenerator:
   files:
   - ca.crt=files/issuers-dod-certs.crt
   namespace: ingress-nginx
+
 - name: keycloak-truststore
   files:
   - truststore.jks=files/truststore.jks
+
 - name: keycloak-import
+  files:
+  - files/quarkus.properties
+
 
 configMapGenerator:
   - name: keycloak-import
