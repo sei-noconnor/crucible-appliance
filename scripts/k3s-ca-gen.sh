@@ -27,7 +27,7 @@ umask 027
 TIMESTAMP=$(date +%s)
 PRODUCT="${PRODUCT:-k3s}"
 SSL_DIR="${SSL_DIR:-/var/lib/rancher/${PRODUCT}}"
-
+SSL_DIR=$(realpath "$SSL_DIR")
 if type -t openssl-3 &>/dev/null; then
   OPENSSL=openssl-3
 else
@@ -152,7 +152,7 @@ done
 echo
 echo "CA certificate generation complete. Required files are now present in: ${SSL_DIR}/server/tls"
 echo "For security purposes, you should make a secure copy of the following files and remove them from cluster members:"
-ls ${SSL_DIR}/server/tls/root-ca.* ${SSL_DIR}/server/tls/intermediate-ca.* | xargs -n1 echo -e "\t"
+echo "$ADMIN_PASS" | sudo -S -E bash -c "ls ${SSL_DIR}/server/tls/root-ca.* ${SSL_DIR}/server/tls/intermediate-ca.* | xargs -n1 echo -e '\t'"
 
 if [ "${SSL_DIR}" != "/var/lib/rancher/${PRODUCT}" ]; then
   echo
