@@ -24,8 +24,10 @@ argo:
 
 build:
 	rm -rf ./packer/output && \
-	rm -rf ./output	
-	bash ./packer/scripts/00-build-appliance.sh
+	rm -rf ./output && \
+	./packer/scripts/04-update-vars.sh
+	packer init ./packer && \ 
+	packer build -force -on-error=abort ./packer
 
 reset:
 	./packer/scripts/98-reset-argo.sh
