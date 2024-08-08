@@ -1,0 +1,57 @@
+redis-cluster:
+  enabled: false
+redis:
+  enabled: false
+postgresql:
+  enabled: false
+postgresql-ha:
+  enabled: false
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    cert-manager.io/cluster-issuer: ca-issuer
+    kubernetes.io/ingress.class: "nginx"
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: crucible.dev
+      paths:
+        - path: "/gitea(/|$)(.*)"
+          pathType: Prefix
+  tls:
+    - secretName: gitea-tls
+      hosts:
+        - crucible.dev
+
+persistence:
+  enabled: true
+
+gitea:
+  admin:
+    username: administrator
+    password: postgres
+    email: "administrator@crucible.dev"
+  config:
+    APP_NAME: Crucible Gitea
+    server:
+      DOMAIN: https://crucible.dev/gitea/
+      ROOT_URL: https://crucible.dev/gitea/
+    database:
+      DB_TYPE: postgres
+      HOST: appliance-postgresql.postgres.svc.cluster.local:5432
+      NAME: gitea
+      USER: postgres
+      PASSWD: postgres
+      SCHEMA: public
+    indexer:
+      ISSUE_INDEXER_TYPE: bleve
+      REPO_INDEXER_ENABLED: true
+    cache:
+      enabled: false
+      adapter: memory
+
+    security:
+      PASSWORD_COMPLEXITY: "off"
+    repository:
+      DEFAULT_BRANCH: main

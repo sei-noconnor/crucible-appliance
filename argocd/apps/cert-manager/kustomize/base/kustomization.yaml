@@ -6,7 +6,6 @@ secretGenerator:
     files: 
     - tls.crt=files/root-chain.pem
     - tls.key=files/intermediate-ca.key
-    type: "kubernetes.io/tls"
 generatorOptions:
   disableNameSuffixHash: true
 resources: 
