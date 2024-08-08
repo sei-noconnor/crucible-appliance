@@ -25,8 +25,8 @@ argo:
 build:
 	rm -rf ./packer/output && \
 	rm -rf ./output && \
-	./packer/scripts/04-update-vars.sh
-	packer init ./packer && \ 
+	./packer/scripts/04-update-vars.sh ./appliance.yaml
+	packer init ./packer
 	packer build -force -on-error=abort ./packer
 
 reset:
