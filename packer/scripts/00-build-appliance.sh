@@ -15,4 +15,5 @@ else
     BUILD_VERSION="custom-$(date '+%Y%m%d')"
 fi
 packer init ./packer
-packer build -var "appliance_version=$BUILD_VERSION" $@ ./packer
+echo "Setting VM Name to crucible-appliance-$BUILD_VERSION"
+packer build -var "appliance_version=$BUILD_VERSION" -var-file vars.auto.pkrvars.hcl $@ ./packer
