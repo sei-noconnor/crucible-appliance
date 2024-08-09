@@ -1196,5 +1196,5 @@ cache:
 ##
 logging:
   output: default
-  level: DEBUG
+  level: ERROR
 
