@@ -7,6 +7,7 @@ helmCharts:
   version: v4.11.1
   repo: https://kubernetes.github.io/ingress-nginx
   releaseName: appliance
+  valuesFile: files/nginx.values.yaml
 resources: 
 - namespace.yaml
 
