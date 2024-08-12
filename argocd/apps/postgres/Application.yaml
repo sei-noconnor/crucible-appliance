@@ -16,8 +16,8 @@ spec:
     syncOptions:
     - CreateNamespace=true
   source:
-    path: postgres/kustomize/overlays/appliance
-    repoURL: file:///tmp/apps
+    path: apps/postgres/kustomize/overlays/appliance
+    repoURL: file:///tmp/argo
     targetRevision: HEAD
     kustomize:
       commonLabels:
