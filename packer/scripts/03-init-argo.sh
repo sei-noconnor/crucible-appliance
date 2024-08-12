@@ -50,9 +50,9 @@ kubectl wait deployment \
 --timeout=5m
 
 kubectl config set-context --current --namespace=argocd
-argocd login --core
-echo "sleeping ..2"
-sleep 2
+
+echo "Uploading Initial Repo"
+
 POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
 kubectl exec $POD -- bash -c "rm -rf /tmp/argo"
 kubectl exec $POD -- bash -c "mkdir -p /tmp/argo"
@@ -63,8 +63,6 @@ kubectl exec $POD -- bash -c "cd /tmp/argo && \
   git add --all && \
   git -c user.name='Admin' -c user.email='admin@crucible.dev' commit -m 'Initial Commit'"
 
-echo "Sleeping..."
-
 kubectl apply -f $APPS_DIR/Application.yaml
 # kubectl apply -f $APPS_DIR/cert-manager/Application.yaml
 # kubectl apply -f $APPS_DIR/nginx/Application.yaml
@@ -73,41 +71,14 @@ kubectl apply -f $APPS_DIR/Application.yaml
 # kubectl apply -f $APPS_DIR/gitea/Application.yaml
 # kubectl apply -f $APPS_DIR/keycloak/Application.yaml
 
-time=10
+time=60
 echo "Sleeping $time seconds to wait for apps to sync"
 sleep $time
 
-echo "waiting for all apps to become available"
+# wait for postgres
+echo "Waiting for ALL deployments 'Status: Avaialble' This may cause a timeout."
 kubectl wait deployment \
 --all \
 --for=condition=Available \
---namespace=argocd \
+--all-namespace=true \
 --timeout=5m
-kubectl wait pods \
-appliance-postgresql-0 \
---for=condition=Ready \
---namespace=postgres \
---timeout=5m
-kubectl wait deployment \
---all \
---for=condition=Available \
---namespace=default \
---timeout=5m
-time=10
-echo "Sleeping $time seconds to ensure all apps are updated"
-sleep $time
-
-
-
-
-# argocd app create nginx \
-#    --repo "file:///tmp/apps" \
-#    --path nginx/kustomize/overlays/appliance \ 
-#    --dest-namespace argocd \
-#    --dest-server https://kubernetes.default.svc
-
-# argocd app create http-echo \
-#    --repo "file:///tmp/apps" \
-#    --path http-echo/kustomize/overlays/appliance \
-#    --dest-namespace argocd \
-#    --dest-server https://kubernetes.default.svc
