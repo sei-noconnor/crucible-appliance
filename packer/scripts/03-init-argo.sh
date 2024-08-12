@@ -80,5 +80,5 @@ echo "Waiting for ALL deployments 'Status: Avaialble' This may cause a timeout."
 kubectl wait deployment \
 --all \
 --for=condition=Available \
---all-namespace=true \
+--all-namespaces=true \
 --timeout=5m
