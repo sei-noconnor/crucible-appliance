@@ -17,7 +17,7 @@ crds:
 global:
   # -- Default domain used by all components
   ## Used for ingresses, certificates, SSO, notifications, etc.
-  domain: crucible.dev
+  domain: crucible.local
 
   # -- Common labels for the all resources
   additionalLabels: {}
