@@ -680,7 +680,7 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /$1$2$3
     nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
     nginx.ingress.kubernetes.io/auth-tls-verify-client: "optional"
-    nginx.ingress.kubernetes.io/auth-tls-secret: "ingress-nginx/dod-certs"
+    nginx.ingress.kubernetes.io/auth-tls-secret: "keycloak/dod-certs"
     nginx.ingress.kubernetes.io/auth-tls-verify-depth: "2"
     cert-manager.io/cluster-issuer: ca-issuer
     
