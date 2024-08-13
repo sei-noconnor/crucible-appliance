@@ -26,7 +26,7 @@ build:
 	rm -rf ./packer/output && \
 	rm -rf ./output && \
 	./packer/scripts/04-update-vars.sh ./appliance.yaml
-	./packer/scripts/00-build-appliance.sh
+	./packer/scripts/00-build-appliance.sh -on-error=abort -force
 
 reset:
 	./packer/scripts/98-reset-argo.sh
@@ -41,7 +41,8 @@ clean-certs:
 	rm -rf ./argocd/apps/cert-manager/kustomize/base/files/{root-*,intermediate-*}
 
 snapshot:
-	./packer/scripts/05-snapshot-etcd.sh
+	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/05-snapshot-etcd.sh 
+	
 
 .PHONY: all clean clean-certs init build argo reset snapshot
 
