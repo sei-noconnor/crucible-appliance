@@ -4,6 +4,13 @@
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
 # project root or contact permission@sei.cmu.edu for full terms.
 #
+# Crucible Appliance 02-deps.sh
+
+echo "$APPLIANCE_VERSION" > /etc/appliance_version
+
+# Disable swap for Kubernetes
+swapoff -a
+sed -i -r 's/(\/swap\.img.*)/#\1/' /etc/fstab
 
 ###############
 #### VARS #####
@@ -18,13 +25,19 @@ EOF
 ######################
 ###### Update OS #####
 ######################
-sudo apt update -y && sudo NEEDRESTART_MODE=a apt-get dist-upgrade build-essentials --yes && sudo apt autoremove -y
+sudo apt update -y && sudo NEEDRESTART_MODE=a apt-get dist-upgrade --yes && sudo apt autoremove -y
+sudo apt install -y build-essentials dnsmasq avahi-daemon jq nfs-common sshpass postgresql-client make
+
+
+#########################
+###### Configure OS #####
+#########################
+
+
 
 ################################
 ##### Install Dependencies #####
 ################################
-# Install Apt Packages
-sudo apt install -y jq nfs-common postgresql-client make
 
 # Install yq
 sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
@@ -46,6 +59,7 @@ chmod go-r ~/.kube/config
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 rm kubectl
+
 # Install Helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod 700 get_helm.sh
@@ -58,11 +72,6 @@ sudo NEEDRESTART_MODE=a apt install --yes ./k9s_linux_amd64.deb
 #tar -xvzf k9s.tar.gz
 #sudo -s mv ./k9s /usr/local/bin/k9s
 rm k9s_linux_amd64.deb
-
-# Install CFSSL for certificate generation
-curl -sLo /usr/local/bin/cfssl https://github.com/cloudflare/cfssl/releases/download/v1.6.3/cfssl_1.6.3_linux_amd64
-curl -sLo /usr/local/bin/cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.6.3/cfssljson_1.6.3_linux_amd64
-chmod +x /usr/local/bin/cfssl*
 
 # Install argocd-cli
 VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION) 
@@ -88,3 +97,43 @@ brew install gcc
 # Increase inodes for asp.net applications
 echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~
+
+# Stop multipathd errors in syslog
+cat <<EOF >> /etc/multipath.conf
+blacklist {
+    devnode "sda$"
+}
+EOF
+systemctl restart multipathd
+
+# Add dnsmasq resolver and other required packages
+PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
+mkdir /etc/dnsmasq.d
+cat <<EOF > /etc/dnsmasq.d/crucible.conf
+bind-interfaces
+listen-address=10.0.1.1
+interface-name=crucible.local,$PRIMARY_INTERFACE
+EOF
+
+cat <<EOF > /etc/netplan/01-loopback.yaml
+# Add loopback address for pods to use dnsmasq as upstream resolver
+network:
+  version: 2
+  ethernets:
+    lo:
+      match:
+        name: lo
+      addresses:
+        - 127.0.0.1/8:
+            label: lo
+        - 10.0.1.1/32:
+            label: lo:host-access
+        - ::1/128
+EOF
+netplan apply
+
+# Restart mDNS daemon to avoid conflict with other hosts
+systemctl restart avahi-daemon
+
+# Delete Ubuntu machine ID for proper DHCP operation on deploy
+echo -n > /etc/machine-id

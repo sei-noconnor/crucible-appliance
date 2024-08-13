@@ -78,6 +78,7 @@ build {
     environment_vars  = [
       "DEBIAN_FRONTEND=noninteractive",
       "SSH_USERNAME=${var.ssh_username}",
+      "APPLIANCE_VERSION=${var.appliance_version}
     ]
     inline = [
       "sudo apt update && sudo apt install make",
