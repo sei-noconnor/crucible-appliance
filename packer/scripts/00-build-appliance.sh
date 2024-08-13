@@ -1,4 +1,23 @@
-#!/bin/bash -x
+#!/bin/bash
+# Change to the current directory and inform the user
+echo "Changing to script directory..."
+DIR=$(dirname "${BASH_SOURCE[0]}")
+echo "MAKEFILE_DIR: $PWD"
+echo "changing directory to: $DIR"
+# Detect Mac and use greadlink
+readlink_cmd="readlink -m"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  readlink_cmd="greadlink -m"  
+fi
+
+cd "$DIR" || exit  # Handle potential errors with directory change
+SCRIPTS_DIR="${PWD}"
+
+# set all config dirs to absolute paths
+PACKER_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../)"
+
+echo "PACKER_DIR: ${PACKER_DIR}"
+
 if git rev-parse --git-dir > /dev/null 2>&1; then
     VERSION_TAG=$(git tag --points-at HEAD)
     GIT_BRANCH=$(git branch --show-current)
@@ -14,6 +33,7 @@ elif [ -n "$GIT_HASH" ]; then
 else
     BUILD_VERSION="custom-$(date '+%Y%m%d')"
 fi
+cd $PACKER_DIR/../
 packer init ./packer
 echo "Setting VM Name to crucible-appliance-$BUILD_VERSION"
-packer build -var "appliance_version=$BUILD_VERSION" -var-file vars.auto.pkrvars.hcl $@ ./packer
+packer build -var "appliance_version=$BUILD_VERSION" -var-file "./packer/vars.auto.pkrvars.hcl" $@ ./packer

@@ -8,7 +8,6 @@
 ###############
 #### VARS #####
 ###############
-PACKER_DIR="/Users/noconnor/source/crucible/Crucible.Appliance.Argo/packer"
 APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 MIRRORS=$(cat <<EOF
 mirrors:
@@ -88,3 +87,4 @@ brew install gcc
 ########################
 # Increase inodes for asp.net applications
 echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~
