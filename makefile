@@ -40,6 +40,9 @@ clean-certs:
 	rm -rf ./dist/ssl
 	rm -rf ./argocd/apps/cert-manager/kustomize/base/files/{root-*,intermediate-*}
 
-.PHONY: all clean clean-certs init build argo reset
+snapshot:
+	./packer/scripts/05-snapshot-etcd.sh
+
+.PHONY: all clean clean-certs init build argo reset snapshot
 
 all: init
