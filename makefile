@@ -17,6 +17,7 @@ generate_certs:
 init: generate_certs
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME=ubuntu sudo -E -S bash ./packer/scripts/02-deps.sh
+	SSH_USERNAME=ubuntu ./packer/scripts/03-user-deps.sh
 	./packer/scripts/03-init-argo.sh
 
 deps:
