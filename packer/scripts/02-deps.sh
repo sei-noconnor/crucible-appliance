@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # Copyright 2022 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
@@ -25,15 +25,8 @@ EOF
 ######################
 ###### Update OS #####
 ######################
-sudo apt update -y && sudo NEEDRESTART_MODE=a apt-get dist-upgrade --yes && sudo apt autoremove -y
-sudo apt install -y build-essentials dnsmasq avahi-daemon jq nfs-common sshpass postgresql-client make
-
-
-#########################
-###### Configure OS #####
-#########################
-
-
+sudo apt update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt autoremove -y
+sudo apt install -y build-essential dnsmasq avahi-daemon jq nfs-common sshpass postgresql-client make
 
 ################################
 ##### Install Dependencies #####
@@ -51,7 +44,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i 's/default/crucible-appliance/g' ~/.kube/config
-sed -i "s/127.0.0.1/$APPLIANCE_IP/g" ~/.kube/config
+sed -i "s/127.0.0.1/$crucible.local/g" ~/.kube/config
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~/.kube
 chmod go-r ~/.kube/config
 
@@ -85,7 +78,7 @@ curl https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz -o dist/tools/go1.22.5
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf ./dist/tools/go1.22.5.linux-amd64.tar.gz
 
 # Install Brew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/ubuntu/.bashrc
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 brew install gcc
@@ -130,10 +123,39 @@ network:
             label: lo:host-access
         - ::1/128
 EOF
+chmod -R 600 /etc/netplan/
 netplan apply
 
 # Restart mDNS daemon to avoid conflict with other hosts
 systemctl restart avahi-daemon
 
-# Delete Ubuntu machine ID for proper DHCP operation on deploy
-echo -n > /etc/machine-id
+# Customize MOTD and other text for the appliance
+chmod -x /etc/update-motd.d/00-header
+chmod -x /etc/update-motd.d/10-help-text
+sed -i -r 's/(ENABLED=)1/\0/' /etc/default/motd-news
+echo "Current Directory is: $PWD"
+cp ./packer/scripts/display-banner /etc/update-motd.d/05-display-banner
+# Will need later when we install mkdocs #remove
+# sed -i "s/{version}/$APPLIANCE_VERSION/" ~/mkdocs/docs/index.md
+echo -e "Crucible Appliance $APPLIANCE_VERSION \\\n \l \n" >> /etc/issue
+
+# Create systemd service to configure netplan primary interface
+cp ./packer/scripts/configure-nic /usr/local/bin
+cat <<EOF > /etc/systemd/system/configure-nic.service
+[Unit]
+Description=Configure Netplan primary Ethernet interface
+After=network.target
+Before=k3s.service
+
+[Service]
+Type=oneshot
+ExecStart=configure-nic
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable configure-nic
+
+# # Delete Ubuntu machine ID for proper DHCP operation on deploy
+# # echo -n > /etc/machine-id
