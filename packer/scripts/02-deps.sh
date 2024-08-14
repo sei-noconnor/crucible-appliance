@@ -44,7 +44,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i 's/default/crucible-appliance/g' ~/.kube/config
-sed -i "s/127.0.0.1/$crucible.local/g" ~/.kube/config
+sed -i "s/127.0.0.1/crucible.local/g" ~/.kube/config
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~/.kube
 chmod go-r ~/.kube/config
 
