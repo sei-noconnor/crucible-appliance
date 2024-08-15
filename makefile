@@ -19,19 +19,22 @@ sudo-deps: generate_certs
 	echo "${ADMIN_PASS}" | SSH_USERNAME=ubuntu sudo -E -S bash ./packer/scripts/02-deps.sh
 
 init: sudo-deps
-	SSH_USERNAME=ubuntu ./packer/scripts/03-user-deps.sh
+	SSH_USERNAME=ubuntu ./packer/scripts/04-user-deps.sh
 	./packer/scripts/03-init-argo.sh
 
 deps:
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/02-deps.sh
 
 argo: 
-	bash ./packer/scripts/03-init-argo.sh
+	bash ./packer/scripts/03-init-argo.
+	
+gitea:
+	bash ./packer/scripts/05-setup-gitea.sh
 
 build:
 	rm -rf ./packer/output && \
 	rm -rf ./output && \
-	./packer/scripts/04-update-vars.sh ./appliance.yaml
+	./packer/scripts/00-update-vars.sh ./appliance.yaml
 	./packer/scripts/00-build-appliance.sh -on-error=abort -force
 
 reset:
@@ -47,7 +50,7 @@ clean-certs:
 	rm -rf ./argocd/apps/cert-manager/kustomize/base/files/{root-*,intermediate-*}
 
 snapshot:
-	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/05-snapshot-etcd.sh 
+	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/06-snapshot-etcd.sh 
 
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/tmp.sh
