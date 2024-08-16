@@ -4,7 +4,7 @@ metadata:
   name: keycloak
   namespace: argocd
   finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: keycloak
@@ -17,6 +17,6 @@ spec:
     - CreateNamespace=true
   source:
     path: apps/keycloak/kustomize/overlays/appliance
-    repoURL: file:///tmp/argo
+    repoURL: file:///crucible-repo/crucible-appliance-argo
     targetRevision: HEAD
-    
+

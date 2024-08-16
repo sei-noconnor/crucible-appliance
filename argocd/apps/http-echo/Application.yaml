@@ -4,7 +4,7 @@ metadata:
   name: http-echo
   namespace: argocd
   finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: default
@@ -13,11 +13,11 @@ spec:
   syncPolicy:
     automated:
       prune: true
-    
+
   source:
     path: apps/http-echo/kustomize/overlays/appliance
-    repoURL: file:///tmp/argo
+    repoURL: file:///crucible-repo/crucible-appliance-argo
     targetRevision: HEAD
     kustomize:
       namePrefix: appliance-
-      
+

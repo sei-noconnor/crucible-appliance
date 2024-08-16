@@ -72,7 +72,7 @@ GIT_BRANCH=${GIT_BRANCH:-main}
 
 # Cluster git modifications
 # Replace Repo URL to cluster gitea
-find . -name "*.yaml" -exec sed -i 's/file:\/\/\/tmp\/argo/https:\/\/crucible.local\/gitea\/crucible\/crucible-appliance-argo.git/g' {} \;
+find . -name "*.yaml" -exec sed -i 's/file:\/\/\/crucible-repo\/crucible-appliance-argo/https:\/\/crucible.local\/gitea\/crucible\/crucible-appliance-argo.git/g' {} \;
 # Modify app path slightly
 find . -name "*.yaml" -exec sed -i 's/path: apps/path: argocd\/apps/g' {} \;
 # make sure argocd git reference is current branch
