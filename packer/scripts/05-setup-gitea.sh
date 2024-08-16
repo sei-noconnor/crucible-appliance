@@ -9,6 +9,9 @@ ADMIN_PASS=${ADMIN_PASS:-ubuntu}
 # CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
 CURL_OPTS=( --header "accept: application/json" --header "Content-Type: application/json" )
 KEY_NAME="crucible-appliance-argo-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 5 | head -n 1)"
+
+timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://crucible.local/gitea)" != "200" ]]; do sleep 5; done'
+sleep 5
 USER_TOKEN=$( curl "${CURL_OPTS[@]}" \
     --user administrator:$GITEA_ADMIN_PASSWORD \
     --request POST "https://crucible.local/gitea/api/v1/users/administrator/tokens" \
@@ -24,8 +27,6 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 # Set git user vars
 git config --global user.name "Crucible Administrator"
 git config --global user.email "administrator@crucible.local"
-
-timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://crucible.local/gitea)" != "200" ]]; do sleep 5; done' || false
 
 # Create Crucible-docs organization
 curl "${CURL_OPTS[@]}" \
@@ -66,7 +67,8 @@ EOF
 echo "$ADMIN_PASS" | sudo -S -E bash -c "rm -rf /tmp/crucible-appliance-argo"
 cp -R $REPO_DIR $REPO_DEST
 cd $REPO_DEST
-GIT_BRANCH=${$(git rev-parse --abbrev-ref HEAD):-main}
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+GIT_BRANCH=${GIT_BRANCH:-main}
 
 # Cluster git modifications
 # Replace Repo URL to cluster gitea
@@ -77,34 +79,39 @@ find . -name "*.yaml" -exec sed -i 's/path: apps/path: argocd\/apps/g' {} \;
 find . -name "*.yaml" -exec sed -i "s/HEAD/${GIT_BRANCH}/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> .gitignore
+# allow root-ca.key to be commited. This is bad, use a vault!
+echo "!**/*/root-ca.key" >> .gitignore
 
 git -C $REPO_DEST add -u 
 git -C $REPO_DEST add "**/*.pem"
+git -C $REPO_DEST add "**/*.key"
 git -C $REPO_DEST commit -m "update repo urls and add certificates"
 git -C $REPO_DEST remote remove appliance
 git -C $REPO_DEST remote add appliance https://administrator:$GITEA_ADMIN_PASSWORD@crucible.local/gitea/crucible/crucible-appliance-argo.git
 git -C $REPO_DEST push -u appliance --all -f
 
-echo "Creating argocd app to gitea source control on branch $GIT_BRANCH"
-kubectl apply -f argocd/install/argocd/Application.yaml
-# argocd --core app create argocd \
-#   --repo https://crucible.local/gitea/crucible/crucible-appliance-argo.git \
-#   --path argocd/install/argocd/kustomize/overlays/appliance \
-#   --ref "$GIT_BRANCH" \
-#   --dest-server https://kubernetes.default.svc \
-#   --sync-policy auto \
-#   --sync-option Prune=true
+echo "Creating argocd app to gitea source control on branch ${GIT_BRANCH}"
+# kubectl apply -f argocd/install/argocd/Application.yaml
+argocd --core app create argocd \
+  --repo https://crucible.local/gitea/crucible/crucible-appliance-argo.git \
+  --path argocd/install/argocd/kustomize/overlays/appliance \
+  --ref "${GIT_BRANCH}" \
+  --dest-server https://kubernetes.default.svc \
+  --sync-policy auto \
+  --upsert \
+  --sync-option Prune=true 
   
   
-echo "Updating argo app of apps to source control on branch $GIT_BRANCH"
-kubectl apply -f argocd/apps/Application.yaml
-# argocd --core app set apps \
-#   --source-position 1 \
-#   --repo https://crucible.local/gitea/crucible/crucible-appliance-argo.git \
-#   --path argocd/apps \
-#   --ref "$GIT_BRANCH" \
-#   --dest-server https://kubernetes.default.svc \
-#   --sync-policy auto \
-#   --sync-option Prune=true
+  
+# echo "Updating argo app of apps to source control on branch ${GIT_BRANCH:-main}"
+# kubectl apply -f argocd/apps/Application.yaml
+argocd --core app create apps \
+  --repo https://crucible.local/gitea/crucible/crucible-appliance-argo.git \
+  --path argocd/apps \
+  --ref "${GIT_BRANCH:-main}" \
+  --dest-server https://kubernetes.default.svc \
+  --sync-policy auto \
+  --sync-option Prune=true \
+  --upsert
   
 

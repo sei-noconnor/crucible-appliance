@@ -27,10 +27,10 @@ deps:
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/02-deps.sh
 
 argo: 
-	bash ./packer/scripts/03-init-argo.sh
+	./packer/scripts/03-init-argo.sh
 	
 gitea:
-	bash ./packer/scripts/05-setup-gitea.sh
+	./packer/scripts/05-setup-gitea.sh
 
 build:
 	rm -rf ./packer/output && \
