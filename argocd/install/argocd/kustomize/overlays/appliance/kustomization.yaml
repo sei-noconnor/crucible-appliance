@@ -70,7 +70,29 @@ patches:
                   mountPath: /etc/ssl/certs/crucible-root-ca.crt
                   subPath: crucible-root-ca.crt
 
-
+# Controller - Appliance Root CA
+# - patch: |-
+#     - op: add
+#       path: /spec/template/spec/containers/0/volumeMounts/-
+#       value: 
+#         - name: crucible-root-ca
+#           mountPath: /etc/ssl/certs/root-ca.crt
+#           subPath: crucible-root-ca.crt
+#   target:
+#     kind: Deployment
+#     labelSelector: "app.kubernetes.io/name=argocd-application-controller"
+  
+# - patch: |-
+#     - op: add
+#       path: /spec/template/spec/volumes/-
+#       value: 
+#         - name: crucible-root-ca
+#           secret:
+#             defaultMode: 420
+#             secretName: crucible-root-ca
+#   target:
+#     kind: Deployment
+#     labelSelector: "app.kubernetes.io/name=argocd-application-controller"
 
 #Repo - Appliance Root CA
   - patch: |-
@@ -88,6 +110,41 @@ patches:
       name: appliance-argocd-repo-server
       namespace: argocd
     
+
+# - patch: |-
+
+#   target:
+#     version: v1
+#     group: apps
+#     kind: deployment
+#     name: appliance-argocd-repo-server
+    
+  
+
+# # Application - Appliance Root CA
+# - patch: |-
+#     - op: add
+#       path: /spec/template/spec/containers/0/volumeMounts
+#       value: 
+#         - name: crucible-root-ca
+#           mountPath: /etc/ssl/certs/root-ca.crt
+#           subPath: root-ca.crt
+#   target:
+#     kind: Deployment
+#     labelSelector: "app.kubernetes.io/name=argocd-server"
+
+# - patch: |-
+#     - op: add
+#       path: /spec/template/spec/volumes
+#       value: 
+#         - name: crucible-root-ca
+#           secret:
+#             defaultMode: 420
+#             secretName: root-ca
+#   target:
+#     kind: Deployment
+#     labelSelector: "app.kubernetes.io/name=argocd-server"
+  
 secretGenerator:
   - name: crucible-root-ca
     files: 
