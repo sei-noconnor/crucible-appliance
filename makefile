@@ -21,6 +21,7 @@ sudo-deps: generate_certs
 init: sudo-deps
 	SSH_USERNAME=ubuntu ./packer/scripts/04-user-deps.sh
 	./packer/scripts/03-init-argo.sh
+	./packer/scripts/05-setup-gitea.sh
 
 deps:
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/02-deps.sh
