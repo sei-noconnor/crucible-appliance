@@ -19,8 +19,4 @@ spec:
     path: apps/nginx/kustomize/overlays/appliance
     repoURL: file:///tmp/argo
     targetRevision: HEAD
-    kustomize:
-      commonLabels:
-        foo: bar
-      
-      
+    

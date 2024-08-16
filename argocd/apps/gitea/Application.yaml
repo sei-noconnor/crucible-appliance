@@ -19,7 +19,4 @@ spec:
   - path: apps/gitea/kustomize/overlays/appliance
     repoURL: file:///tmp/argo
     targetRevision: HEAD
-    kustomize:
-      commonLabels:
-        foo: bar
-  
+    
