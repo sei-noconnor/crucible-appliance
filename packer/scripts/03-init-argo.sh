@@ -34,13 +34,42 @@ INSTALL_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../argocd/install)"
 DIST_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../dist)"
 APPS_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../argocd/apps/)"
 REPO_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../)"
+REPO_DEST="${$readlink_cmd /tmp/crucible-appliance-argo}"
 
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "INSTALL_DIR: ${INSTALL_DIR}"
 echo "REPO_DIR: ${REPO_DIR}"
 
 # Install ArgoCD
-kubectl kustomize $INSTALL_DIR/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+
+mkdir -p ${REPO_DEST}
+cp -R $REPO_DIR $REPO_DEST
+GIT_BRANCH=$(git -C $REPO_DIR rev-parse --abbrev-ref HEAD)
+cd $REPO_DEST
+find . -name "*.yaml" -exec sed -i "s/main/${GIT_BRANCH}/g" {} \;
+# allow root-ca.pem to be commited.
+echo "!**/*/root-ca.pem" >> .gitignore
+# allow root-ca.key to be commited. This is bad, use a vault!
+echo "!**/*/root-ca.key" >> .gitignore
+git -C $REPO_DEST add -u 
+git -C $REPO_DEST add "**/*.pem"
+git -C $REPO_DEST add "**/*.key"
+git -C $REPO_DEST -c user.name="Admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
+
+kubectl config set-context --current --namespace=argocd
+
+echo "Uploading Initial Repo"
+
+POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
+kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance-argo"
+# kubectl exec $POD -- bash -c "mkdir -p /crucible-repo/crucible-appliance-argo"
+kubectl cp "$REPO_DEST/" "$POD:/crucible-repo/"
+
+kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance-argo && \
+  git remote remove origin"
+  
+
+kubectl apply -f $REPO_DEST/argocd/install/argocd/Application.yaml
 time=2
 echo "Sleeping $time"
 sleep $time
@@ -50,30 +79,6 @@ kubectl wait deployment \
 --for=condition=Available \
 --namespace=argocd \
 --timeout=5m
-
-kubectl config set-context --current --namespace=argocd
-
-echo "Uploading Initial Repo"
-
-POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
-kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance-argo"
-# kubectl exec $POD -- bash -c "mkdir -p /crucible-repo/crucible-appliance-argo"
-kubectl cp "$REPO_DIR/" "$POD:/crucible-repo/"
-GIT_BRANCH=$(git -C $REPO_DIR rev-parse --abbrev-ref HEAD)
-kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance-argo && \
-  GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) && \
-  find . -name \"*.yaml\" -exec sed -i \"s/main/$GIT_BRANCH/g\" {} \; &&\
-  echo "!**/*/root-ca.pem" >> .gitignore && \
-  echo "!**/*/root-ca.key" >> .gitignore && \
-  git add -u && \
-  git add "**/*.pem" && \
-  git add "**/*.key" && \
-  GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) &&\
-  git -c user.name=\"Admin\" -c user.email=\"admin@crucible.local\" commit -m \"Appliance Init, it's your repo now!\" && \
-  git remote remove origin"
-  
-sed -i "s/main/$GIT_BRANCH/g" $APPS_DIR/Application.yaml
-kubectl apply -f $APPS_DIR/Application.yaml
 # kubectl apply -f $APPS_DIR/cert-manager/Application.yaml
 # kubectl apply -f $APPS_DIR/nginx/Application.yaml
 # kubectl apply -f $APPS_DIR/http-echo/Application.yaml
