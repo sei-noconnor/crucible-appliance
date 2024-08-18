@@ -18,9 +18,10 @@ argocd - continuous deployment
 | deps           | runs only the deps script for development                                                    |
 | argo           | runs only the argo script                                                                    |
 | build          | will build the appliance with packer and vpshere                                             |
+| offline-reset	| restores a snapshot, takes a prefix for snapshot name (default: "filename=*crucible-appliance*") |
 | reset          | resets the argo install                                                                      |
 | clean          | unsused - suppose to clean everythin including certificates                                  |
-| snapshot       | takes etcd snapshot of k3s state                                                             |
+| snapshot       | takes etcd snapshot of k3s state takes a prefix for snapshot name (default: "filename=crucible-appliance")                                                             |
 | tmp            | dev task for testing scripts                                                                 |
 
 ```

@@ -38,6 +38,11 @@ build:
 	./packer/scripts/00-update-vars.sh ./appliance.yaml
 	./packer/scripts/00-build-appliance.sh -on-error=abort -force
 
+offline-reset:
+	@echo "${ADMIN_PASS}" | sudo -S -E ./scripts/offline-reset.sh $(filter-out $@,$(MAKECMDGOALS))
+%:
+	@true
+
 reset:
 	./packer/scripts/98-reset-argo.sh
 
@@ -51,12 +56,14 @@ clean-certs:
 	rm -rf ./argocd/apps/cert-manager/kustomize/base/files/{root-*,intermediate-*}
 
 snapshot:
-	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/06-snapshot-etcd.sh 
+	@echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/06-snapshot-etcd.sh $(filter-out $@,$(MAKECMDGOALS))
+%:
+	@true
 
 tmp:
-	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/tmp.sh
+	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
 	
 
-.PHONY: all clean clean-certs init build argo reset snapshot
+.PHONY: all clean clean-certs init build argo offline-reset reset snapshot
 
 all: init
