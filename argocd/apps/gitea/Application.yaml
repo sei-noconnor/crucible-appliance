@@ -16,7 +16,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
   sources:
-  - path: apps/gitea/kustomize/overlays/appliance
+  - path: argocd/apps/gitea/kustomize/overlays/appliance
     repoURL: file:///crucible-repo/crucible-appliance-argo
-    targetRevision: HEAD
+    targetRevision: main
 

@@ -18,7 +18,7 @@ spec:
   sources:
   - path: argocd/install/argocd/kustomize/overlays/appliance
     repoURL: file:///crucible-repo/crucible-appliance-argo
-    targetRevision: HEAD
+    targetRevision: main
     kustomize:
       commonLabels:
         foo: bar

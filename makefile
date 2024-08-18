@@ -56,7 +56,7 @@ clean-certs:
 	rm -rf ./argocd/apps/cert-manager/kustomize/base/files/{root-*,intermediate-*}
 
 snapshot:
-	@echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/06-snapshot-etcd.sh $(filter-out $@,$(MAKECMDGOALS))
+	@echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/06-snapshot-etcd.sh $(filter-out $@,$(MAKECMDGOALS)) 
 %:
 	@true
 

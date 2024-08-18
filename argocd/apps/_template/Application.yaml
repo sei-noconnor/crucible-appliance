@@ -4,7 +4,7 @@ metadata:
   name: <name>
   namespace: <namespace>
   finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: <dst_namespace>
@@ -18,7 +18,7 @@ spec:
   sources:
   - path: <path>
     repoURL: file:///tmp/apps
-    targetRevision: HEAD
+    targetRevision: main
     directory:
       recurse: true
-  
+

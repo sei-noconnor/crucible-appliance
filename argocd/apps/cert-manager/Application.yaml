@@ -18,10 +18,10 @@ spec:
   sources:
   - path: apps/cert-manager/manifests
     repoURL: file:///crucible-repo/crucible-appliance-argo
-    targetRevision: HEAD
+    targetRevision: main
     directory:
       recurse: true
   - path: apps/cert-manager/kustomize/overlays/appliance
     repoURL: file:///crucible-repo/crucible-appliance-argo/
-    targetRevision: HEAD
+    targetRevision: main
 

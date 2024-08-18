@@ -76,7 +76,7 @@ find . -name "*.yaml" -exec sed -i 's/file:\/\/\/crucible-repo\/crucible-applian
 # Modify app path slightly
 find . -name "*.yaml" -exec sed -i 's/path: apps/path: argocd\/apps/g' {} \;
 # make sure argocd git reference is current branch
-find . -name "*.yaml" -exec sed -i "s/HEAD/${GIT_BRANCH}/g" {} \;
+find . -name "*.yaml" -exec sed -i "s/main/${GIT_BRANCH}/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> .gitignore
 # allow root-ca.key to be commited. This is bad, use a vault!

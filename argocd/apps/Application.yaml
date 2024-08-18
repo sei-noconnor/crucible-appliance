@@ -15,8 +15,8 @@ spec:
     syncOptions:
     - CreateNamespace=true
   sources:
-  - path: apps
+  - path: argocd/apps
     repoURL: file:///crucible-repo/crucible-appliance-argo
-    targetRevision: HEAD
+    targetRevision: configure-topomojo
 
 
