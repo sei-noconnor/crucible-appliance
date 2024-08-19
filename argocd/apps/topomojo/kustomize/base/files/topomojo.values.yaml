@@ -27,15 +27,15 @@ topomojo-api:
   podAnnotations: {}
 
   podSecurityContext: {}
-    # fsGroup: 2000
+  # fsGroup: 2000
 
   securityContext: {}
-    # capabilities:
-    #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
-    # runAsNonRoot: true
-    # runAsUser: 1000
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
 
   service:
     type: ClusterIP
@@ -43,22 +43,24 @@ topomojo-api:
 
   ingress:
     enabled: true
+    ingressClass: nginx
     annotations:
       cert-manager.io/cluster-issuer: ca-issuer
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
+      kubernetes.io/ingress.class: nginx
     hosts:
-      - host: crucible.local
-        paths:
-          - path: /topomojo/api
-            pathType: ImplementationSpecific
-          - path: /topomojo/hub
-            pathType: ImplementationSpecific
-          - path: /topomojo/docs
-            pathType: ImplementationSpecific
+    - host: crucible.local
+      paths:
+      - path: /topomojo/api
+        pathType: ImplementationSpecific
+      - path: /topomojo/hub
+        pathType: ImplementationSpecific
+      - path: /topomojo/docs
+        pathType: ImplementationSpecific
     tls:
-      - secretName: topomojo-tls
-        hosts:
-          - crucible.local
+    - secretName: topomojo-tls
+      hosts:
+      - crucible.local
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
@@ -68,16 +70,16 @@ topomojo-api:
     class: ""
 
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 200m
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 256Mi
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 200m
+  #   memory: 512Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
 
   autoscaling:
     enabled: false
@@ -185,15 +187,15 @@ topomojo-ui:
   podAnnotations: {}
 
   podSecurityContext: {}
-    # fsGroup: 2000
+  # fsGroup: 2000
 
   securityContext: {}
-    # capabilities:
-    #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
-    # runAsNonRoot: true
-    # runAsUser: 1000
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
 
   service:
     type: ClusterIP
@@ -202,29 +204,31 @@ topomojo-ui:
   ingress:
     enabled: true
     annotations:
+      cert-manager.io/cluster-issuer: ca-issuer
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
+      kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
-      - host: crucible.local
-        paths:
-          - path: /topomojo
-            pathType: ImplementationSpecific
+    - host: crucible.local
+      paths:
+      - path: /topomojo
+        pathType: ImplementationSpecific
     tls:
-      - secretName: appliance-cert
-        hosts:
-          - crucible.local
+    - secretName: appliance-cert
+      hosts:
+      - crucible.local
 
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 20m
-    #   memory: 20Mi
-    # requests:
-    #   cpu: 20m
-    #   memory: 20Mi
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 20m
+  #   memory: 20Mi
+  # requests:
+  #   cpu: 20m
+  #   memory: 20Mi
 
   autoscaling:
     enabled: false
