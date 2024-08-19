@@ -116,13 +116,16 @@ topomojo-api:
     Database__AdminId: d29518c4-f61c-4284-81c4-f2fbd79e6e9a
     Database__AdminName: Administrator
     Cache__SharedFolder: ""
-    OpenApi__Client__ClientId: fortress_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_topomojo-api
     FileUpload__IsoRoot: /mnt/tm
     FileUpload__TopoRoot: /mnt/tm
     FileUpload__DocRoot: /mnt/tm/_docs
     # FileUpload__MaxFileBytes: 0
     Oidc__Authority: https://crucible.local/keycloak/realms/crucible
+    OpenApi__Client__ClientId: fortress_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_topomojo-api
     Oidc__Audience: "topomojo-api"
+    OpenApi__Client__AuthorizationUrl: https://crucible.local/keycloak/realms/crucible/protocol/openid-connect/auth
+    OpenApi__Client__TokenUrl: https://crucible.local/keycloak/realms/crucible/protocol/openid-connect/token
+    
     ApiKeyClients__0__Id: gameengine
     ApiKeyClients__0__Key: crucible
     ApiKeyClients__0__Scope: gameboard
