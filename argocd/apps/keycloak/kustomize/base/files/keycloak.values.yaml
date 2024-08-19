@@ -209,6 +209,7 @@ existingConfigmap: ""
 ## @param extraStartupArgs Extra default startup args
 ##
 extraStartupArgs: >
+  --log-level=DEBUG
   --spi-theme-welcome-theme=crucible
   --spi-truststore-file-file=/opt/bitnami/keycloak/spi-certs/truststore.jks 
   --spi-truststore-file-password=password 
