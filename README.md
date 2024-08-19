@@ -8,6 +8,15 @@ Git Server for in-cluster operations
 cert-manager for certificate (uses crucible.local root-ca)
 argocd - continuous deployment
 
+## Build
+The Crucible appliance is built and tested on vSphere 8.  
+```
+cp appliance.yaml.example appliance.yaml
+# Fill in the vairables based on your vsphere environment
+make build
+```
+Once the packer build process finishes there will be an OVF directory in the ./output folder. 
+
 ## Makefile
 
 | Command        | Description                                                                                                 |
