@@ -91,10 +91,16 @@ time=60
 echo "Sleeping $time seconds to wait for apps to sync"
 sleep $time
 
-# wait for postgres
+# Wait for Deployments (most apps)
 echo "Waiting for ALL deployments 'Status: Avaialble' This may cause a timeout."
 kubectl wait deployment \
 --all \
 --for=condition=Available \
+--all-namespaces=true \
+--timeout=5m
+# Wait for stateful sets (keycloak, postgres)
+kubectl wait pods \
+--all \
+--for=condition=Ready \
 --all-namespaces=true \
 --timeout=5m
