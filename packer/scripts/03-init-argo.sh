@@ -98,9 +98,4 @@ kubectl wait deployment \
 --for=condition=Available \
 --all-namespaces=true \
 --timeout=5m
-# Wait for stateful sets (keycloak, postgres)
-kubectl wait pods \
---all \
---for=condition=Ready \
---all-namespaces=true \
---timeout=5m
+
