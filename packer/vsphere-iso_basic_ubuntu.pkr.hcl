@@ -127,7 +127,6 @@ build {
     ]
   }
 
-  /*
   provisioner "shell" {
     execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     inline = [
@@ -135,7 +134,7 @@ build {
       "rm -f ~/zerofill"
     ]
   }
-  */
+  
   provisioner "shell-local" {
     inline = ["echo the address is: $PACKER_HTTP_ADDR and build name is: $PACKER_BUILD_NAME"]
   }
