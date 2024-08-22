@@ -34,8 +34,12 @@ gitea:
 build:
 	rm -rf ./packer/output && \
 	rm -rf ./output && \
+	rm -rf ./dist/output
 	./packer/scripts/00-update-vars.sh ./appliance.yaml
 	./packer/scripts/00-build-appliance.sh -on-error=abort -force
+
+shrink:
+	./scripts/shrink.sh
 
 offline-reset:
 	@echo "${ADMIN_PASS}" | sudo -S -E ./scripts/offline-reset.sh $(filter-out $@,$(MAKECMDGOALS))

@@ -4,5 +4,6 @@ vars:
   vsphere_password:
   datacenter:
   cluster:
+  host:
   datastore:
   network_name:
