@@ -9,6 +9,8 @@ files=`/tmp -type f -size +50M -exec du -h {} \; | sort -n`
 for f in ${files[@]}; do
     rm $f
 done
+# Remove swap
+rm -rf /swap.img
 # Find largest files and remove (typically a large swap)
 # Maybe a little too optomistic removed container images
 # files=`sudo find / -mount -type f -size +100M -exec du -h {} \; | sort -n`

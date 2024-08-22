@@ -111,7 +111,7 @@ build {
       "APPLIANCE_VERSION=${var.appliance_version}"
     ]
     inline = [
-      "echo \"I AM RUNNING\"",
+      "echo $APPLIANCE_VERSION > /etc/appliance_version",
       "sudo apt update && sudo apt install make",
       "grep -qxF 'ENVIRONMENT=APPLIANCE' '/etc/environment' || echo 'ENVIRONMENT=APPLIANCE' >> '/etc/environment'"
     ]
@@ -139,9 +139,11 @@ build {
     environment_vars  = [
       "DEBIAN_FRONTEND=noninteractive",
       "SSH_USERNAME=${var.ssh_username}",
+      "APPLIANCE_VERSION=${var.appliance_version}"
     ]
     inline            = [
       "cd /home/$SSH_USERNAME/crucible-appliance-argo",
+      "git clean -fdx",
       "make init"
     ]
   }

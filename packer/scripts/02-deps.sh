@@ -6,7 +6,7 @@
 #
 # Crucible Appliance 02-deps.sh
 
-echo "$APPLIANCE_VERSION" > /etc/appliance_version
+echo "$APPLIANCE_VERSION" >> /etc/appliance_version
 
 # Disable swap for Kubernetes
 swapoff -a
