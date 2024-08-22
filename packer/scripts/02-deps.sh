@@ -27,7 +27,7 @@ EOF
 ###### Update OS #####
 ######################
 sudo apt update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt autoremove -y
-sudo apt install -y build-essential dnsmasq avahi-daemon jq nfs-common sshpass postgresql-client make logrotate
+sudo apt install -y build-essential dnsmasq avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git
 
 ########################
 ##### Configure OS #####
