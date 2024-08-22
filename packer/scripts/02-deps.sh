@@ -119,7 +119,7 @@ else
 fi
 
 # Set hostname 
-hostname -b crucible.local
+hostname -b crucible
 
 ################################
 ##### Install Dependencies #####
