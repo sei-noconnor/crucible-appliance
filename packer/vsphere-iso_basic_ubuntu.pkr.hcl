@@ -68,8 +68,8 @@ source "vsphere-iso" "iso" {
     "RUN.container" : "lscr.io/linuxserver/openssh-server:latest"
     "RUN.mountdmi" : "false"
     "RUN.port.2222" : "2222"
-    "RUN.env.USER_NAME" : "ubuntu"
-    "RUN.env.USER_PASSWORD" : "ubuntu"
+    "RUN.env.USER_NAME" : "crucible"
+    "RUN.env.USER_PASSWORD" : "crucible"
     "RUN.env.PASSWORD_ACCESS" : "true"
   }
   */

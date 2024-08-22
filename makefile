@@ -1,7 +1,8 @@
 # VARS
 SHELL := /bin/bash
 DOMAIN ?= crucible.local
-ADMIN_PASS ?= ubuntu
+SSH_USERNAME ?= crucible
+ADMIN_PASS ?= crucible
 SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps
 ENVIRONMENT ?= DEV
@@ -16,10 +17,10 @@ generate_certs:
 	
 sudo-deps: generate_certs 
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
-	echo "${ADMIN_PASS}" | SSH_USERNAME=ubuntu sudo -E -S bash ./packer/scripts/02-deps.sh
+	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-deps.sh
 
 init: sudo-deps
-	SSH_USERNAME=ubuntu ./packer/scripts/04-user-deps.sh
+	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
 	./packer/scripts/03-init-argo.sh
 	
 deps:
@@ -39,7 +40,7 @@ build:
 	./packer/scripts/00-build-appliance.sh -on-error=abort -force
 
 shrink:
-	./scripts/shrink.sh
+	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/shrink.sh
 
 offline-reset:
 	@echo "${ADMIN_PASS}" | sudo -S -E ./scripts/offline-reset.sh $(filter-out $@,$(MAKECMDGOALS))
