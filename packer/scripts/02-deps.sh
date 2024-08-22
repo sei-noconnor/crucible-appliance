@@ -11,6 +11,7 @@ echo "$APPLIANCE_VERSION" > /etc/appliance_version
 # Disable swap for Kubernetes
 swapoff -a
 sed -i -r 's/(\/swap\.img.*)/#\1/' /etc/fstab
+rm -rf /swap.img
 
 ###############
 #### VARS #####
