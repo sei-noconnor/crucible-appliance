@@ -42,6 +42,9 @@ build:
 shrink:
 	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/shrink.sh
 
+package-ova:
+	./scripts/package-ova.sh
+
 offline-reset:
 	@echo "${ADMIN_PASS}" | sudo -S -E ./scripts/offline-reset.sh $(filter-out $@,$(MAKECMDGOALS))
 %:
