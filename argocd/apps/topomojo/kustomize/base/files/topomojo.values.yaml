@@ -119,15 +119,15 @@ topomojo-api:
     ApiKeyClients__0__Key: crucible
     ApiKeyClients__0__Scope: gameboard
     Core__ConsoleHost: crucible.local/console
-    Pod__Url: ""
-    Pod__User: root
-    Pod__Password: VMware1!
-    Pod__PoolPath: ""
-    Pod__Uplink: vSwitch0
-    Pod__VmStore: "[datastore1] vm/"
-    Pod__IsoStore: "[iso]"
-    Pod__DiskStore: "[datastore1] topomojo/"
-    Pod__ConsoleUrl: crucible.local/console
+    Pod__Url:
+    Pod__User:
+    Pod__Password:
+    Pod__PoolPath:
+    Pod__Uplink:
+    Pod__VmStore:
+    Pod__IsoStore:
+    Pod__DiskStore:
+    Pod__ConsoleUrl:
     Pod__Vlan__Reservations__0__Id: 0
     Pod__Vlan__Reservations__0__Name: bridge-net
     Pod__KeepAliveMinutes: 30
