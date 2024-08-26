@@ -3,14 +3,14 @@ name: build
 on:
   push:
     branches:
-      - main
+      - mkdocs
   pull_request:
   release:
     types: [published]
 
 jobs:
   build:
-    runs-on: macos-12
+    runs-on: macos-13
 
     steps:
     - uses: actions/checkout@v3
@@ -73,5 +73,5 @@ jobs:
         az storage blob upload --file ${{ env.build_name }}.ova \
                                --container-name ova \
                                --name appliance/${{ env.build_name }}.ova \
-                               --connection-string "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
+                               --connection-string "${{ secrets.AZ_STORAGE_CS }}" \
                                --no-progress
