@@ -7,10 +7,39 @@ packer {
       version = ">= 1.4.0"
       source  = "github.com/hashicorp/vsphere"
     }
+    virtualbox = {
+      version = "~> 1"
+      source  = "github.com/hashicorp/virtualbox"
+    }
   }
 }
 
-source "vsphere-clone" "clone" {
+source "virtualbox-iso" "crucible-appliance" {
+  boot_command         = "${local.boot_command}"
+  boot_wait            = "5s"
+  cpus                 = "${local.cpus}"
+  disk_size            = "${local.disk_size}"
+  gfx_controller       = "vmsvga"
+  guest_os_type        = "Ubuntu_64"
+  hard_drive_interface = "scsi"
+  http_directory       = "http"
+  iso_checksum         = "${local.iso_checksum}"
+  iso_url              = "${local.iso_url}"
+  memory               = "${local.memory}"
+  output_directory     = "output-virtualbox"
+  rtc_time_base        = "UTC"
+  shutdown_command     = "${local.shutdown_command}"
+  ssh_password         = "${var.ssh_password}"
+  ssh_timeout          = "60m"
+  ssh_username         = "${var.ssh_username}"
+  vboxmanage           = [
+                           ["modifyvm", "{{.Name}}", "--vram", "${local.video_memory}"],
+                           ["modifyvm", "{{.Name}}", "--nat-localhostreachable1", "on"],
+  ]
+  vm_name              = "crucible-appliance-${var.appliance_version}"
+}
+
+source "vsphere-clone" "crucible-appliance" {
   ssh_username        = var.ssh_username
   ssh_password        = var.ssh_password
   ssh_timeout         ="60m"
@@ -40,7 +69,7 @@ source "vsphere-clone" "clone" {
   }
 }
 
-source "vsphere-iso" "iso" {
+source "vsphere-iso" "crucible-appliance" {
   vcenter_server      = var.vsphere_server
   username            = var.vsphere_user
   password            = var.vsphere_password
@@ -100,7 +129,9 @@ source "vsphere-iso" "iso" {
 
 build {
   sources = [
-    "source.vsphere-clone.clone"
+    "source.virtualbox-iso.crucible-appliance",
+    "source.vsphere-clone.crucible-appliance",
+    "source.vsphere-iso.crucible-appliance"
   ]
 
   provisioner "shell" {
