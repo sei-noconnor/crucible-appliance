@@ -8,4 +8,4 @@ host = "DC0_H0"
 datastore = "LocalDS_0"
 network_name = "VM Network"
 ssh_username = "crucible"
-ssh_password = "crucible
+ssh_password = "crucible"
