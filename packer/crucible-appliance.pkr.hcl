@@ -36,7 +36,7 @@ source "virtualbox-iso" "crucible-appliance" {
                            ["modifyvm", "{{.Name}}", "--vram", "${local.video_memory}"],
                            ["modifyvm", "{{.Name}}", "--nat-localhostreachable1", "on"],
   ]
-  vm_name              = "crucible-appliance-${var.appliance_version}"
+  vm_name              = "crucible-appliance-iso-${var.appliance_version}"
 }
 
 source "vsphere-clone" "crucible-appliance" {
@@ -78,11 +78,11 @@ source "vsphere-iso" "crucible-appliance" {
   host                = var.host
   insecure_connection = true
 
-  vm_name       = "crucible-appliance-argo-${var.appliance_version}"
+  vm_name       = "crucible-appliance-argo-iso-${var.appliance_version}"
   guest_os_type = "ubuntu64Guest"
 
-  CPUs            = 4
-  RAM             = 4096
+  CPUs            = 6
+  RAM             = 6144
   RAM_reserve_all = true
 
   ssh_username = var.ssh_username
@@ -109,7 +109,7 @@ source "vsphere-iso" "crucible-appliance" {
     disk_thin_provisioned = true
   }
 
-  iso_paths = ["[iso] ubuntu-22.04-live-server-amd64.iso"]
+  iso_paths = ["[ISO] ubuntu-22.04-live-server-amd64.iso"]
 
   network_adapters {
     network = var.network_name
@@ -129,8 +129,6 @@ source "vsphere-iso" "crucible-appliance" {
 
 build {
   sources = [
-    "source.virtualbox-iso.crucible-appliance",
-    "source.vsphere-clone.crucible-appliance",
     "source.vsphere-iso.crucible-appliance"
   ]
 
