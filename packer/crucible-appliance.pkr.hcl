@@ -46,8 +46,8 @@ source "vsphere-clone" "crucible-appliance" {
   linked_clone        = true
   network             = var.network_name
   cluster             = var.cluster
-  host                = "esx-04.covert-cloud.com"
-  datastore           = "ds_nfs"
+  host                = ""
+  datastore           = var.datastore
   insecure_connection = true
   password            = var.vsphere_password
   template            = var.vsphere_template
