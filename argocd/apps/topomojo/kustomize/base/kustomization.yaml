@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: topomojo
 configMapGenerator:
   - name: appliance-topomojo-api
+    behavior: replace
     files:
     - start.sh=files/start.sh
     - root-ca.crt=files/root-ca.pem
