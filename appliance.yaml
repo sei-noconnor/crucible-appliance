@@ -1,3 +1,11 @@
+vars:
+  vsphere_server: "vcsa.covert-cloud.com"
+  vsphere_user: "administrator@vsphere.local"
+  datacenter: House
+  cluster: AMD
+  datastore: ds_nfs
+  network_name: "192.168.1.0"
+
 charts:
   - repo: "hashicorp"
     url: https://helm.releases.hashicorp.com
