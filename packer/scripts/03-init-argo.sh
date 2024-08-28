@@ -25,12 +25,13 @@ if [ ! -d "${SCRIPTS_DIR}/../../dist/charts" ]; then
 fi
 CHARTS_DIR="$(readlink -e ${SCRIPTS_DIR}/../../dist/charts)"
 VALUES_DIR="$(readlink -e ${SCRIPTS_DIR}/../../argocd/values)"
+DIST_DIR="$(readlink -e ${SCRIPTS_DIR}/../../dist)"
 
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "VALUES_DIR: ${VALUES_DIR}"
 
 # Install vault
-helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo add hashicorp https://helm.releases.hashicorp.com 
 echo "Checking if CHARTS Directory exists at ${CHARTS_DIR}" 
 if [ ! -d "${CHARTS_DIR}" ]; then
   echo "Creating Charts Directory ${CHARTS_DIR}"
@@ -45,15 +46,19 @@ echo "Installing from downloaded chart"
 helm upgrade --install vault "${CHARTS_DIR}/vault-0.28.0.tgz" -f "${VALUES_DIR}/vault.values.yaml" -n vault
 #helm install vault hashicorp/vault --namespace vault --version 0.28.0
 
-# Install argocd-cli
-VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
-curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
-sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-rm argocd-linux-amd64
+# Configure vault
+kubectl wait -n vault --for=condition=Ready pod/vault-0
+kubectl exec -n vault vault-0 -- vault operator init \
+  -key-shares=1 \
+  -key-threshold=1 \
+  -format=json > "${DIST_DIR}/cluster-keys.json"
+
+VAULT_UNSEAL_KEY=$(jq -r ".unseal_keys_b64[]" ${DIST_DIR}/cluster-keys.json)
+kubectl exec -n vault vault-0 -- vault operator unseal $VAULT_UNSEAL_KEY
+
 
 kubectl create namespace argocd
 kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd --wait
-
 
 echo "Waiting for service '$service_name' in namespace '$namespace' to become ready..."
 

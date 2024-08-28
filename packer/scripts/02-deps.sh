@@ -65,6 +65,12 @@ curl -sLo /usr/local/bin/cfssl https://github.com/cloudflare/cfssl/releases/down
 curl -sLo /usr/local/bin/cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.6.3/cfssljson_1.6.3_linux_amd64
 chmod +x /usr/local/bin/cfssl*
 
+# Install argocd-cli
+VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
+
 
 
 
