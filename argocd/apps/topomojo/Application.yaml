@@ -16,7 +16,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
   sources:
-  - path: apps/topomojo/kustomize/overlays/appliance
+  - path: argocd/apps/topomojo/kustomize/overlays/appliance
     repoURL: file:///crucible-repo/crucible-appliance-argo
-    targetRevision: HEAD
+    targetRevision: main
 

@@ -100,6 +100,10 @@ ExecStart=/usr/local/bin/configure_nic
 WantedBy=multi-user.target
 EOF
 chmod +x /usr/local/bin/configure_nic
+# Remove configure_nic Flag
+if [ -f /etc/.configure-nic ]; then 
+  rm /etc/.configure-nic
+fi
 systemctl daemon-reload
 systemctl enable configure_nic
 

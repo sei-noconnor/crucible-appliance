@@ -2,27 +2,27 @@ Crucible Appliance - Argo
 This is a reop to provision a Crucible appliance by way of argocd manifest and git repositories.
 
 ## Features
+
 SSO Authentication Keycloak (dod CAC enabled)
 Git Server for in-cluster operations
 cert-manager for certificate (uses crucible.local root-ca)
 argocd - continuous deployment
 
-
 ## Makefile
 
-| Command        | Description                                                                                  |
-| :------------- | :------------------------------------------------------------------------------------------- |
-| generate_certs | Creates certificates                                                                         |
-| sudo_deps      | scripts and configurations that need to be run with elevated privledges such as sudo or root |
-| init           | Full build process fresh ubuntu 22.04                                                        |
-| deps           | runs only the deps script for development                                                    |
-| argo           | runs only the argo script                                                                    |
-| build          | will build the appliance with packer and vpshere                                             |
-| offline-reset	| restores a snapshot, takes a prefix for snapshot name (default: "filename=*crucible-appliance*") |
-| reset          | resets the argo install                                                                      |
-| clean          | unsused - suppose to clean everythin including certificates                                  |
-| snapshot       | takes etcd snapshot of k3s state takes a prefix for snapshot name (default: "filename=crucible-appliance")                                                             |
-| tmp            | dev task for testing scripts                                                                 |
+| Command        | Description                                                                                                 |
+| :------------- | :---------------------------------------------------------------------------------------------------------- |
+| generate_certs | Creates certificates                                                                                        |
+| sudo_deps      | scripts and configurations that need to be run with elevated privledges such as sudo or root                |
+| init           | Full build process fresh ubuntu 22.04                                                                       |
+| deps           | runs only the deps script for development                                                                   |
+| argo           | runs only the argo script                                                                                   |
+| build          | will build the appliance with packer and vpshere                                                            |
+| offline-reset  | restores a snapshot, takes a prefix for snapshot name (default: "filename=\*")                              |
+| reset          | resets the argo install                                                                                     |
+| clean          | unsused - suppose to clean everythin including certificates                                                 |
+| snapshot       | takes etcd snapshot of k3s state. takes a prefix for snapshot name (default: "filename=crucible-appliance") |
+| tmp            | dev task for testing scripts                                                                                |
 
 ```
 # VARS

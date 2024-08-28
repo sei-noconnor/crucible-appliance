@@ -16,7 +16,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
   source:
-    path: apps/postgres/kustomize/overlays/appliance
+    path: argocd/apps/postgres/kustomize/overlays/appliance
     repoURL: file:///crucible-repo/crucible-appliance-argo
-    targetRevision: HEAD
+    targetRevision: main
 

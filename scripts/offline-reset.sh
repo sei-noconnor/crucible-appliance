@@ -5,9 +5,8 @@ if [ $EUID != 0 ]; then
     exit $?
 fi
 
-
 directory="/var/lib/rancher/k3s/server/db/snapshots"
-prefix="${1:-crucible-appliance}"
+prefix=${1:-\*}
 
 files=($(find "$directory" -type f -name "*$prefix*" -print))
 
@@ -21,11 +20,11 @@ for f in "${files[@]}"; do
     i+=1
     epoch=${f##*\-}
     f="$i) $f ($(TZ=America/New_York date -d @$epoch))"
-    echo $f
 done
 
 echo "Matching files:"
-select filename in "${files[@]}"; do
+select filename in "${files[@]}"
+do
     if [ -n "$filename" ]; then
         echo "You selected: $filename"
         sudo systemctl stop k3s
@@ -36,5 +35,5 @@ select filename in "${files[@]}"; do
     else
         echo "Invalid selection. Please try again."
     fi
-done
+done </dev/tty
 echo "CLUSTER RESET!"
