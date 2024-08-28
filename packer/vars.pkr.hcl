@@ -32,3 +32,17 @@ variable "network_name" {
   type    = string
   default = ""
 }
+
+variable "ssh_username" {
+  type    = string
+  default = "ubuntu"
+}
+
+variable "ssh_password" {
+  type    = string
+  default = "ubuntu"
+}
+
+locals {
+  shutdown_command  = "echo '{var.ssh_password}' | sudo -S shutdown -P now"
+}
