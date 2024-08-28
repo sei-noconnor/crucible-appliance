@@ -37,7 +37,7 @@ build:
 	rm -rf ./output && \
 	rm -rf ./dist/output
 	./packer/scripts/00-update-vars.sh ./appliance.yaml
-	./packer/scripts/00-build-appliance.sh -on-error=abort -force
+	./packer/scripts/00-build-appliance.sh $(filter-out $@,$(MAKECMDGOALS)) -on-error=abort -force
 
 shrink:
 	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/shrink.sh
