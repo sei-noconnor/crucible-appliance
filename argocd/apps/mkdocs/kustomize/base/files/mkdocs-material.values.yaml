@@ -48,14 +48,14 @@ ingress:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/start)$ $1/ redirect;
   hosts:
-    - host: foundry.local
+    - host: crucible.local
       paths:
         - path: /start(/|$)(.*)
           pathType: ImplementationSpecific
   tls:
-    - secretName: appliance-cert
+    - secretName: mkdocs-tls
       hosts:
-        - foundry.local
+        - crucible.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -94,7 +94,7 @@ affinity: {}
 ##################
 
 ## giturl is the url of the git repository to serve as a static site
-giturl: https://foundry.local/gitea/foundry/mkdocs
+giturl: https://crucible.local/gitea/crucible/mkdocs
 
 ## gitbranch sets which repo branch to publish
 gitbranch: ""
@@ -113,7 +113,7 @@ cacert: ""
 ## mkdocs YAML configuration
 mkdocs: {}
 #  site_name: My Site
-#  site_url: https://foundry.local
+#  site_url: https://crucible.local
 #  theme:
 #    name: material
 
