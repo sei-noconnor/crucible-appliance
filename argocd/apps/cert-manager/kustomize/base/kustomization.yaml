@@ -4,8 +4,9 @@ namespace: cert-manager
 secretGenerator:
   - name: root-ca
     files: 
-    - tls.crt=files/ssl/tls.crt
-    - tls.key=files/ssl/tls.key
+    - tls.crt=$(cat files/intermediate-ca.crt files/root-ca.crt)
+    - tls.key=files/root-ca.key
+    type: "kubernetes.io/tls"
 generatorOptions:
   disableNameSuffixHash: true
 helmCharts:
@@ -20,6 +21,7 @@ helmCharts:
       enabled: true
 resources: 
 - namespace.yaml
+- ClusterIssuer.yaml
 
 
 
