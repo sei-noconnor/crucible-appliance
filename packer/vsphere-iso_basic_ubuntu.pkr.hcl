@@ -158,18 +158,18 @@ build {
     ]
   }
 
-  // provisioner "shell" {
-  //   execute_command   = "echo ${var.ssh_password} | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
-  //   environment_vars  = [
-  //     "DEBIAN_FRONTEND=noninteractive",
-  //     "SSH_USERNAME=${var.ssh_username}",
-  //     "APPLIANCE_VERSION=${var.appliance_version}"
-  //   ]
-  //   inline = [
-  //     "cd /home/$SSH_USERNAME/crucible-appliance-argo",
-  //     "make shrink"
-  //   ]
-  // }
+  provisioner "shell" {
+    execute_command   = "echo ${var.ssh_password} | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+    environment_vars  = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "SSH_USERNAME=${var.ssh_username}",
+      "APPLIANCE_VERSION=${var.appliance_version}"
+    ]
+    inline = [
+      "cd /home/$SSH_USERNAME/crucible-appliance-argo",
+      "make shrink"
+    ]
+  }
   
   provisioner "shell-local" {
     inline = ["echo the address is: $PACKER_HTTP_ADDR and build name is: $PACKER_BUILD_NAME"]
