@@ -14,15 +14,36 @@ namespace="argocd"
 # Change to the current directory and inform the user
 echo "Changing to script directory..."
 DIR=$(dirname "${BASH_SOURCE[0]}")
+echo "changing directory to: $DIR"
+
 cd "$DIR" || exit  # Handle potential errors with directory change
 SCRIPTS_DIR="${PWD}"
-# Ensure correct context
-kubectl config set-context crucible-appliance --namespace default 
+echo "Checking if CHARTS Directory exists at ${SCRIPTS_DIR}/../../dist/charts" 
+if [ ! -d "${SCRIPTS_DIR}/../../dist/charts" ]; then
+  echo "Creating Charts Directory ${SCRIPTS_DIR}/../../dist/charts"
+  mkdir -p "${SCRIPTS_DIR}/../../dist/charts"
+fi
+CHARTS_DIR="$(readlink -e ${SCRIPTS_DIR}/../../dist/charts)"
+VALUES_DIR="$(readlink -e ${SCRIPTS_DIR}/../../argocd/values)"
+
+echo "CHARTS_DIR: ${CHARTS_DIR}"
+echo "VALUES_DIR: ${VALUES_DIR}"
 
 # Install vault
-kubectl create namespace vault
 helm repo add hashicorp https://helm.releases.hashicorp.com
-helm install vault hashicorp/vault --set “server.dev.enabled=true” -n vault
+echo "Checking if CHARTS Directory exists at ${CHARTS_DIR}" 
+if [ ! -d "${CHARTS_DIR}" ]; then
+  echo "Creating Charts Directory ${CHARTS_DIR}"
+  mkdir -p "${CHARTS_DIR}"
+fi
+kubectl create namespace vault
+if [ ! -f ${CHARTS_DIR}/vault-0.28.0.tgz ]; then
+  echo "Chart not downloaded, downloading now..."
+  helm pull hashicorp/vault -d "${CHARTS_DIR}" --version 0.28.0 
+fi
+echo "Installing from downloaded chart"
+helm upgrade --install vault "${CHARTS_DIR}/vault-0.28.0.tgz" -f "${VALUES_DIR}/vault.values.yaml" -n vault
+#helm install vault hashicorp/vault --namespace vault --version 0.28.0
 
 # Install argocd-cli
 VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
