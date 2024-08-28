@@ -23,6 +23,7 @@ if [ ! -d "${SCRIPTS_DIR}/../../dist/charts" ]; then
   echo "Creating Charts Directory ${SCRIPTS_DIR}/../../dist/charts"
   mkdir -p "${SCRIPTS_DIR}/../../dist/charts"
 fi
+# set all config dirs to absolute paths
 CHARTS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../dist/charts)"
 MANIFESTS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/manifests)"
 DIST_DIR="$(readlink -m ${SCRIPTS_DIR}/../../dist)"
@@ -30,14 +31,17 @@ APPS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/apps/)"
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "MANIFESTS_DIR: ${MANIFESTS_DIR}"
 
+# Install ArgoCD
 kubectl create namespace argocd
 kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd
-
+# Wait for ArgoCD
 kubectl wait deployment \
 --all \
 --for=condition=Available \
 --namespace=argocd \
 --timeout=5m
+
+
 kubectl config set-context --current --namespace=argocd
 kubectl apply -f ${MANIFESTS_DIR}/AppProject.yaml
 argocd login --core
