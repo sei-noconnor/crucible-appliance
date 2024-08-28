@@ -6,9 +6,12 @@ ADMIN_PASS ?= crucible
 SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps
 ENVIRONMENT ?= DEV
+APPLIANCE_VERSION ?= crucible-appliance
 export SSL_DIR
 export APPS_DIR
 export ADMIN_PASS
+export APPLIANCE_VERSION
+
 
 generate_certs:
 	./scripts/generate_root_ca.sh
@@ -72,10 +75,15 @@ snapshot:
 keycloak-realm-export:
 	./scripts/keycloak-realm-export.sh
 
+deploy-runner:
+	.github/runners/start.sh $(filter-out $@,$(MAKECMDGOALS))
+%:
+	@true	
+
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
 	
 
-.PHONY: all clean clean-certs init build argo offline-reset reset snapshot
+.PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
 
 all: init
