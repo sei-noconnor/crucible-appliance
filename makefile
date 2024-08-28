@@ -35,6 +35,10 @@ clean:
 	rm -rf ./cache
 	rm -rf ./packer/output
 
-.PHONY: all clean init build argo reset
+clean-certs:
+	rm -rf ./dist/ssl
+	rm -rf ./argocd/apps/cert-manager/kustomize/base/files/{root-*,intermediate-*}
+
+.PHONY: all clean clean-certs init build argo reset
 
 all: generate_certs init

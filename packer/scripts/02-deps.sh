@@ -19,7 +19,7 @@ EOF
 ######################
 ###### Update OS #####
 ######################
-sudo apt update -y && sudo NEEDRESTART_MODE=a apt-get dist-upgrade --yes && sudo apt autoremove -y
+sudo apt update -y && sudo NEEDRESTART_MODE=a apt-get dist-upgrade build-essentials --yes && sudo apt autoremove -y
 
 ################################
 ##### Install Dependencies #####
@@ -73,11 +73,14 @@ rm argocd-linux-amd64
 
 # Install go
 mkdir -p dist/tools
-
 curl https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz -o dist/tools/go1.22.5.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf ./dist/tools/go1.22.5.linux-amd64.tar.gz
 
-
+# Install Brew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+(echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/ubuntu/.bashrc
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+brew install gcc
 
 
 ########################
