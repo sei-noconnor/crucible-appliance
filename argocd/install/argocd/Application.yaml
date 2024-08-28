@@ -4,7 +4,7 @@ metadata:
   name: argocd
   namespace: argocd
   finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: argocd
@@ -17,9 +17,9 @@ spec:
     - CreateNamespace=true
   sources:
   - path: argocd/install/argocd/kustomize/overlays/appliance
-    repoURL: file:///tmp/argo
+    repoURL: file:///crucible-repo/crucible-appliance-argo
     targetRevision: HEAD
     kustomize:
       commonLabels:
         foo: bar
-  
+

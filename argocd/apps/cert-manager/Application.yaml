@@ -4,7 +4,7 @@ metadata:
   name: cert-manager
   namespace: argocd
   finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: cert-manager
@@ -17,11 +17,11 @@ spec:
     - CreateNamespace=true
   sources:
   - path: apps/cert-manager/manifests
-    repoURL: file:///tmp/argo
+    repoURL: file:///crucible-repo/crucible-appliance-argo
     targetRevision: HEAD
     directory:
       recurse: true
   - path: apps/cert-manager/kustomize/overlays/appliance
-    repoURL: file:///tmp/argo/
+    repoURL: file:///crucible-repo/crucible-appliance-argo/
     targetRevision: HEAD
-    
+

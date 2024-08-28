@@ -54,11 +54,11 @@ kubectl config set-context --current --namespace=argocd
 echo "Uploading Initial Repo"
 
 POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
-kubectl exec $POD -- bash -c "rm -rf /tmp/argo"
-kubectl exec $POD -- bash -c "mkdir -p /tmp/argo"
-kubectl cp "$APPS_DIR" $POD:/tmp/argo/apps
-kubectl cp "$INSTALL_DIR" $POD:/tmp/argo/install
-kubectl exec $POD -- bash -c "cd /tmp/argo && \
+kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance-argo"
+kubectl exec $POD -- bash -c "mkdir -p /crucible-repo/crucible-appliance-argo"
+kubectl cp "$APPS_DIR" $POD:/crucible-repo/crucible-appliance-argo/apps
+kubectl cp "$INSTALL_DIR" $POD:/crucible-repo/crucible-appliance-argo/install
+kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance-argo && \
   git init . && \
   git add --all && \
   git -c user.name='Admin' -c user.email='admin@crucible.local' commit -m 'Initial Commit'"
@@ -66,7 +66,7 @@ kubectl exec $POD -- bash -c "cd /tmp/argo && \
 kubectl apply -f $APPS_DIR/Application.yaml
 # kubectl apply -f $APPS_DIR/cert-manager/Application.yaml
 # kubectl apply -f $APPS_DIR/nginx/Application.yaml
-# kubectl apply -f $APPS_DIR/http-echo/Application.yak3s-ml
+# kubectl apply -f $APPS_DIR/http-echo/Application.yaml
 # kubectl apply -f $APPS_DIR/postgres/Application.yaml
 # kubectl apply -f $APPS_DIR/gitea/Application.yaml
 # kubectl apply -f $APPS_DIR/keycloak/Application.yaml

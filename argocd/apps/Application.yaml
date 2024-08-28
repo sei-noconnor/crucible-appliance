@@ -4,7 +4,7 @@ metadata:
   name: apps
   namespace: argocd
   finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     server: https://kubernetes.default.svc
@@ -16,7 +16,7 @@ spec:
     - CreateNamespace=true
   sources:
   - path: apps
-    repoURL: file:///tmp/argo
+    repoURL: file:///crucible-repo/crucible-appliance-argo
     targetRevision: HEAD
-    
-  
+
+
