@@ -13,8 +13,7 @@ spec:
   syncPolicy:
     automated:
       prune: true
-    syncOptions:
-    - CreateNamespace=true
+    
   source:
     path: apps/http-echo/kustomize/overlays/appliance
     repoURL: file:///tmp/argo
