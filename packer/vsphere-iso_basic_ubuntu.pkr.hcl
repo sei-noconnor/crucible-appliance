@@ -91,12 +91,12 @@ build {
       "SSH_USERNAME=${var.ssh_username}",
     ]
     inline = [
-      "mkdir /home/${var.ssh_username}/appliance"
+      "mkdir /home/${var.ssh_username}/crucible-appliance-argo"
     ]
   }
 
   provisioner "file" {
-    destination = "/home/${var.ssh_username}/appliance"
+    destination = "/home/${var.ssh_username}/crucible-appliance-argo"
     sources = [
       "./",
     ]
@@ -109,7 +109,7 @@ build {
       "SSH_USERNAME=${var.ssh_username}",
     ]
     inline            = [
-      "cd /home/$SSH_USERNAME/appliance",
+      "cd /home/$SSH_USERNAME/crucible-appliance-argo",
       "make init"
     ]
   }
