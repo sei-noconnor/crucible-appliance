@@ -47,8 +47,6 @@ appliance.yaml
 **/*/ssl
 **/*/charts
 **/*/*.pem
-!**/*/root-ca.pem
-!**/*/root-chain.pem
 **/*/*.crt
 **/*/*.key
 
