@@ -1,11 +1,23 @@
 #!/bin/bash
-#!/bin/bash
 
 # Default values
 CLUSTER_NAME_DEFAULT="githubactions"
 NS_DEFAULT="github"
+GH_REPO_OWNER_DEFAULT="sei-noconnor"
 GH_REPO_DEFAULT="crucible-appliance"
-GH_OWNER_DEFAULT="sei-noconnor"
+
+# Function to display usage information
+usage() {
+    echo "Usage: $0 [-c|--cluster-name <name>] [-n|--namespace <namespace>] [-o|--gh-owner <owner>] [-r|--gh-repo <repo>]"
+    echo
+    echo "Options:"
+    echo "  -c, --cluster-name    Name of the cluster (default: $CLUSTER_NAME_DEFAULT), specify existing cluster"
+    echo "  -n, --namespace       Kubernetes namespace (default: $NS_DEFAULT)"
+    echo "  -o, --gh-owner        GitHub owner (default: $GH_REPO_OWNER_DEFAULT)"
+    echo "  -r, --gh-repo         GitHub repository (default: $GH_REPO_DEFAULT)"
+    echo "  -h, --help            Display this help message"
+    exit 1
+}
 
 # Parsing arguments with short and long named variables
 while [[ "$#" -gt 0 ]]; do
@@ -14,7 +26,8 @@ while [[ "$#" -gt 0 ]]; do
         -n|--namespace) NS="$2"; shift ;;
         -o|--gh-owner) GH_OWNER="$2"; shift ;;
         -r|--gh-repo) GH_REPO="$2"; shift ;;
-        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+        -h|--help) usage ;;
+        *) echo "Unknown parameter passed: $1"; usage ;;
     esac
     shift
 done
@@ -28,7 +41,7 @@ GH_OWNER="${GH_OWNER:-$GH_OWNER_DEFAULT}"
 # Check if GITHUB_PERSONAL_TOKEN is set
 if [ -n "$GITHUB_PERSONAL_TOKEN" ]; then
     echo "GITHUB_PERSONAL_TOKEN is set."
-    
+
 else
     echo "GITHUB_PERSONAL_TOKEN is not set. Please set the token"
     exit 2
@@ -43,11 +56,27 @@ echo "GitHub Repo: $GH_REPO"
 echo "building the github runner image"
 docker build --platform linux/amd64 ./.github/runners/. -t github-runner:latest
 
-echo "creating kind cluster with name $CLUSTER_NAME"
-kind create cluster -n $CLUSTER_NAME
-echo "deploying github runner to $CLUSTER_NAME on $NS namespace"
-echo "load github-runner to kind cluster $CLUSTER_NAME"
-kind load docker-image github-runner:latest -n $CLUSTER_NAME
+# Check to see if the cluster name is in our current config, use existing cluster
+clusters=$(kubectl config get-contexts --no-headers | awk '{print $2}')
+if [[ "$clusers[*]" =~ "$CLUSTER_NAME" ]]; then 
+    while true; do
+        read -p "Use existing context? " yn
+        case $yn in
+            [Yy]* ) echo "using current cluster"; break;;
+            [Nn]* ) exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+    # wait for input logic
+else
+    # create the kind cluster
+    echo "creating kind cluster with name $CLUSTER_NAME"
+    kind create cluster -n $CLUSTER_NAME
+    echo "deploying github runner to $CLUSTER_NAME on $NS namespace"
+    echo "load github-runner to cluster $CLUSTER_NAME"
+    # Figure out how to load image in existing cluster
+fi
+
 kubectl create ns $NS
 kubectl -n $NS create secret generic github-secret \
   --from-literal GITHUB_OWNER=$GH_OWNER \
