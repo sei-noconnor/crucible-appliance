@@ -122,6 +122,7 @@ topomojo-api:
     FileUpload__DocRoot: /mnt/tm/_docs
     # FileUpload__MaxFileBytes: 0
     Oidc__Authority: https://crucible.local/keycloak/realms/crucible
+    Oidc__Audience: "topomojo-api"
     ApiKeyClients__0__Id: gameengine
     ApiKeyClients__0__Key: crucible
     ApiKeyClients__0__Scope: gameboard
