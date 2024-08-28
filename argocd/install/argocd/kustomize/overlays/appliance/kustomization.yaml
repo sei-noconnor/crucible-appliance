@@ -1,6 +1,84 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: argocd
+
+patches:
+# Controller - Appliance Root CA
+- patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts
+      value: 
+        - name: crucible-root-ca
+          mountPath: /etc/ssl/certs/root-ca.crt
+          subPath: root-ca.crt
+  target:
+    kind: Deployment
+    labelSelector: "app.kubernetes.io/name=argocd-application-controller"
+  
+- patch: |-
+    - op: add
+      path: /spec/template/spec/volumes
+      value: 
+        - name: crucible-root-ca
+          secret:
+            defaultMode: 420
+            secretName: root-ca
+  target:
+    kind: Deployment
+    labelSelector: "app.kubernetes.io/name=argocd-application-controller"
+
+# Repo - Appliance Root CA
+- patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts
+      value: 
+        - name: crucible-root-ca
+          mountPath: /etc/ssl/certs/root-ca.crt
+          subPath: root-ca.crt
+  target:
+    kind: Deployment
+    labelSelector: "app.kubernetes.io/name=argocd-repo-server"
+  
+- patch: |-
+    - op: add
+      path: /spec/template/spec/volumes
+      value: 
+        - name: crucible-root-ca
+          secret:
+            defaultMode: 420
+            secretName: root-ca
+  target:
+    kind: Deployment
+    labelSelector: "app.kubernetes.io/name=argocd-repo-server"
+# Application - Appliance Root CA
+- patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts
+      value: 
+        - name: crucible-root-ca
+          mountPath: /etc/ssl/certs/root-ca.crt
+          subPath: root-ca.crt
+  target:
+    kind: Deployment
+    labelSelector: "app.kubernetes.io/name=argocd-server"
+
+- patch: |-
+    - op: add
+      path: /spec/template/spec/volumes
+      value: 
+        - name: crucible-root-ca
+          secret:
+            defaultMode: 420
+            secretName: root-ca
+  target:
+    kind: Deployment
+    labelSelector: "app.kubernetes.io/name=argocd-server"
+  
+secretGenerator:
+  - name: root-ca
+    files: 
+    - tls.crt=files/root-ca.pem
+    - tls.key=files/root-ca.key
 resources:
 - ../../base
 

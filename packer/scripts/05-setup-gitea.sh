@@ -14,6 +14,7 @@ USER_TOKEN=$( curl "${CURL_OPTS[@]}" \
 )
 
 REPO_DIR=~/crucible-appliance-argo
+REPO_DEST=/tmp/crucible-appliance-argo
 
 # Change to the current directory
 cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -58,15 +59,17 @@ curl "${CURL_OPTS[@]}" \
 }
 EOF
 echo "$ADMIN_PASS" | sudo -S -E bash -c "rm -rf /tmp/crucible-appliance-argo"
-cp -R $REPO_DIR /tmp/
-cd /tmp/crucible-appliance-argo
+cp -R $REPO_DIR $REPO_DEST
+cd $REPO_DEST
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 find . -name "*.yaml" -exec sed -i 's/file:\/\/\/tmp\/argo/https:\/\/crucible.local\/gitea\/crucible\/crucible-appliance-argo.git/g' {} \;
 find . -name "*.yaml" -exec sed -i 's/path: apps/path: argocd\/apps/g' {} \;
 
-git -C $REPO_DIR add -u 
-git -C $REPO_DIR commit -m "update repo urls"
-git remote remove appliance
-git remote add appliance https://crucible.local/gitea/crucible/crucible-appliance-argo.git
-git -C $REPO_DIR push -u https://administrator:$GITEA_ADMIN_PASSWORD@crucible.local/gitea/crucible/crucible-argo-appliance.git --all
-git push -u appliance --all
+git -C $REPO_DEST add -u 
+git -C $REPO_DEST commit -m "update repo urls"
+git -C $REPO_DEST remote remove appliance
+git -C $REPO_DEST remote add appliance https://administrator:$GITEA_ADMIN_PASSWORD@crucible.local/gitea/crucible/crucible-appliance-argo.git
+git -C $REPO_DEST push -u appliance --all -f
+
+argocd app apps --set --repo https://crucible.local/gitea/crucible/crucible-appliance-argo.git --path argocd/install/argocd/kustomize/overlay/appliance
 
