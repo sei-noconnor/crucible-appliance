@@ -9,9 +9,9 @@ src_dir=$(realpath $1)
 echo "Full SRC PATH is $src_dir"
 script_dir=$(dirname "$0")
 shift
-dst_dirs=$(realpath "$script_dir/../argocd/apps/cert-manager/kustomize/base/files")
+dst_dirs=($(realpath "$script_dir/../argocd/apps/cert-manager/kustomize/base/files") $(realpath "$script_dir/../argocd/install/argocd/kustomize/base/files"))
 
-if [ $ENVIRONMENT == APPLIANCE ]; then 
+if [ "$ENVIRONMENT" == APPLIANCE ]; then 
     echo "Script Run on Appliance, copying certs to K3s directory"
     if [ ! -d "$k3s_cert_dir" ]; then 
         echo "$ADMIN_PASS" | sudo -S mkdir -p $k3s_cert_dir
