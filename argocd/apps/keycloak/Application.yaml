@@ -19,6 +19,4 @@ spec:
     path: apps/keycloak/kustomize/overlays/appliance
     repoURL: file:///tmp/argo
     targetRevision: HEAD
-    kustomize:
-      commonLabels:
-        foo: bar
+    
