@@ -98,20 +98,23 @@ ExecStart=configure-nic
 [Install]
 WantedBy=multi-user.target
 EOF
+chmod +x /usr/local/bin/configure_nic
 systemctl daemon-reload
 systemctl enable configure-nic
 
-# Set hostname 
-hostname -b crucible.local
-
+APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 # Add hosts Entry 
 if ! grep -q "^$APPLIANCE_IP\s\+crucible.local\$" /etc/hosts; then
     # If it doesn't exist, append it to the hosts file
-    echo "$IP_ADDRESS $HOSTNAME" >> /etc/hosts
+    echo "$APPLIANCE_IP crucible.local" >> /etc/hosts
     echo "Entry added to hosts file."
 else
     echo "Entry already exists in hosts file."
 fi
+
+# Set hostname 
+hostname -b crucible.local
+
 ################################
 ##### Install Dependencies #####
 ################################

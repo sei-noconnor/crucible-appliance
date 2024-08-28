@@ -14,9 +14,11 @@ generate_certs:
 	./scripts/k3s-ca-gen.sh
 	./scripts/distribute_certs.sh $(SSL_DIR)/server/tls
 	
-init: generate_certs
+sudo-deps: generate_certs 
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME=ubuntu sudo -E -S bash ./packer/scripts/02-deps.sh
+
+init: sudo-deps
 	SSH_USERNAME=ubuntu ./packer/scripts/03-user-deps.sh
 	./packer/scripts/03-init-argo.sh
 
@@ -46,6 +48,9 @@ clean-certs:
 
 snapshot:
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/05-snapshot-etcd.sh 
+
+tmp:
+	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/tmp.sh
 	
 
 .PHONY: all clean clean-certs init build argo reset snapshot
