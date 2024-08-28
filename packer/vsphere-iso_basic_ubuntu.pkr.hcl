@@ -21,7 +21,7 @@ source "vsphere-clone" "clone" {
   datastore           = "ds_nfs"
   insecure_connection = true
   password            = var.vsphere_password
-  template            = "t-ubuntu2004-server"
+  template            = var.vsphere_template
   username            = var.vsphere_user
   vcenter_server      = var.vsphere_server
   vm_name             = "crucible-appliance-argo-${var.appliance_version}"

@@ -1,6 +1,7 @@
 vsphere_server = "127.0.0.1:8989"
 vsphere_user = "user"
 vsphere_password = "pass"
+vsphere_template = "template-vm-name"
 datacenter = "DC"
 cluster = "DC0"
 host = "DC0_H0"

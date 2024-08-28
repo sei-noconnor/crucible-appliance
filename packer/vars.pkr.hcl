@@ -33,6 +33,11 @@ variable "datastore" {
   default = ""
 }
 
+variable "vsphere_template" {
+  type = string
+  default = "" 
+}
+
 variable "network_name" {
   type    = string
   default = ""
