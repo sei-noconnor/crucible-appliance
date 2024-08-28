@@ -34,15 +34,15 @@ INSTALL_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../argocd/install)"
 DIST_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../dist)"
 APPS_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../argocd/apps/)"
 REPO_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../)"
-REPO_DEST="/tmp/crucible-appliance-argo"
+REPO_DEST="/tmp/crucible-appliance"
 
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "INSTALL_DIR: ${INSTALL_DIR}"
 echo "REPO_DIR: ${REPO_DIR}"
 
 # Install ArgoCD
-rm -rf /tmp/crucible-appliance-argo
-mkdir -p /tmp/crucible-appliance-argo
+rm -rf /tmp/crucible-appliance
+mkdir -p /tmp/crucible-appliance
 cp -R $REPO_DIR /tmp
 GIT_BRANCH=$(git -C $REPO_DIR rev-parse --abbrev-ref HEAD)
 cd $REPO_DEST
@@ -74,9 +74,9 @@ kubectl config set-context --current --namespace=argocd
 echo "Uploading Initial Repo"
 
 POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
-kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance-argo"
+kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance"
 kubectl cp "$REPO_DEST/" "$POD:/crucible-repo/"
-kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance-argo && \
+kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance && \
   git remote remove origin"
 
 kubectl apply -f $REPO_DEST/argocd/apps/Application.yaml  

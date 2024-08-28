@@ -16,7 +16,7 @@ spec:
 
   source:
     path: argocd/apps/http-echo/kustomize/overlays/appliance
-    repoURL: file:///crucible-repo/crucible-appliance-argo
+    repoURL: file:///crucible-repo/crucible-appliance
     targetRevision: main
     kustomize:
       namePrefix: appliance-
