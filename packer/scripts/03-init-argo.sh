@@ -62,6 +62,7 @@ kubectl apply -f $APPS_DIR/nginx/Application.yaml
 kubectl apply -f $APPS_DIR/http-echo/Application.yaml
 kubectl apply -f $APPS_DIR/postgres/Application.yaml
 kubectl apply -f $APPS_DIR/gitea/Application.yaml
+kubectl apply -f $APPS_DIR/keycloak/Application.yaml
 
 time=10
 echo "Sleeping $time seconds to wait for apps to sync"
