@@ -4,8 +4,8 @@ namespace: cert-manager
 secretGenerator:
   - name: root-ca
     files: 
-    - tls.crt=files/root-chain.pem
-    - tls.key=files/intermediate-ca.key
+    - tls.crt=files/root-ca.pem
+    - tls.key=files/root-ca.key
 generatorOptions:
   disableNameSuffixHash: true
 resources: 
