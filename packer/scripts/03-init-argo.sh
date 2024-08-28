@@ -23,12 +23,13 @@ if [ ! -d "${SCRIPTS_DIR}/../../dist/charts" ]; then
   echo "Creating Charts Directory ${SCRIPTS_DIR}/../../dist/charts"
   mkdir -p "${SCRIPTS_DIR}/../../dist/charts"
 fi
-CHARTS_DIR="$(readlink -e ${SCRIPTS_DIR}/../../dist/charts)"
-VALUES_DIR="$(readlink -e ${SCRIPTS_DIR}/../../argocd/values)"
-DIST_DIR="$(readlink -e ${SCRIPTS_DIR}/../../dist)"
-
+CHARTS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../dist/charts)"
+VALUES_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/values)"
+DIST_DIR="$(readlink -m ${SCRIPTS_DIR}/../../dist)"
+APPS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/apps/)"
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "VALUES_DIR: ${VALUES_DIR}"
+
 
 kubectl create namespace argocd
 kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd
@@ -41,3 +42,44 @@ kubectl wait deployment \
 
 kubectl config set-context --current --namespace=argocd
 argocd login --core
+echo "sleeping ..2"
+sleep 2
+POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
+echo "Deleting nginx"
+argocd app delete nginx -y || true
+
+kubectl exec $POD -- bash -c "rm -rf /tmp/apps"
+kubectl cp "$APPS_DIR" $POD:/tmp/apps
+kubectl exec $POD -- bash -c "cd /tmp/apps && \
+  git init . && \
+  git add --all && \
+  git -c user.name='Admin' -c user.email='admin@crucible.dev' commit -m 'Initial Commit'"
+
+echo "Sleeping..."
+kubectl apply -f $APPS_DIR/nginx/kustomize/overlays/appliance/Application.yaml
+kubectl apply -f $APPS_DIR/http-echo/kustomize/overlays/appliance/Application.yaml
+
+echo "waiting for all apps to become available"
+kubectl wait deployment \
+--all \
+--for=condition=Available \
+--namespace=argocd \
+--timeout=5m
+
+echo "Sleeping 30 seconds to ensure all apps are updated"
+sleep 30
+
+
+
+
+# argocd app create nginx \
+#    --repo "file:///tmp/apps" \
+#    --path nginx/kustomize/overlays/appliance \ 
+#    --dest-namespace argocd \
+#    --dest-server https://kubernetes.default.svc
+
+# argocd app create http-echo \
+#    --repo "file:///tmp/apps" \
+#    --path http-echo/kustomize/overlays/appliance \
+#    --dest-namespace argocd \
+#    --dest-server https://kubernetes.default.svc

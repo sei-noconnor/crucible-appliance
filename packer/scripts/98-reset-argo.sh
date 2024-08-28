@@ -17,6 +17,12 @@ SCRIPTS_DIR="${PWD}"
 
 echo "Current directory: ${SCRIPTS_DIR}"  # Additional feedback
 
+echo "Deleting APP[http-echo]"
+argocd --core app delete http-echo -y --wait 
+
+echo "Deleting APP[nginx]"
+argocd --core app delete nginx -y --wait 
+
 echo "Deleting existing Argo CD installation..."
 kubectl delete -f ../../argocd/manifests/core-install.yaml --wait -n argocd 
 

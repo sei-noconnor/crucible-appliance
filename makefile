@@ -16,9 +16,8 @@ argo:
 	bash ./packer/scripts/03-init-argo.sh
 
 build:
-	cd packer && \
-	rm -rf output && \
-	packer build -force -on-error=abort .
+	rm -rf ./packer/output && \
+	packer build -force -on-error=abort ./packer
 
 reset:
 	bash ./packer/scripts/98-reset-argo.sh
