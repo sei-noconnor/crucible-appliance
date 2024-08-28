@@ -24,12 +24,11 @@ if [ ! -d "${SCRIPTS_DIR}/../../dist/charts" ]; then
   mkdir -p "${SCRIPTS_DIR}/../../dist/charts"
 fi
 CHARTS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../dist/charts)"
-VALUES_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/values)"
+MANIFESTS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/manifests)"
 DIST_DIR="$(readlink -m ${SCRIPTS_DIR}/../../dist)"
 APPS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/apps/)"
 echo "CHARTS_DIR: ${CHARTS_DIR}"
-echo "VALUES_DIR: ${VALUES_DIR}"
-
+echo "MANIFESTS_DIR: ${MANIFESTS_DIR}"
 
 kubectl create namespace argocd
 kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd
@@ -39,15 +38,12 @@ kubectl wait deployment \
 --for=condition=Available \
 --namespace=argocd \
 --timeout=5m
-
 kubectl config set-context --current --namespace=argocd
+kubectl apply -f ${MANIFESTS_DIR}/AppProject.yaml
 argocd login --core
 echo "sleeping ..2"
 sleep 2
 POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
-echo "Deleting nginx"
-argocd app delete nginx -y || true
-
 kubectl exec $POD -- bash -c "rm -rf /tmp/apps"
 kubectl cp "$APPS_DIR" $POD:/tmp/apps
 kubectl exec $POD -- bash -c "cd /tmp/apps && \
@@ -56,9 +52,10 @@ kubectl exec $POD -- bash -c "cd /tmp/apps && \
   git -c user.name='Admin' -c user.email='admin@crucible.dev' commit -m 'Initial Commit'"
 
 echo "Sleeping..."
-kubectl apply -f $APPS_DIR/nginx/kustomize/overlays/appliance/Application.yaml
-kubectl apply -f $APPS_DIR/http-echo/kustomize/overlays/appliance/Application.yaml
-kubectl apply -f $APPS_DIR/postgres/kustomize/overlays/appliance/Application.yaml
+
+kubectl apply -f $APPS_DIR/nginx/Application.yaml
+kubectl apply -f $APPS_DIR/http-echo/Application.yaml
+kubectl apply -f $APPS_DIR/postgres/Application.yaml
 
 time=10
 echo "Sleeping $time seconds to wait for apps to sync"
