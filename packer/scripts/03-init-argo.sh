@@ -42,19 +42,21 @@ echo "REPO_DIR: ${REPO_DIR}"
 
 # Install ArgoCD
 rm -rf /tmp/crucible-appliance-argo
-mkdir -p ${REPO_DEST}
+mkdir -p /tmp/crucible-appliance-argo
 cp -R $REPO_DIR /tmp
 GIT_BRANCH=$(git -C $REPO_DIR rev-parse --abbrev-ref HEAD)
 cd $REPO_DEST
-find . -name "*.yaml" -exec sed -i "s/main/${GIT_BRANCH}/g" {} \;
+find . -name "Application.yaml" -exec sed -i "s/main/${GIT_BRANCH}/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> .gitignore
 # allow root-ca.key to be commited. This is bad, use a vault!
 echo "!**/*/root-ca.key" >> .gitignore
-git -C $REPO_DEST add -u 
-git -C $REPO_DEST add "**/*.pem"
-git -C $REPO_DEST add "**/*.key"
-git -C $REPO_DEST -c user.name="Admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
+git checkout $GIT_BRANCH
+git  add -u 
+git add "**/*.pem"
+git add "**/*.key"
+git -c user.name="Admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
+
 
 kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 time=2

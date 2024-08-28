@@ -17,6 +17,6 @@ spec:
   sources:
   - path: argocd/apps
     repoURL: file:///crucible-repo/crucible-appliance-argo
-    targetRevision: configure-topomojo
+    targetRevision: main
 
 
