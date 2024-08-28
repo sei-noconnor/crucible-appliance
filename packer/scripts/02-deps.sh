@@ -170,6 +170,10 @@ sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf ./dist/tools/go1.22.5.l
 # eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 # brew install gcc
 
+# Take base cluster snapshot
+"Sleeping for 20 seconds for snapshot"
+sleep 20
+k3s etcd-snapshot save --name base-cluster
 
 # # Delete Ubuntu machine ID for proper DHCP operation on deploy
 # # echo -n > /etc/machine-id

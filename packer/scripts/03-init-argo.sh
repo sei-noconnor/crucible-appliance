@@ -38,7 +38,7 @@ echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "INTALL_DIR: ${INSTALL_DIR}"
 
 # Install ArgoCD
-kubectl kustomize $INSTALL_DIR/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+kustomize build $INSTALL_DIR/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 time=2
 echo "Sleeping $time"
 sleep $time

@@ -16,7 +16,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
   sources:
-  - path: install/argocd/kustomize/overlays/appliance
+  - path: argocd/install/argocd/kustomize/overlays/appliance
     repoURL: file:///tmp/argo
     targetRevision: HEAD
     kustomize:
