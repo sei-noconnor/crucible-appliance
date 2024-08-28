@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# Copyright 2022 Carnegie Mellon University.
+# Released under a BSD (SEI)-style license, please see LICENSE.md in the
+# project root or contact permission@sei.cmu.edu for full terms.
+#
+# Variables (Initialize to defaults or empty)
+service_name="argocd-repo-server"
+secret_name=""
+local_port="8080"
+remote_port="443"
+namespace="argocd"
+
+# Change to the current directory and inform the user
+echo "Changing to script directory..."
+DIR=$(dirname "${BASH_SOURCE[0]}")
+cd "$DIR" || exit  # Handle potential errors with directory change
+SCRIPTS_DIR="${PWD}"
+# Ensure correct context
+kubectl config set-context crucible-appliance --namespace default 
+
+# Install vault
+kubectl create namespace vault
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm install vault hashicorp/vault --set “server.dev.enabled=true” -n vault
+
+# Install argocd-cli
+VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
+
+kubectl create namespace argocd
+kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd --wait
+
+
+echo "Waiting for service '$service_name' in namespace '$namespace' to become ready..."
+
+# Wait for the service to have an endpoint (indicating readiness)
+while ! kubectl get endpoints "$service_name" -n "$namespace" &> /dev/null; do 
+    sleep 2 
+    echo "Service not ready yet. Retrying..."
+done
+
+echo "Service is ready. Configuring Argo CD"
+
+# # Port-forward the service to the local port
+# kubectl port-forward svc/"$service_name" -n "$namespace" "$local_port":"$remote_port" &
+
+# # Get the process ID of the port-forwarding command
+# port_forward_pid=$!
+
+# # Trap signals to gracefully terminate the port-forwarding process
+# trap "echo 'Stopping port-forwarding...'; kill $port_forward_pid" SIGINT SIGTERM
+
+# # Wait for the port-forwarding process to finish (usually runs indefinitely)
+# wait $port_forward_pid
+
+# argocd admin $$argo_pass -n argocd
+
+# # Get all namespaces
+# namespaces=$(kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+
+# # Loop through namespaces and delete the secret
+# for ns in $namespaces; do
+#     if kubectl get secret "$secret_name" -n "$ns" &> /dev/null; then  # Check if secret exists
+#         echo "Deleting secret '$secret_name' from namespace '$ns'"
+#         kubectl delete secret "$secret_name" -n "$ns"
+#     else
+#         echo "Secret '$secret_name' not found in namespace '$ns'"
+#     fi
+# done
+# kubectl delete secret argocd-initial-admin-secret -n argocd
+
+kubectl config set-context --current --namespace=argocd
+argocd login --core
+
