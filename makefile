@@ -1,6 +1,6 @@
 # VARS
 SHELL := /bin/bash
-DOMAIN ?= crucible.dev
+DOMAIN ?= crucible.local
 ADMIN_PASS ?= ubuntu
 SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps

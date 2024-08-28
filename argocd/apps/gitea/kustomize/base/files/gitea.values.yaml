@@ -17,14 +17,14 @@ ingress:
     
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: crucible.dev
+    - host: crucible.local
       paths:
         - path: "/gitea(/|$)(.*)"
           pathType: Prefix
   tls:
     - secretName: gitea-tls
       hosts:
-        - crucible.dev
+        - crucible.local
 
 persistence:
   enabled: true
@@ -33,12 +33,12 @@ gitea:
   admin:
     username: administrator
     password: postgres
-    email: "administrator@crucible.dev"
+    email: "administrator@crucible.local"
   config:
     APP_NAME: Crucible Gitea
     server:
-      DOMAIN: https://crucible.dev/gitea/
-      ROOT_URL: https://crucible.dev/gitea/
+      DOMAIN: https://crucible.local/gitea/
+      ROOT_URL: https://crucible.local/gitea/
     database:
       DB_TYPE: postgres
       HOST: appliance-postgresql.postgres.svc.cluster.local:5432

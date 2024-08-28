@@ -264,7 +264,7 @@ args: []
 #   - name: KC_DB_URL_DATABASE
 #     value: "keycloak"
 #   - name: KC_HOSTNAME
-#     value: crucible.dev
+#     value: crucible.local
 #   - name: KC_HOSTNAME_STRICT
 #     value: "false"
 #   - name: KC_HOSTNAME_STRICT_HTTPS
@@ -286,7 +286,7 @@ args: []
   # - name: KC_METRICS_ENABLED
   #   value: "true"
   # - name: DOMAIN
-  #   value: crucible.dev"
+  #   value: crucible.local"
   # - name: KC_HTTPS_TRUST_STORE_FILE
   #   value: /opt/bitnami/keycloak/spi-certs/truststore.jks
   # - name: KC_HTTPS_TRUST_STORE_PASSWORD
@@ -659,7 +659,7 @@ ingress:
   apiVersion: ""
   ## @param ingress.hostname Default host for the ingress record (evaluated as template)
   ##
-  hostname: crucible.dev
+  hostname: crucible.local
   ## @param ingress.path Default path for the ingress record
   ##
   path: "/(keycloak)(/|$)(.*)"

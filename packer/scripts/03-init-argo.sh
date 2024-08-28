@@ -61,7 +61,7 @@ kubectl cp "$INSTALL_DIR" $POD:/tmp/argo/install
 kubectl exec $POD -- bash -c "cd /tmp/argo && \
   git init . && \
   git add --all && \
-  git -c user.name='Admin' -c user.email='admin@crucible.dev' commit -m 'Initial Commit'"
+  git -c user.name='Admin' -c user.email='admin@crucible.local' commit -m 'Initial Commit'"
 
 kubectl apply -f $APPS_DIR/Application.yaml
 # kubectl apply -f $APPS_DIR/cert-manager/Application.yaml
