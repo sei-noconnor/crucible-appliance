@@ -11,7 +11,6 @@ helmCharts:
   valuesMerge: merge
 resources: 
 - namespace.yaml
-- nginx-dod-certs.yaml
 
 labels:
 - pairs:
@@ -22,7 +21,7 @@ secretGenerator:
 - name: dod-certs
   files:
   - ca.crt=files/issuers-dod-certs.crt
-  namespace: ingress-nginx
+  
 
 - name: keycloak-truststore
   files:
