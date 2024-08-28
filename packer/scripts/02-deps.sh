@@ -78,14 +78,15 @@ chmod -x /etc/update-motd.d/00-header
 chmod -x /etc/update-motd.d/10-help-text
 sed -i -r 's/(ENABLED=)1/\0/' /etc/default/motd-news
 echo "Current Directory is: $PWD"
-cp ./packer/scripts/display-banner /etc/update-motd.d/05-display-banner
+cp packer/scripts/display-banner /etc/update-motd.d/05-display-banner
 # Will need later when we install mkdocs #remove
 # sed -i "s/{version}/$APPLIANCE_VERSION/" ~/mkdocs/docs/index.md
 echo -e "Crucible Appliance $APPLIANCE_VERSION \\\n \l \n" >> /etc/issue
 
 # Create systemd service to configure netplan primary interface
-cp ./packer/scripts/configure-nic /usr/local/bin
-cat <<EOF > /etc/systemd/system/configure-nic.service
+
+cp packer/scripts/configure_nic /usr/local/bin
+cat <<EOF > /etc/systemd/system/configure_nic.service
 [Unit]
 Description=Configure Netplan primary Ethernet interface
 After=network.target
@@ -93,14 +94,14 @@ Before=k3s.service
 
 [Service]
 Type=oneshot
-ExecStart=configure-nic
+ExecStart=/usr/local/bin/configure_nic
 
 [Install]
 WantedBy=multi-user.target
 EOF
 chmod +x /usr/local/bin/configure_nic
 systemctl daemon-reload
-systemctl enable configure-nic
+systemctl enable configure_nic
 
 APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 # Add hosts Entry 
@@ -171,7 +172,7 @@ sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf ./dist/tools/go1.22.5.l
 # brew install gcc
 
 # Take base cluster snapshot
-"Sleeping for 20 seconds for snapshot"
+echo "Sleeping for 20 seconds for snapshot"
 sleep 20
 k3s etcd-snapshot save --name base-cluster
 
