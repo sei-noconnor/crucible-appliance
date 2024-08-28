@@ -59,6 +59,9 @@ snapshot:
 %:
 	@true
 
+keycloak-realm-export:
+	./scripts/keycloak-realm-export.sh
+
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
 	
