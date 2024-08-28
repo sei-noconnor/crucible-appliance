@@ -19,8 +19,9 @@ init: generate_certs
 	echo "${ADMIN_PASS}" | SSH_USERNAME=ubuntu sudo -E -S bash ./packer/scripts/02-deps.sh
 	./packer/scripts/03-init-argo.sh
 
-argo: 
-	bash ./packer/scripts/03-init-argo.sh
+argo:
+	./scripts/distribute_certs.sh $(SSL_DIR)/server/tls
+	./packer/scripts/03-init-argo.sh
 
 build:
 	rm -rf ./packer/output && \
