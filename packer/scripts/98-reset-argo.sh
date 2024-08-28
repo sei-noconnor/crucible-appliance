@@ -14,45 +14,22 @@ echo "Changing to script directory..."
 DIR=$(dirname "${BASH_SOURCE[0]}")
 cd "$DIR" || exit  # Handle potential errors with directory change
 SCRIPTS_DIR="${PWD}"
-APPS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/apps/)"
+APPS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/apps)"
+INSTALL_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/install)"
 
 echo "Current directory: ${SCRIPTS_DIR}"  # Additional feedback
 kubectl config set-context --current --namespace argocd
 
-echo "Deleting APP[http-echo]"
-kubectl delete --wait -f $APPS_DIR/http-echo/Application.yaml
-# argocd --core app delete http-echo -y --wait 
-
-echo "Deleting APP[gitea]"
-kubectl delete --wait -f $APPS_DIR/gitea/Application.yaml
-# argocd --core app delete http-echo -y --wait 
-
-echo "Deleting APP[cert-manager]"
-kubectl delete --wait -f $APPS_DIR/cert-manager/Application.yaml
-# argocd --core app delete cert-manager -y --wait 
-
-echo "Deleting APP[keycloak]"
-kubectl delete --wait -f $APPS_DIR/keycloak/Application.yaml
-# argocd --core app delete keycloak -y --wait 
-
-
-echo "Deleting APP[postgres]"
-kubectl delete --wait -f $APPS_DIR/postgres/Application.yaml
-# argocd --core app delete postgres -y --wait 
-
-echo "Deleting APP[nginx]"
-kubectl delete --wait  -f $APPS_DIR/nginx/Application.yaml
-# argocd --core app delete nginx -y --wait 
+echo "Deleting App[app-of-apps]"
+kubectl delete --wait -f $APPS_DIR/Application.yaml
 
 echo "Deleting APP[argocd]"
-kubectl delete --wait -f $APPS_DIR/argocd/Application.yaml
+kubectl kustomize $INSTALL_DIR/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
 # argocd --core app delete http-echo -y --wait 
 
-echo "Deleting existing Argo CD installation..."
-kubectl delete -f ../../argocd/manifests/core-install.yaml --wait -n argocd 
 
-echo "Deleting 'argocd' namespace..."
-kubectl delete namespace argocd --wait || exit  # Exit if namespace deletion fails
+# echo "Deleting 'argocd' namespace..."
+# kubectl delete namespace argocd --wait || exit  # Exit if namespace deletion fails
 
 echo "Script completed."  # Final success message
 

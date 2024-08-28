@@ -16,8 +16,8 @@ spec:
     syncOptions:
     - CreateNamespace=true
   source:
-    path: nginx/kustomize/overlays/appliance
-    repoURL: file:///tmp/apps
+    path: apps/nginx/kustomize/overlays/appliance
+    repoURL: file:///tmp/argo
     targetRevision: HEAD
     kustomize:
       commonLabels:

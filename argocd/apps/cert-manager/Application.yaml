@@ -16,14 +16,12 @@ spec:
     syncOptions:
     - CreateNamespace=true
   sources:
-  - path: cert-manager/manifests
-    repoURL: file:///tmp/apps
+  - path: apps/cert-manager/manifests
+    repoURL: file:///tmp/argo
     targetRevision: HEAD
     directory:
       recurse: true
-  - path: cert-manager/kustomize/overlays/appliance
-    repoURL: file:///tmp/apps
+  - path: apps/cert-manager/kustomize/overlays/appliance
+    repoURL: file:///tmp/argo/
     targetRevision: HEAD
-    kustomize:
-      commonLabels:
-        foo: bar
+    

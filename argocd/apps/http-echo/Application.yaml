@@ -16,8 +16,8 @@ spec:
     syncOptions:
     - CreateNamespace=true
   source:
-    path: http-echo/kustomize/overlays/appliance
-    repoURL: file:///tmp/apps
+    path: apps/http-echo/kustomize/overlays/appliance
+    repoURL: file:///tmp/argo
     targetRevision: HEAD
     kustomize:
       namePrefix: appliance-
