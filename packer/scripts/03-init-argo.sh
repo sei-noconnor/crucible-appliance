@@ -37,8 +37,8 @@ echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "MANIFESTS_DIR: ${MANIFESTS_DIR}"
 
 # Install ArgoCD
-kubectl create namespace argocd
-kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd
+#kubectl create namespace argocd
+#kubectl apply -f ../../argocd/manifests/core-install.yaml -n argocd
 # Wait for ArgoCD
 kubectl wait deployment \
 --all \
@@ -62,9 +62,10 @@ kubectl exec $POD -- bash -c "cd /tmp/apps && \
 
 echo "Sleeping..."
 
+kubectl apply -f $APPS_DIR/argocd/Application.yaml
 kubectl apply -f $APPS_DIR/cert-manager/Application.yaml
 kubectl apply -f $APPS_DIR/nginx/Application.yaml
-kubectl apply -f $APPS_DIR/http-echo/Application.yaml
+kubectl apply -f $APPS_DIR/http-echo/Application.yak3s-ml
 kubectl apply -f $APPS_DIR/postgres/Application.yaml
 kubectl apply -f $APPS_DIR/gitea/Application.yaml
 kubectl apply -f $APPS_DIR/keycloak/Application.yaml

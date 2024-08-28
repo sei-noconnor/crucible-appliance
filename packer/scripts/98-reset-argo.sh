@@ -44,6 +44,10 @@ echo "Deleting APP[nginx]"
 kubectl delete --wait  -f $APPS_DIR/nginx/Application.yaml
 # argocd --core app delete nginx -y --wait 
 
+echo "Deleting APP[argocd]"
+kubectl delete --wait -f $APPS_DIR/argocd/Application.yaml
+# argocd --core app delete http-echo -y --wait 
+
 echo "Deleting existing Argo CD installation..."
 kubectl delete -f ../../argocd/manifests/core-install.yaml --wait -n argocd 
 
