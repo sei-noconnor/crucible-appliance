@@ -4,7 +4,7 @@
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
 # project root or contact permission@sei.cmu.edu for full terms.
 
-GITEA_ADMIN_PASSWORD="postgres"
+GITEA_ADMIN_PASSWORD="crucible"
 ADMIN_PASS=${ADMIN_PASS:-crucible}
 # CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
 CURL_OPTS=( --header "accept: application/json" --header "Content-Type: application/json" )

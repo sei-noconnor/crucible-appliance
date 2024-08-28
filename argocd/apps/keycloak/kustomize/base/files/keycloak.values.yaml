@@ -13,7 +13,7 @@ auth:
   adminUser: admin
   ## @param auth.adminPassword Keycloak administrator password for the new user
   ##
-  adminPassword: "postgres"
+  adminPassword: "crucible"
 # spi:
 #   existingSecret: "keycloak-truststore"
 #   truststorePassword: "password"
@@ -126,7 +126,7 @@ externalDatabase:
   port: 5432
   user: "postgres"
   database: keycloak
-  password: "postgres"
+  password: "crucible"
   existingSecret: ""
   existingSecretPasswordKey: ""
 logging:

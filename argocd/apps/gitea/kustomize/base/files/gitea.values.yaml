@@ -32,7 +32,7 @@ persistence:
 gitea:
   admin:
     username: administrator
-    password: postgres
+    password: crucible
     email: "administrator@crucible.local"
   config:
     APP_NAME: Crucible Gitea
@@ -44,7 +44,7 @@ gitea:
       HOST: appliance-postgresql.postgres.svc.cluster.local:5432
       NAME: gitea
       USER: postgres
-      PASSWD: postgres
+      PASSWD: crucible
       SCHEMA: public
     indexer:
       ISSUE_INDEXER_TYPE: bleve

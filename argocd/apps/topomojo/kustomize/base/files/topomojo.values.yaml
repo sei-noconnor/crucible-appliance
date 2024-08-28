@@ -100,7 +100,7 @@ topomojo-api:
   env:
     PathBase: "/topomojo"
     Database__Provider: PostgreSQL
-    Database__ConnectionString: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=topomojo;Username=postgres;Password=postgres;SSL Mode=Prefer;Trust Server Certificate=true;
+    Database__ConnectionString: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=topomojo;Username=postgres;Password=crucible;SSL Mode=Prefer;Trust Server Certificate=true;
     Database__AdminId: d29518c4-f61c-4284-81c4-f2fbd79e6e9a
     Database__AdminName: Administrator
     Cache__SharedFolder: ""
