@@ -37,7 +37,7 @@ do
     fi
 done </dev/tty
 echo "CLUSTER RESET!"
-time=10
+time=15
 echo "Sleeping for $time"
 sleep $time
 echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
