@@ -23,12 +23,19 @@ generatorOptions:
 
 resources:
 - ../../base
+
+labels:
+- pairs:
+    config: keycloak
+  includeSelectors: true
+
 patches:
 - patch: |-
     apiVersion: v1
     kind: Secret
     metadata:
       name: keycloak-import
+      namespace: keycloak
     type: Opaque
     data:
       quarkus.properties: |-
@@ -48,3 +55,4 @@ patches:
     kind: Secret
     name: keycloak-import
     namespace: keycloak
+    labelSelector: "config=keycloak"
