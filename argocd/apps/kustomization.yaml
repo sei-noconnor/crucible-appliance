@@ -8,3 +8,4 @@ resources:
 - postgres/Application.yaml
 - gitea/Application.yaml
 - keycloak/Application.yaml
+- topomojo/Application.yaml
