@@ -25,7 +25,7 @@ jobs:
       run: brew install xmlstarlet
 
     - name: Remove network config for VirtualBox 6 compatibility
-      run: sed -i '' '/localhostreachable/d' foundry-appliance.pkr.hcl
+      run: sed -i '' '/localhostreachable/d' crucible-appliance.pkr.hcl
 
     - name: Build VirtualBox OVF image
       uses: nick-fields/retry@v2
