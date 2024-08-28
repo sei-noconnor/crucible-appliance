@@ -5,7 +5,7 @@
 # project root or contact permission@sei.cmu.edu for full terms.
 
 GITEA_ADMIN_PASSWORD="postgres"
-ADMIN_PASS=${ADMIN_PASS:-ubuntu}
+ADMIN_PASS=${ADMIN_PASS:-crucible}
 # CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
 CURL_OPTS=( --header "accept: application/json" --header "Content-Type: application/json" )
 KEY_NAME="crucible-appliance-argo-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 5 | head -n 1)"

@@ -2,7 +2,7 @@ vars:
   vsphere_server:
   vsphere_user:
   vsphere_password:
-  vsphere_tempalte:
+  vsphere_template:
   datacenter:
   cluster:
   host:
