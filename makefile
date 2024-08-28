@@ -12,7 +12,7 @@ export ADMIN_PASS
 generate_certs:
 	./scripts/generate_root_ca.sh
 	./scripts/k3s-ca-gen.sh
-	./scripts/distribute_certs.sh $(SSL_DIR)
+	./scripts/distribute_certs.sh $(SSL_DIR)/server/tls/
 	
 init:
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
@@ -36,4 +36,4 @@ clean:
 
 .PHONY: all clean init build argo reset
 
-all: generate_certs
+all: generate_certs init

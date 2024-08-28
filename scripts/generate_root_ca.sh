@@ -8,11 +8,11 @@
 # cluster startup. Note that these files MUST be present before K3s is started the first
 # time; certificate data SHOULD NOT be changed once the cluster has been initialized.
 #
-# The output path may be overridden with the DATA_DIR environment variable.
+# The output path may be overridden with the SSL_DIR environment variable.
 # 
 # This script will also auto-generate certificates and keys for both root and intermediate
 # certificate authorities if none are found.
-# If you have existing certs, you must place then in `DATA_DIR/server/tls`.
+# If you have existing certs, you must place then in `SSL_DIR/server/tls`.
 # If you have only an existing root CA, provide:
 #   root-ca.pem
 #   root-ca.key
@@ -26,7 +26,7 @@ umask 027
 
 TIMESTAMP=$(date +%s)
 PRODUCT="${PRODUCT:-k3s}"
-DATA_DIR="${DATA_DIR:-/var/lib/rancher/${PRODUCT}}"
+SSL_DIR="${SSL_DIR:-/var/lib/rancher/${PRODUCT}}"
 
 if type -t openssl-3 &>/dev/null; then
   OPENSSL=openssl-3
@@ -43,10 +43,10 @@ fi
 
 ${OPENSSL} version | grep -qF 'OpenSSL 3' && OPENSSL_GENRSA_FLAGS=-traditional
 echo
-echo "Making DATA_DIR: ${DATA_DIR}/server/tls/etcd"
+echo "Making SSL_DIR: ${SSL_DIR}/server/tls/etcd"
 echo
-mkdir -p "${DATA_DIR}/server/tls/etcd"
-cd "${DATA_DIR}/server/tls"
+mkdir -p "${SSL_DIR}/server/tls/etcd"
+cd "${SSL_DIR}/server/tls"
 
 # Set up temporary openssl configuration
 mkdir -p ".ca/certs"
@@ -120,12 +120,12 @@ if [[ ! -e intermediate-ca.key ]]; then
 fi
 
 echo
-echo "CA certificate generation complete. Required files are now present in: ${DATA_DIR}/server/tls"
+echo "CA certificate generation complete. Required files are now present in: ${SSL_DIR}/server/tls"
 echo "For security purposes, you should make a secure copy of the following files and remove them from cluster members:"
-ls ${DATA_DIR}/server/tls/root-ca.* ${DATA_DIR}/server/tls/intermediate-ca.* | xargs -n1 echo -e "\t"
+ls ${SSL_DIR}/server/tls/root-ca.* ${SSL_DIR}/server/tls/intermediate-ca.* | xargs -n1 echo -e "\t"
 
-if [ "${DATA_DIR}" != "/var/lib/rancher/${PRODUCT}" ]; then
+if [ "${SSL_DIR}" != "/var/lib/rancher/${PRODUCT}" ]; then
   echo
   echo "To update certificates on an existing cluster, you may now run:"
-  echo "    k3s certificate rotate-ca --path=${DATA_DIR}/server"
+  echo "    k3s certificate rotate-ca --path=${SSL_DIR}/server"
 fi
