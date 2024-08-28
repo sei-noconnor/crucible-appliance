@@ -9,3 +9,4 @@ resources:
 - gitea/Application.yaml
 - keycloak/Application.yaml
 - topomojo/Application.yaml
+- mkdocs/Application.yaml
