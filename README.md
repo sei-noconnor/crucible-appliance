@@ -49,14 +49,6 @@ Install the following external tools: (These are installed with `make init`)
 
 ## Getting Started
 
-### 1. Clone the Repository
-
-```bash
-export REPO_URL=https://github.com/your-username/packer-appliance-ovf.git
-git clone $REPO_URL
-cd packer-appliance-ovf
-```
-
 ## Build
 
 ### Building the Appliance
@@ -126,6 +118,7 @@ Contributions are welcome! Please see the [DEVELOPMENT.md](./DEVELOPMENT.md) REA
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ### Install the OVFTool from VMware
+The OVF tool is now hosted behind a login, you'll need to install the OVFTool if you want to convert from OVF format to OVA.
 
 1.  Download and install the OVFTool from VMware [ovftool](https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest).
 2.  Install it based on the [instructions](https://docs.vmware.com/en/VMware-Telco-Cloud-Operations/1.3.0/deployment-guide-130/GUID-95301A42-F6F6-4BA9-B3A0-A86A268754B6.html).
