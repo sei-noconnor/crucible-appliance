@@ -1,6 +1,6 @@
 {
   "id" : "24d179e2-6166-46e4-bcf0-30a797cdca4e",
-  "realm" : "Crucible",
+  "realm" : "crucible",
   "notBefore" : 0,
   "defaultSignatureAlgorithm" : "RS256",
   "revokeRefreshToken" : false,
