@@ -25,6 +25,9 @@ patches:
 
           containers:
           - name: repo-server
+            env:
+              - name: ARGOCD_EXEC_TIMEOUT
+                value: "300"
             volumeMounts:
               - name: crucible-root-ca
                 mountPath: /etc/ssl/certs/crucible-root-ca.crt
