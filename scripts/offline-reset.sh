@@ -37,3 +37,10 @@ do
     fi
 done </dev/tty
 echo "CLUSTER RESET!"
+
+echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
+kubectl wait deployment \
+--all \
+--for=condition=Available \
+--all-namespaces=true \
+--timeout=5m
