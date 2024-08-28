@@ -57,12 +57,12 @@ topomojo-api:
     command: ['/bin/sh']
     args: ['/start/start.sh']
     binaryFiles: {}
-    files: {}
-      # start.sh: |
-      #   #!/bin/sh
-      #   cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
-      #   cd /app && dotnet TopoMojo.Api.dll
-      # cacert.crt: |-
+    files: 
+      start.sh: |
+        #!/bin/sh
+        cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
+        cd /app && dotnet TopoMojo.Api.dll
+      cacert.crt: |-
         
 
 

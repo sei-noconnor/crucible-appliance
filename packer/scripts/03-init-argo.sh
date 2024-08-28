@@ -40,6 +40,9 @@ echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "INSTALL_DIR: ${INSTALL_DIR}"
 echo "REPO_DIR: ${REPO_DIR}"
 
+# Add certificate to topomojo, This is the only way it works. TODO: Update topomojo helm chart
+cat ./dist/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' ./argocd/apps/topomojo/kustomize/base/files/topomojo.values.yaml
+
 # Install ArgoCD
 rm -rf /tmp/crucible-appliance
 mkdir -p /tmp/crucible-appliance
