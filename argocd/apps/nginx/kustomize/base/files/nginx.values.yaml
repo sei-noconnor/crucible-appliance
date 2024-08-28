@@ -1,0 +1,84 @@
+## nginx configuration
+## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/index.md
+##
+
+controller:
+  # -- Global configuration passed to the ConfigMap consumed by the controller. Values may contain Helm templates.
+  # Ref.: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
+  config:
+    hsts: "false"
+  # -- Optionally change this to ClusterFirstWithHostNet in case you have 'hostNetwork: true'.
+  # By default, while using host network, name resolution uses the host's DNS. If you wish nginx-controller
+  # to keep resolving names inside the k8s network, use ClusterFirstWithHostNet.
+  
+  # -- This configuration defines if Ingress Controller should allow users to set
+  # their own *-snippet annotations, otherwise this is forbidden / dropped
+  # when users add those annotations.
+  # Global snippets in ConfigMap are still respected
+  allowSnippetAnnotations: true
+  
+  # NetworkPolicy for controller component.
+  networkPolicy:
+    # -- Enable 'networkPolicy' or not
+    enabled: false
+  
+  # -- This section refers to the creation of the IngressClass resource.
+  # IngressClasses are immutable and cannot be changed after creation.
+  # We do not support namespaced IngressClasses, yet, so a ClusterRole and a ClusterRoleBinding is required.
+  ingressClassResource:
+    # -- Name of the IngressClass
+    name: nginx
+    # -- Create the IngressClass or not
+    enabled: true
+    # -- If true, Ingresses without `ingressClassName` get assigned to this IngressClass on creation.
+    # Ingress creation gets rejected if there are multiple default IngressClasses.
+    # Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#default-ingress-class
+    default: true
+    
+    # -- Aliases of this IngressClass. Creates copies with identical settings but the respective alias as name.
+    # Useful for development environments with only one Ingress Controller but production-like Ingress resources.
+    # `default` gets enabled on the original IngressClass only.
+    aliases: []
+    # aliases:
+    # - nginx-alias-1
+    # - nginx-alias-2
+    # -- A link to a custom resource containing additional configuration for the controller.
+    # This is optional if the controller consuming this IngressClass does not require additional parameters.
+    # Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-class
+  
+  admissionWebhooks:
+    # Use certmanager to generate webhook certs
+    certManager:
+      enabled: false
+      # self-signed root certificate
+      rootCert:
+        # default to be 5y
+        duration: ""
+      admissionCert:
+        # default to be 1y
+        duration: ""
+        # issuerRef:
+        #   name: "issuer"
+        #   kind: "ClusterIssuer"
+  metrics:
+    enabled: false
+    
+# -- Rollback limit
+##
+revisionHistoryLimit: 10
+## Default 404 backend
+##
+defaultBackend:
+  enabled: false
+  
+# -- TCP service key-value pairs
+## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md
+##
+tcp: {}
+#  "8080": "default/example-tcp-svc:9000"
+
+# -- UDP service key-value pairs
+## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md
+##
+udp: {}
+#  "53": "kube-system/kube-dns:53"
