@@ -23,7 +23,11 @@ echo "Deleting APP[http-echo]"
 kubectl delete --wait -f $APPS_DIR/http-echo/Application.yaml
 # argocd --core app delete http-echo -y --wait 
 
-echo "Deleting APP[http-echo]"
+echo "Deleting APP[gitea]"
+kubectl delete --wait -f $APPS_DIR/gitea/Application.yaml
+# argocd --core app delete http-echo -y --wait 
+
+echo "Deleting APP[cert-manager]"
 kubectl delete --wait -f $APPS_DIR/cert-manager/Application.yaml
 # argocd --core app delete cert-manager -y --wait 
 
