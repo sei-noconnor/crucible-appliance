@@ -80,7 +80,8 @@ build {
       "SSH_USERNAME=${var.ssh_username}",
     ]
     inline = [
-      "sudo apt update && sudo apt install make"
+      "sudo apt update && sudo apt install make",
+      "grep -qxF 'ENVIRONMENT=APPLIANCE' '/etc/environment' || echo 'ENVIRONMENT=APPLIANCE' >> '/etc/environment'"
     ]
   }
 
@@ -90,8 +91,7 @@ build {
       "SSH_USERNAME=${var.ssh_username}",
     ]
     inline = [
-      "mkdir /home/${var.ssh_username}/appliance",
-      "grep -qxF 'ENVIRONMENT=APPLIANCE' '/etc/environment' || echo 'ENVIRONMENT=APPLIANCE' >> '/etc/environment'"
+      "mkdir /home/${var.ssh_username}/appliance"
     ]
   }
 
