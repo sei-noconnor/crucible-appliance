@@ -113,6 +113,18 @@ build {
       "make init"
     ]
   }
+
+  provisioner "shell" {
+    execute_command   = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+    environment_vars  = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "SSH_USERNAME=${var.ssh_username}",
+    ]
+    inline = [
+      "make snapshot"
+    ]
+  }
+
   /*
   provisioner "shell" {
     execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
