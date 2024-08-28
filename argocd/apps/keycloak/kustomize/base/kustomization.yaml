@@ -11,6 +11,7 @@ helmCharts:
   valuesMerge: merge
 resources: 
 - namespace.yaml
+- nginx-dod-certs.yaml
 
 labels:
 - pairs:
