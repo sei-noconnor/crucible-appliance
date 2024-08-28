@@ -24,6 +24,7 @@ argo:
 
 build:
 	rm -rf ./packer/output && \
+	rm -rf ./output && \
 	packer build -force -on-error=abort ./packer
 
 reset:
