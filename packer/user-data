@@ -3,7 +3,7 @@ autoinstall:
   version: 1
   identity:
     hostname: crucible.local
-    password: "$6$exDY1mhS4KUYCE/2$zmn9ToZwTKLhCw.b4/b.ZRTIZM30JZ4QrOQ2aOXJ8yk96xpcCof0kxKwuX1kqLG/ygbJ1f8wxED22bTL4F46P0"
+    password: "$6$FhcddHFVZ7ABA4Gi$nXvs0mc4vxVIaVxWmrWhelv36V/J4AA4OzWfmSH./n39t9DtrvggkMlpYXeMwc9P0iD/cBFKFG2BpfE.n84hl1"
     username: crucible
   ssh:
     install-server: true

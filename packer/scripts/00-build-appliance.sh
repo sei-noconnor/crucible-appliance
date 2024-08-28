@@ -10,6 +10,16 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   readlink_cmd="greadlink -m"  
 fi
 
+# Parse target hypervisors into Packer -only option syntax
+if [[ $1 != -* ]]; then
+    IFS=',' read -ra TARGETS <<< "$1"
+    for i in "${TARGETS[@]}"; do
+        ONLY_VAR+="$i*,"
+    done
+    ONLY_VAR=${ONLY_VAR%?}
+    shift 1
+fi
+
 cd "$DIR" || exit  # Handle potential errors with directory change
 SCRIPTS_DIR="${PWD}"
 
@@ -36,4 +46,8 @@ fi
 cd $PACKER_DIR/../
 packer init ./packer
 echo "Setting VM Name to crucible-appliance-$BUILD_VERSION"
-packer build -var "appliance_version=$BUILD_VERSION" -var-file "./packer/vars.auto.pkrvars.hcl" $@ ./packer
+if [ -n "$ONLYVAR" ]; then 
+    packer build -only=$ONLY_VAR -var "appliance_version=$BUILD_VERSION" @ ./packer
+else
+    packer build -var "appliance_version=$BUILD_VERSION" -var-file "./packer/vars.auto.pkrvars.hcl" $@ ./packer
+fi

@@ -69,7 +69,7 @@ The Crucible appliance is tested on vSphere 8, ensuring seamless compatibility a
       `cp appliance.yaml.example appliance.yaml`
     ```
 
-````
+
 2.  **Customize Your Environment:**
 
  Modify the `appliance.yaml` file to match your environment. This includes setting the vSphere server, user credentials, datacenter, cluster, datastore, and network details. Ensure these settings match your vSphere configuration to avoid deployment errors.
@@ -83,7 +83,7 @@ The Crucible appliance is tested on vSphere 8, ensuring seamless compatibility a
       cluster: Cluster1
       datastore: ds1
       network_name: "VM Network"`
-````
+```
 
 3.  **Initiate the Build:**
 
@@ -93,7 +93,7 @@ The Crucible appliance is tested on vSphere 8, ensuring seamless compatibility a
 
 4.  **Import into vSphere:**
 
-    Upon successful completion of the Packer build process, an OVF directory will be located in the `./output` folder. Import this OVF into your vSphere environment.
+    Upon successful completion of the Packer build process, an OVF directory will be located in the `./dist/output` folder. Import this OVF into your vSphere environment.
 
 ## Makefile Documentation
 
