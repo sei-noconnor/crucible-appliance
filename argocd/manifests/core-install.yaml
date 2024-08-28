@@ -21199,6 +21199,17 @@ metadata:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
   name: argocd-cm
+data:
+  kustomize.buildOptions: --enable-helm
+  configManagementPlugins: |
+    - name: kustomized-helm
+      init:
+        command: ["/bin/sh", "-c"]
+        args: ["helm dependency build"]
+      generate:
+        command: [sh, -c]
+        args: ["helm template --release-name release-name . > all.yaml && kustomize build"]
+
 ---
 apiVersion: v1
 kind: ConfigMap
