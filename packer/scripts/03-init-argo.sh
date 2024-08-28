@@ -15,6 +15,11 @@ namespace="argocd"
 echo "Changing to script directory..."
 DIR=$(dirname "${BASH_SOURCE[0]}")
 echo "changing directory to: $DIR"
+# Detect Mac and use greadlink
+readlink_cmd="readlink -m"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  readlink_cmd="greadlink -m"  
+fi
 
 cd "$DIR" || exit  # Handle potential errors with directory change
 SCRIPTS_DIR="${PWD}"
@@ -24,10 +29,10 @@ if [ ! -d "${SCRIPTS_DIR}/../../dist/charts" ]; then
   mkdir -p "${SCRIPTS_DIR}/../../dist/charts"
 fi
 # set all config dirs to absolute paths
-CHARTS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../dist/charts)"
-MANIFESTS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/manifests)"
-DIST_DIR="$(readlink -m ${SCRIPTS_DIR}/../../dist)"
-APPS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/apps/)"
+CHARTS_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../dist/charts)"
+MANIFESTS_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../argocd/manifests)"
+DIST_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../dist)"
+APPS_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../argocd/apps/)"
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "MANIFESTS_DIR: ${MANIFESTS_DIR}"
 
@@ -43,7 +48,7 @@ kubectl wait deployment \
 
 
 kubectl config set-context --current --namespace=argocd
-kubectl apply -f ${MANIFESTS_DIR}/AppProject.yaml
+#kubectl apply -f ${MANIFESTS_DIR}/AppProject.yaml
 argocd login --core
 echo "sleeping ..2"
 sleep 2
