@@ -8,7 +8,7 @@ metadata:
 spec:
   destination:
     namespace: <dst_namespace>
-    server: <dst_cluster>
+    server: https://kubernetes.default.svc
   project: default
   syncPolicy:
     automated:
