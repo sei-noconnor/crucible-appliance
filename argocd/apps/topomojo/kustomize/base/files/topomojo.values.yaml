@@ -121,7 +121,7 @@ topomojo-api:
     # FileUpload__MaxFileBytes: 0
     Oidc__Authority: https://crucible.local/keycloak/realms/crucible
     ApiKeyClients__0__Id: gameengine
-    ApiKeyClients__0__Key: foundry
+    ApiKeyClients__0__Key: crucible
     ApiKeyClients__0__Scope: gameboard
     Core__ConsoleHost: crucible.local/console
     Pod__Url: ""
