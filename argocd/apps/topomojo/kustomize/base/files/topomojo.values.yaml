@@ -113,10 +113,10 @@ topomojo-api:
     PathBase: "/topomojo"
     Database__Provider: PostgreSQL
     Database__ConnectionString: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=topomojo;Username=postgres;Password=postgres;SSL Mode=Prefer;Trust Server Certificate=true;
-    Database__AdminId: dee684c5-2eaf-401a-915b-d3d4320fe5d5
+    Database__AdminId: d29518c4-f61c-4284-81c4-f2fbd79e6e9a
     Database__AdminName: Administrator
     Cache__SharedFolder: ""
-    OpenApi__Client__ClientId: topomojo-swagger
+    OpenApi__Client__ClientId: fortress_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_topomojo-api
     FileUpload__IsoRoot: /mnt/tm
     FileUpload__TopoRoot: /mnt/tm
     FileUpload__DocRoot: /mnt/tm/_docs
@@ -266,8 +266,8 @@ topomojo-ui:
       "apphost": "",
       "mkshost": "",
       "oidc": {
-        "authority": "https://crucible.local/identity",
-        "client_id": "topomojo-client",
+        "authority": "https://crucible.local/keycloak/realms/crucible",
+        "client_id": "fortress_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_topomojo-ui",
         "redirect_uri": "https://crucible.local/topomojo/oidc",
         "silent_redirect_uri": "https://crucible.local/topomojo/oidc-silent.html",
         "post_logout_redirect_uri": "https://crucible.local/topomojo",

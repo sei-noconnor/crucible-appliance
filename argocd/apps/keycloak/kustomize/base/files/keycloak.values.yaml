@@ -540,8 +540,8 @@ extraVolumeMounts: |-
 ##
 initContainers: 
   - name: plugin
-    image: cmusei/keycloak-auth-plugin:development-619337c
-    imagePullPolicy: Always
+    image: cmusei/keycloak-auth-plugin:21.0.2
+    imagePullPolicy: IfNotPresent
     command:
     - sh
     - -c
@@ -682,6 +682,7 @@ ingress:
     nginx.ingress.kubernetes.io/auth-tls-verify-client: "optional"
     nginx.ingress.kubernetes.io/auth-tls-secret: "keycloak/dod-certs"
     nginx.ingress.kubernetes.io/auth-tls-verify-depth: "2"
+    kubernetes.io/class.name: nginx
     cert-manager.io/cluster-issuer: ca-issuer
     
 
