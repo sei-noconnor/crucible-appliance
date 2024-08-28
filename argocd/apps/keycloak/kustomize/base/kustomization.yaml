@@ -11,6 +11,11 @@ helmCharts:
 resources: 
 - namespace.yaml
 
+labels:
+- pairs:
+    config: keycloak
+  includeSelectors: true
+
 secretGenerator:
 - name: dod-certs
   files:
