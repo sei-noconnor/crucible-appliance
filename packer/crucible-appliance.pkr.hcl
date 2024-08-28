@@ -53,7 +53,7 @@ source "vsphere-clone" "crucible-appliance" {
   template            = var.vsphere_template
   username            = var.vsphere_user
   vcenter_server      = var.vsphere_server
-  vm_name             = "crucible-appliance-argo-${var.appliance_version}"
+  vm_name             = "crucible-appliance-${var.appliance_version}"
 
   customize {
     linux_options {
@@ -78,7 +78,7 @@ source "vsphere-iso" "crucible-appliance" {
   host                = var.host
   insecure_connection = true
 
-  vm_name       = "crucible-appliance-argo-iso-${var.appliance_version}"
+  vm_name       = "crucible-appliance-iso-${var.appliance_version}"
   guest_os_type = "ubuntu64Guest"
 
   CPUs            = 6
@@ -152,12 +152,12 @@ build {
       "SSH_USERNAME=${var.ssh_username}",
     ]
     inline = [
-      "mkdir /home/${var.ssh_username}/crucible-appliance-argo"
+      "mkdir /home/${var.ssh_username}/crucible-appliance"
     ]
   }
 
   provisioner "file" {
-    destination = "/home/${var.ssh_username}/crucible-appliance-argo"
+    destination = "/home/${var.ssh_username}/crucible-appliance"
     sources = [
       "./",
     ]
@@ -171,7 +171,7 @@ build {
       "APPLIANCE_VERSION=${var.appliance_version}"
     ]
     inline            = [
-      "cd /home/$SSH_USERNAME/crucible-appliance-argo",
+      "cd /home/$SSH_USERNAME/crucible-appliance",
       "git clean -fdx",
       "make init"
     ]
@@ -184,7 +184,7 @@ build {
       "SSH_USERNAME=${var.ssh_username}",
     ]
     inline = [
-      "cd /home/$SSH_USERNAME/crucible-appliance-argo",
+      "cd /home/$SSH_USERNAME/crucible-appliance",
       "make snapshot"
     ]
   }
@@ -197,7 +197,7 @@ build {
       "APPLIANCE_VERSION=${var.appliance_version}"
     ]
     inline = [
-      "cd /home/$SSH_USERNAME/crucible-appliance-argo",
+      "cd /home/$SSH_USERNAME/crucible-appliance",
       "make shrink"
     ]
   }
