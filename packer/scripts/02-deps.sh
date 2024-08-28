@@ -71,6 +71,12 @@ curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/dow
 sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 rm argocd-linux-amd64
 
+# Install go
+mkdir -p dist/tools
+
+curl https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz -o dist/tools/go1.22.5.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf ./dist/tools/go1.22.5.linux-amd64.tar.gz
+
 
 
 
