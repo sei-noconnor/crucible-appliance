@@ -18,7 +18,7 @@ source "vsphere-iso" "this" {
   cluster             = var.cluster
   insecure_connection = true
 
-  vm_name       = "crucible-appliance-argo"
+  vm_name       = "crucible-appliance-argo-${var.appliance_version}"
   guest_os_type = "ubuntu64Guest"
 
   CPUs            = 4

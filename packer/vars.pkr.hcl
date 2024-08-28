@@ -43,6 +43,11 @@ variable "ssh_password" {
   default = "ubuntu"
 }
 
+variable "appliance_version" {
+  type    = string
+  default = ""
+}
+
 locals {
   shutdown_command  = "echo '{var.ssh_password}' | sudo -S shutdown -P now"
 }
