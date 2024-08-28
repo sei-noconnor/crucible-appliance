@@ -23,6 +23,11 @@ variable "cluster" {
   default = ""
 }
 
+variable "host" {
+  type    = string
+  default = ""
+}
+
 variable "datastore" {
   type    = string
   default = ""
@@ -35,12 +40,12 @@ variable "network_name" {
 
 variable "ssh_username" {
   type    = string
-  default = "ubuntu"
+  default = "crucible"
 }
 
 variable "ssh_password" {
   type    = string
-  default = "ubuntu"
+  default = "crucible"
 }
 
 variable "appliance_version" {

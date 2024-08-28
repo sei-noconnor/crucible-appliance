@@ -4,18 +4,49 @@
 packer {
   required_plugins {
     vsphere = {
-      version = ">= 1.2.3"
+      version = ">= 1.4.0"
       source  = "github.com/hashicorp/vsphere"
     }
   }
 }
 
-source "vsphere-iso" "this" {
+source "vsphere-clone" "clone" {
+  ssh_username        = var.ssh_username
+  ssh_password        = var.ssh_password
+  ssh_timeout         ="60m"
+  linked_clone        = true
+  network             = var.network_name
+  cluster             = var.cluster
+  host                = "esx-04.covert-cloud.com"
+  datastore           = "ds_nfs"
+  insecure_connection = true
+  password            = var.vsphere_password
+  template            = "t-ubuntu2004-server"
+  username            = var.vsphere_user
+  vcenter_server      = var.vsphere_server
+  vm_name             = "crucible-appliance-argo-${var.appliance_version}"
+
+  customize {
+    linux_options {
+      host_name = "crucible"
+      domain = "local"
+    }
+    network_interface {}
+  }
+
+  export {
+    output_directory = "./dist/output"
+    output_format = "ovf"
+  }
+}
+
+source "vsphere-iso" "iso" {
   vcenter_server      = var.vsphere_server
   username            = var.vsphere_user
   password            = var.vsphere_password
   datacenter          = var.datacenter
   cluster             = var.cluster
+  host                = var.host
   insecure_connection = true
 
   vm_name       = "crucible-appliance-argo-${var.appliance_version}"
@@ -25,11 +56,11 @@ source "vsphere-iso" "this" {
   RAM             = 4096
   RAM_reserve_all = true
 
-  ssh_username = "ubuntu"
-  ssh_password = "ubuntu"
-  ssh_timeout  = "30m"
-/*
-  Uncomment when running on vcsim
+  ssh_username = var.ssh_username
+  ssh_password = var.ssh_password
+  ssh_timeout  = "60m"
+  /*
+  # Uncomment when running on vcsim
   ssh_host     = "127.0.0.1"
   ssh_port     = 2222
 
@@ -42,7 +73,6 @@ source "vsphere-iso" "this" {
     "RUN.env.PASSWORD_ACCESS" : "true"
   }
   */
-
   disk_controller_type = ["pvscsi"]
   datastore            = var.datastore
   storage {
@@ -50,7 +80,7 @@ source "vsphere-iso" "this" {
     disk_thin_provisioned = true
   }
 
-  iso_paths = ["[ISO] ubuntu-22.04-live-server-amd64.iso"]
+  iso_paths = ["[iso] ubuntu-22.04-live-server-amd64.iso"]
 
   network_adapters {
     network = var.network_name
@@ -62,7 +92,7 @@ source "vsphere-iso" "this" {
   boot_command = ["<wait>e<down><down><down><end> autoinstall ds=nocloud;<F10>"]
 
   export {
-    output_directory = "./output"
+    output_directory = "./dist/output"
     output_format = "ovf"
   }
 
@@ -70,7 +100,7 @@ source "vsphere-iso" "this" {
 
 build {
   sources = [
-    "source.vsphere-iso.this"
+    "source.vsphere-clone.clone"
   ]
 
   provisioner "shell" {
@@ -81,6 +111,7 @@ build {
       "APPLIANCE_VERSION=${var.appliance_version}"
     ]
     inline = [
+      "echo \"I AM RUNNING\"",
       "sudo apt update && sudo apt install make",
       "grep -qxF 'ENVIRONMENT=APPLIANCE' '/etc/environment' || echo 'ENVIRONMENT=APPLIANCE' >> '/etc/environment'"
     ]
@@ -128,10 +159,15 @@ build {
   }
 
   provisioner "shell" {
-    execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+    execute_command   = "echo ${var.ssh_password} | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+    environment_vars  = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "SSH_USERNAME=${var.ssh_username}",
+      "APPLIANCE_VERSION=${var.appliance_version}"
+    ]
     inline = [
-      "dd if=/dev/zero of=~/zerofill bs=1M",
-      "rm -f ~/zerofill"
+      "cd /home/$SSH_USERNAME/crucible-appliance-argo",
+      "make shrink"
     ]
   }
   
