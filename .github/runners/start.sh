@@ -36,7 +36,7 @@ done
 CLUSTER_NAME="${CLUSTER_NAME:-$CLUSTER_NAME_DEFAULT}"
 NS="${NS:-$NS_DEFAULT}"
 GH_REPO="${GH_REPO:-$GH_REPO_DEFAULT}"
-GH_OWNER="${GH_OWNER:-$GH_OWNER_DEFAULT}"
+GH_OWNER="${GH_OWNER:-$GH_REPO_OWNER_DEFAULT}"
 
 # Check if GITHUB_PERSONAL_TOKEN is set
 if [ -n "$GITHUB_PERSONAL_TOKEN" ]; then
@@ -75,6 +75,7 @@ else
     echo "deploying github runner to $CLUSTER_NAME on $NS namespace"
     echo "load github-runner to cluster $CLUSTER_NAME"
     # Figure out how to load image in existing cluster
+    kind load docker-image github-runner:latest --name $CLUSTER_NAME
 fi
 
 kubectl create ns $NS
