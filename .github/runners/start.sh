@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Default values
 CLUSTER_NAME_DEFAULT="githubactions"
 NS_DEFAULT="github"
 GH_REPO_OWNER_DEFAULT="sei-noconnor"
 GH_REPO_DEFAULT="crucible-appliance"
+GH_RUNNER_DELETE_DEFAULT=false
 
 # Function to display usage information
 usage() {
@@ -14,7 +15,8 @@ usage() {
     echo "  -c, --cluster-name    Name of the cluster (default: $CLUSTER_NAME_DEFAULT), specify existing cluster"
     echo "  -n, --namespace       Kubernetes namespace (default: $NS_DEFAULT)"
     echo "  -o, --gh-owner        GitHub owner (default: $GH_REPO_OWNER_DEFAULT)"
-    echo "  -r, --gh-repo         GitHub repository (default: $GH_REPO_DEFAULT)"
+    echo "  -r, --gh-repo         GitHub repository (default: $GH_REPO_DEFAULT)" 
+    echo "  -d, --delete          Delete the gitlab runner and kind cluster"
     echo "  -h, --help            Display this help message"
     exit 1
 }
@@ -26,6 +28,7 @@ while [[ "$#" -gt 0 ]]; do
         -n|--namespace) NS="$2"; shift ;;
         -o|--gh-owner) GH_OWNER="$2"; shift ;;
         -r|--gh-repo) GH_REPO="$2"; shift ;;
+        -d|--delete) GH_RUNNER_DELETE=true; shift ;;
         -h|--help) usage ;;
         *) echo "Unknown parameter passed: $1"; usage ;;
     esac
@@ -37,6 +40,7 @@ CLUSTER_NAME="${CLUSTER_NAME:-$CLUSTER_NAME_DEFAULT}"
 NS="${NS:-$NS_DEFAULT}"
 GH_REPO="${GH_REPO:-$GH_REPO_DEFAULT}"
 GH_OWNER="${GH_OWNER:-$GH_REPO_OWNER_DEFAULT}"
+GH_RUNNER_DELETE="${GH_RUNNER_DELETE:-$GH_RUNNER_DELETE_DEFAULT}"
 
 # Check if GITHUB_PERSONAL_TOKEN is set
 if [ -n "$GITHUB_PERSONAL_TOKEN" ]; then
@@ -52,6 +56,14 @@ echo "Cluster Name: $CLUSTER_NAME"
 echo "Namespace: $NS"
 echo "GitHub Owner: $GH_OWNER"
 echo "GitHub Repo: $GH_REPO"
+
+# Remove Github Runner
+if [[ "$GH_RUNNER_DELETE" = true ]]; then
+    echo "Delete Runner flag set, Deleteing Runner"
+    kubectl delete --wait -f ./.github/runners/kubernetes.yaml -n $NS
+    kind delete cluster --name $CLUSTER_NAME
+    exit 0
+fi
 
 echo "building the github runner image"
 docker build --platform linux/amd64 ./.github/runners/. -t github-runner:latest
@@ -72,10 +84,10 @@ else
     # create the kind cluster
     echo "creating kind cluster with name $CLUSTER_NAME"
     kind create cluster -n $CLUSTER_NAME
-    echo "deploying github runner to $CLUSTER_NAME on $NS namespace"
     echo "load github-runner to cluster $CLUSTER_NAME"
     # Figure out how to load image in existing cluster
     kind load docker-image github-runner:latest --name $CLUSTER_NAME
+    echo "deploying github runner to $CLUSTER_NAME on $NS namespace"
 fi
 
 kubectl create ns $NS

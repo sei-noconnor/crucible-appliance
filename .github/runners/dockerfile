@@ -34,6 +34,8 @@ RUN useradd -m github && \
 
 USER github
 WORKDIR /actions-runner
+RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
 RUN curl -Ls https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz | tar xz \
   && sudo ./bin/installdependencies.sh
 

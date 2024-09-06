@@ -80,6 +80,11 @@ deploy-runner:
 %:
 	@true	
 
+delete-runner:
+	.github/runners/start.sh -d $(filter-out $@,$(MAKECMDGOALS))
+%:
+	@true	
+
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
 	
