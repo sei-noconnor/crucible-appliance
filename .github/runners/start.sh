@@ -61,6 +61,10 @@ echo "GitHub Repo: $GH_REPO"
 if [[ "$GH_RUNNER_DELETE" = true ]]; then
     echo "Delete Runner flag set, Deleteing Runner"
     kubectl delete --wait -f ./.github/runners/kubernetes.yaml -n $NS
+    time=10
+    echo "Sleeping $time to wait for runner removal"
+    sleep $time
+    echo "Deleting Kind cluster $CLUSTER_NAME"
     kind delete cluster --name $CLUSTER_NAME
     exit 0
 fi
