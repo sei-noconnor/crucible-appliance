@@ -47,7 +47,7 @@ if [ -n "$GITHUB_PERSONAL_TOKEN" ]; then
     echo "GITHUB_PERSONAL_TOKEN is set."
 
 else
-    echo "GITHUB_PERSONAL_TOKEN is not set. Please set the token"
+    echo "GITHUB_PERSONAL_TOKEN is not set. Please set the toke 'export GITHUB_PERSONAL_TOKEN=<token>"
     exit 2
 fi
 
@@ -70,7 +70,7 @@ if [[ "$GH_RUNNER_DELETE" = true ]]; then
 fi
 
 echo "building the github runner image"
-docker build --platform linux/amd64 ./.github/runners/. -t github-runner:latest
+docker build --progress=plain --platform linux/amd64 ./.github/runners/. -t github-runner:latest
 
 # Check to see if the cluster name is in our current config, use existing cluster
 clusters=$(kubectl config get-contexts --no-headers | awk '{print $2}')
