@@ -26,7 +26,7 @@ RUN apt-get update
 RUN apt-get install -y docker-ce-cli
 
 # Install the GitHub Actions Runner 
-RUN apt-get update && apt-get install -y --no-install-recommends sudo jq make locales 
+RUN apt-get update && apt-get install -y --no-install-recommends sudo jq make locales gcc
 
 RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 
@@ -51,12 +51,16 @@ RUN sudo mkdir /work /actions-runner && chown -R github: /work /actions-runner &
 USER github
 RUN brew tap hashicorp/tap && brew install hashicorp/tap/packer jq yq xmlstarlet coreutils
 
+USER github
+RUN which packer && packer version
+
 WORKDIR /actions-runner
 USER github
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
 RUN set -x && echo "$(whoami)" && echo "Installing runner to ${PWD}" && \
   curl -Ls https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz | tar xz && \
   sudo ./bin/installdependencies.sh
+
 
 
 COPY --chown=github:github entrypoint.sh  /actions-runner/entrypoint.sh
