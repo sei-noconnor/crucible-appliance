@@ -27,6 +27,9 @@ jobs:
     # - name: Remove network config for VirtualBox 6 compatibility
     #   run: sed -i '' '/localhostreachable/d' packer/crucible-appliance.pkr.hcl
 
+    - name: Packer Version
+      run: packer version
+
     - name: Build VirtualBox OVF image
       uses: nick-fields/retry@v2
       env:
