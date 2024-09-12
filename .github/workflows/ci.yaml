@@ -28,7 +28,7 @@ jobs:
     #   run: sed -i '' '/localhostreachable/d' packer/crucible-appliance.pkr.hcl
 
     - name: Packer Version
-      run: packer version
+      run: which packer && packer version
 
     - name: Build VirtualBox OVF image
       uses: nick-fields/retry@v2
