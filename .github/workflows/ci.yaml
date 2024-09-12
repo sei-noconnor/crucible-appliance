@@ -27,14 +27,14 @@ jobs:
     # - name: Remove network config for VirtualBox 6 compatibility
     #   run: sed -i '' '/localhostreachable/d' packer/crucible-appliance.pkr.hcl
 
-    # - name: Build VirtualBox OVF image
-    #   uses: nick-fields/retry@v2
-    #   env:
-    #     GITHUB_PULL_REQUEST: ${{ github.event.number }}
-    #   with:
-    #     timeout_minutes: 60
-    #     max_attempts: 5
-    #     command: make build
+    - name: Build VirtualBox OVF image
+      uses: nick-fields/retry@v2
+      env:
+        GITHUB_PULL_REQUEST: ${{ github.event.number }}
+      with:
+        timeout_minutes: 60
+        max_attempts: 5
+        command: make build
 
     # - name: Get build_name from OVF file
     #   run: echo "build_name=$(sh -c "find . -name '*.ovf' | xargs basename -s '.ovf'")" >> $GITHUB_ENV
