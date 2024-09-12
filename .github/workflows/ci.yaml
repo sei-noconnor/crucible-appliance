@@ -21,8 +21,8 @@ jobs:
         path: ~/.cache/packer
         key: ${{ runner.os }}-packer
 
-    - name: Install Dependencies
-      run: brew install xmlstarlet coreutils
+    # - name: Install Dependencies
+    #   run: brew install xmlstarlet coreutils
 
     # - name: Remove network config for VirtualBox 6 compatibility
     #   run: sed -i '' '/localhostreachable/d' packer/crucible-appliance.pkr.hcl

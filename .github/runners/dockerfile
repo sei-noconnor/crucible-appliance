@@ -49,7 +49,7 @@ USER root
 RUN sudo mkdir /work /actions-runner && chown -R github: /work /actions-runner && ls -alh /actions-runner
 
 USER github
-RUN brew tap hashicorp/tap && brew install hashicorp/tap/packer jq yq 
+RUN brew tap hashicorp/tap && brew install hashicorp/tap/packer jq yq xmlstarlet coreutils
 
 WORKDIR /actions-runner
 USER github
