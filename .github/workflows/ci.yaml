@@ -48,10 +48,10 @@ jobs:
 
 
     - name: Echo ENV APPLIANCE_YAML
-      run: echo "${{ env.APPLIANCE_YAML }}"
+      run: echo ${{ env.APPLIANCE_YAML }}
 
-    - name: Echo appliance.yaml
-      run: cat appliance.yaml"
+    - name: cat appliance.yaml
+      run: cat appliance.yaml
 
     - name: Build VirtualBox OVF image
       uses: nick-fields/retry@v2
