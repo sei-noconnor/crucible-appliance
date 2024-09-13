@@ -45,7 +45,7 @@ jobs:
           VSPHERE_SERVER: ${{ vars.CRUCIBLE_VSPHERE_SERVER }}
         EOF
         )
-        echo $APPLIANCE_YAML > appliance.yaml
+        cat $APPLIANCE_YAML > appliance.yaml
 
 
     - name: Echo ENV APPLIANCE_YAML
