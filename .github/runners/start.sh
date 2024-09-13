@@ -3,8 +3,8 @@
 # Default values
 CLUSTER_NAME_DEFAULT="githubactions"
 NS_DEFAULT="github"
-GH_REPO_OWNER_DEFAULT="sei-noconnor"
-GH_REPO_DEFAULT="crucible-appliance"
+GH_REPO_OWNER_DEFAULT="sei-noconnor" # Your Username
+GH_REPO_DEFAULT="crucible-appliance" # Your Forked Repo
 GH_RUNNER_DELETE_DEFAULT=false
 
 # Function to display usage information
@@ -47,7 +47,7 @@ if [ -n "$GITHUB_PERSONAL_TOKEN" ]; then
     echo "GITHUB_PERSONAL_TOKEN is set."
 
 else
-    echo "GITHUB_PERSONAL_TOKEN is not set. Please set the toke 'export GITHUB_PERSONAL_TOKEN=<token>"
+    echo "GITHUB_PERSONAL_TOKEN is not set. Please set the token 'export GITHUB_PERSONAL_TOKEN=<token>"
     exit 2
 fi
 
@@ -59,7 +59,7 @@ echo "GitHub Repo: $GH_REPO"
 
 # Remove Github Runner
 if [[ "$GH_RUNNER_DELETE" = true ]]; then
-    echo "Delete Runner flag set, Deleteing Runner"
+    echo "Delete Runner flag set, Deleting Runner"
     kubectl delete --wait -f ./.github/runners/kubernetes.yaml -n $NS
     time=10
     echo "Sleeping $time to wait for runner removal"
@@ -74,7 +74,7 @@ docker build --progress=plain --platform linux/amd64 ./.github/runners/. -t gith
 
 # Check to see if the cluster name is in our current config, use existing cluster
 clusters=$(kubectl config get-contexts --no-headers | awk '{print $2}')
-if [[ "$clusers[*]" =~ "$CLUSTER_NAME" ]]; then 
+if [[ "${clusers[*]}" =~ "$CLUSTER_NAME" ]]; then
     while true; do
         read -p "Use existing context? " yn
         case $yn in

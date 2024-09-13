@@ -100,6 +100,9 @@ jobs:
     #   run: openssl sha256 *.ovf *.vmdk > ${{ env.build_name }}.mf
     #   working-directory: ./output-virtualbox
 
+    - name: Display build name
+      run: echo "${{ env.build_name }}"
+
     - name: Package OVA image
       run: tar -cvf ${{ env.build_name }}.ova --format=ustar ${{ env.build_name }}{.ovf,-disk001.vmdk,.mf}
       working-directory: ./dist/output
