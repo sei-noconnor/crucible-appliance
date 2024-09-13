@@ -51,7 +51,7 @@ jobs:
       run: echo ${{ env.APPLIANCE_YAML }}
 
     - name: cat appliance.yaml
-      run: cat appliance.yaml
+      run: echo "$PWD" && ls -alh && cat appliance.yaml
 
     - name: Build VirtualBox OVF image
       uses: nick-fields/retry@v2
