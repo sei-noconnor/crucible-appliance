@@ -43,8 +43,8 @@ jobs:
         APPLIANCE_YAML=$(cat << EOF
         vars:
           VSPHERE_SERVER: ${{ vars.CRUCIBLE_VSPHERE_SERVER }}
-        EOF > appliance.yaml
-        )
+        EOF
+        ) > appliance.yaml
 
 
     - name: Echo ENV APPLIANCE_YAML
