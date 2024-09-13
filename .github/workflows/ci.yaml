@@ -40,13 +40,18 @@ jobs:
 
     - name: Write Appliance.yaml
       run: |
-        cat << EOF
-          vars:
-            vsphere_server: ${{ vars.CRUCIBLE_VSPHERE_SERVER }}
+        APPLIANCE_YAML=$(cat << EOF
+        vars:
+          VSPHERE_SERVER: ${{ vars.CRUCIBLE_VSPHERE_SERVER }}
         EOF > appliance.yaml
+        )
 
-    - name: Print Appliance.yaml
-      run: cat appliance.yaml
+
+    - name: Echo ENV APPLIANCE_YAML
+      run: echo "${{ env.APPLIANCE_YAML }}"
+
+    - name: Echo appliance.yaml
+      run: cat appliance.yaml"
 
     - name: Build VirtualBox OVF image
       uses: nick-fields/retry@v2
