@@ -40,7 +40,7 @@ jobs:
 
     - name: Write Appliance.yaml
       run: |
-        cat <<EOF
+        cat <<'EOF'
           vars:
             vsphere_server: ${{ vars.CRUCIBLE_VSPHERE_SERVER }}
         EOF > appliance.yaml
