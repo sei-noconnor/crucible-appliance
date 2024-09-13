@@ -42,7 +42,7 @@ jobs:
       run: |
         APPLIANCE_YAML=$(cat << EOF
         vars:
-          VSPHERE_SERVER: ${{ vars.CRUCIBLE_VSPHERE_SERVER }}
+          VSPHERE_SERVER: "${{ vars.CRUCIBLE_VSPHERE_SERVER }}"
         EOF
         )
         echo "$APPLIANCE_YAML" > appliance.yaml
