@@ -30,7 +30,7 @@ jobs:
     - name: Homebrew Cache
       uses: tecolicom/actions-use-homebrew-tools@v1
       with:
-        tools: ""
+        tools: yq
         key: ${{ runner.os }}-homebrew-cache
         cache: yes
         verbose: yes
