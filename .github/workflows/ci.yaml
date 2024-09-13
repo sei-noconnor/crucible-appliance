@@ -38,6 +38,16 @@ jobs:
     - name: Packer Version
       run: which packer && packer version
 
+    - name: Write Appliance.yaml
+      run: |
+        cat <<EOF
+          vars:
+            vsphere_server: ${{ vars.CRUCIBLE_VSPHERE_SERVER }}
+        EOF > appliance.yaml
+
+    - name: Print Appliance.yaml
+      run: cat appliance.yaml
+
     - name: Build VirtualBox OVF image
       uses: nick-fields/retry@v2
       env:
