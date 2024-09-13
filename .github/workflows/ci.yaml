@@ -39,17 +39,17 @@ jobs:
       run: which packer && packer version
 
     - name: Write Appliance.yaml
-      run: |-
+      run: |
         APPLIANCE_YAML=$(cat << EOF
         vars:
           VSPHERE_SERVER: ${{ vars.CRUCIBLE_VSPHERE_SERVER }}
         EOF
         )
-        cat $APPLIANCE_YAML > appliance.yaml
+        echo "$APPLIANCE_YAML" > appliance.yaml
 
 
     - name: Echo ENV APPLIANCE_YAML
-      run: echo ${{ env.APPLIANCE_YAML }}
+      run: echo ${{ env.APPLIANCE_YAML }} && echo $APPLIANCE_YAML
 
     - name: cat appliance.yaml
       run: echo "$PWD" && ls -alh && cat appliance.yaml
