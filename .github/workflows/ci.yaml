@@ -12,6 +12,9 @@ jobs:
   build:
     runs-on: self-hosted
     environment: House
+    defaults:
+      run:
+        working-directory: /work
     steps:
     - name: Echo GITHUB_WORKSPACE
       run: |

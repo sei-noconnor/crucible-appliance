@@ -5,6 +5,7 @@ ARG RUNNER_VERSION="2.302.1"
 ENV GITHUB_PERSONAL_TOKEN=""
 ENV GITHUB_OWNER=""
 ENV GITHUB_REPOSITORY=""
+ENV GITHUB_WORKSPACE="/work"
 
 # Install Docker -> https://docs.docker.com/engine/install/debian/
 
