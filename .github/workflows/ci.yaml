@@ -20,12 +20,11 @@ jobs:
       run: |
         echo "$GITHUB_WORKSPACE"
         echo ${{ github.workspace }}
-      working-directory: /work
+      
     
     - name: Checkout Code
-      uses: actions/checkout@v4
-      with: 
-        path: "crucible-appliance"
+      uses: actions/checkout@v3
+      
       
 
     - name: Packer cache
