@@ -13,7 +13,10 @@ jobs:
     runs-on: self-hosted
     environment: House
     steps:
-    - uses: actions/checkout@v4
+    - name: Echo GITHUB_WORKSPACE
+      run: echo "$GITHUB_WORKSPACE"
+    - name: Checkout Code
+      uses: actions/checkout@v4
       with: 
         path: "crucible-appliance"
 
