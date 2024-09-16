@@ -1,0 +1,28 @@
+name: build
+
+on:
+  push:
+    branches:
+      - github-runner
+  pull_request:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    environment: House
+    defaults:
+      run:
+        working-directory: /work
+    steps:
+    - name: Echo GITHUB_WORKSPACE
+      run: |
+        echo $GITHUB_WORKSPACE
+        echo ${{ github.workspace }}
+      
+    
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      with:
+        path: /work/crucible-appliance
