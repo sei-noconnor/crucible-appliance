@@ -12,7 +12,6 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    environment: House
     steps:
     - name: Display ENV
       run: env
