@@ -14,8 +14,11 @@ jobs:
     runs-on: self-hosted
     environment: House
     steps:
+    - name: Display ENV
+      run: env
+      
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: 'sei-noconnor/crucible-appliance'
         
