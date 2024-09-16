@@ -12,8 +12,6 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    environment: House
-    
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
