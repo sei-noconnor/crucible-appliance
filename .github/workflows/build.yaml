@@ -17,12 +17,6 @@ jobs:
       run:
         working-directory: /work
     steps:
-    - name: Echo GITHUB_WORKSPACE
-      run: |
-        echo $GITHUB_WORKSPACE
-        echo ${{ github.workspace }}
-      
-    
     - name: Checkout Code
       uses: actions/checkout@v3
 
