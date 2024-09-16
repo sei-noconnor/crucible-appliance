@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - github-runner
+      - main
   pull_request:
   release:
     types: [published]
