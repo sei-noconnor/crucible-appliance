@@ -48,3 +48,8 @@ jobs:
         )
         echo "$APPLIANCE_YAML" > appliance.yaml
       
+    - name: Echo ENV APPLIANCE_YAML
+      run: echo ${{ env.APPLIANCE_YAML }} && echo $APPLIANCE_YAML
+  
+    - name: cat appliance.yaml
+      run: echo "$PWD" && ls -alh && cat appliance.yaml
