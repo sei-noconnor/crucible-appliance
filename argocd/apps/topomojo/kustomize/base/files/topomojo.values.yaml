@@ -63,7 +63,7 @@ topomojo-api:
         cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
         cd /app && dotnet TopoMojo.Api.dll
       cacert.crt: |-
-        
+                
 
 
   # Config app settings with environment vars.
@@ -103,8 +103,8 @@ topomojo-api:
     Pod__Vlan__Reservations__0__Name: bridge-net
     Pod__KeepAliveMinutes: 30
     # Pod__ExcludeNetworkMask: topomojo
-    # Logging__Console__DisableColors: false
-    # Logging__LogLevel__Default: Information
+    Logging__Console__DisableColors: false
+    Logging__LogLevel__Default: Debug
     # Headers__LogHeaders: false
     Headers__Cors__Origins__0: https://crucible.local
     # Headers__Cors__Methods__[0]: ""

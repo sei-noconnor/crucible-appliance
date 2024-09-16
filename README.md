@@ -74,7 +74,9 @@ The Crucible appliance is tested on vSphere 8, ensuring seamless compatibility a
       datacenter: Datacenter1
       cluster: Cluster1
       datastore: ds1
-      network_name: "VM Network"`
+      network_name: "VM Network"
+      ssh_username: crucible
+      ssh_password: crucible
 ```
 
 3.  **Initiate the Build:**
