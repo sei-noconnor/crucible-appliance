@@ -14,11 +14,16 @@ jobs:
     environment: House
     steps:
     - name: Echo GITHUB_WORKSPACE
-      run: echo "$GITHUB_WORKSPACE"
+      run: |
+        echo "$GITHUB_WORKSPACE"
+        echo ${{ github.workspace }}
+      working-directory: /work
+    
     - name: Checkout Code
       uses: actions/checkout@v4
       with: 
         path: "crucible-appliance"
+      
 
     - name: Packer cache
       uses: actions/cache@v3
