@@ -74,7 +74,7 @@ docker build --progress=plain --platform linux/amd64 ./.github/runners/. -t gith
 
 # Check to see if the cluster name is in our current config, use existing cluster
 clusters=$(kubectl config get-contexts --no-headers | awk '{print $2}')
-if [[ "${clusers[*]}" =~ "$CLUSTER_NAME" ]]; then
+if [[ "${clusers[*]}" == "$CLUSTER_NAME" ]]; then
     while true; do
         read -p "Use existing context? " yn
         case $yn in
@@ -96,10 +96,10 @@ fi
 
 kubectl create ns $NS
 kubectl -n $NS create secret generic github-secret \
-  --from-literal GITHUB_OWNER=$GH_OWNER \
-  --from-literal GITHUB_REPOSITORY=$GH_REPO \
+  --from-literal GITHUB_OWNER="$GH_OWNER" \
+  --from-literal GITHUB_REPOSITORY="$GH_REPO" \
   --from-literal GITHUB_PERSONAL_TOKEN="$GITHUB_PERSONAL_TOKEN" 
-kubectl apply -f ./.github/runners/kubernetes.yaml -n $NS
+kubectl apply -f ./.github/runners/kubernetes.yaml -n "$NS"
 
 # Cleanup
 stop() {
