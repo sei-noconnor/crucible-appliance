@@ -74,7 +74,7 @@ jobs:
         command: make build
 
     - name: Get build_name from OVF file
-      run: echo "build_name=$(sh -c "find . -name '*.ovf' | xargs basename -s '.ovf'")" >> $GITHUB_ENV
+      run: echo "build_name=${{ env.VM_NAME }}
       working-directory: ./dist/output
 
     # - name: Improve OVF VMware compatibility
