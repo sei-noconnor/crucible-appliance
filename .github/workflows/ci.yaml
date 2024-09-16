@@ -25,28 +25,6 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
       
-      
-
-    - name: Packer cache
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/packer
-        key: ${{ runner.os }}-packer-cache
-
-    # - name: Install Dependencies
-    #   run: brew install xmlstarlet coreutils
-
-    # - name: Remove network config for VirtualBox 6 compatibility
-    #   run: sed -i '' '/localhostreachable/d' packer/crucible-appliance.pkr.hcl
-
-    - name: Homebrew Cache
-      uses: tecolicom/actions-use-homebrew-tools@v1
-      with:
-        tools: yq
-        key: ${{ runner.os }}-homebrew-cache
-        cache: yes
-        verbose: yes
-
     - name: Packer Version
       run: which packer && packer version
 
