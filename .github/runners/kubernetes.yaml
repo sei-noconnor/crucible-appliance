@@ -38,7 +38,7 @@ spec:
           value: tcp://localhost:2375
         volumeMounts:
         - name: data
-          mountPath: /work/
+          mountPath: /work
       - name: dind 
         image: docker:24.0.6-dind
         env:
@@ -54,7 +54,7 @@ spec:
           - name: docker-graph-storage 
             mountPath: /var/lib/docker 
           - name: data
-            mountPath: /work/
+            mountPath: /work
       volumes:
       - name: docker-graph-storage 
         emptyDir: {}
