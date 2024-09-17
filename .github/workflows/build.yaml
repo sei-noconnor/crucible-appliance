@@ -25,22 +25,8 @@ jobs:
       run: which packer && packer version
 
     - name: Write Appliance.yaml
-      run: |
-        APPLIANCE_YAML=$(cat << EOF
-        vars:
-          vsphere_server: "${{ vars.CRUCIBLE_VSPHERE_SERVER }}"
-          vsphere_user: "${{ secrets.CRUCIBLE_VSPHERE_USER }}"
-          vsphere_password: "${{ secrets.CRUCIBLE_VSPHERE_PASSWORD }}"
-          vsphere_template: "${{ vars.CRUCIBLE_VSPHERE_TEMPLATE }}"
-          datacenter: "${{ vars.CRUCIBLE_VSPHERE_DATACENTER }}"
-          cluster: "${{ vars.CRUCIBLE_VSPHERE_CLUSTER }}"
-          host: "${{ vars.CRUCIBLE_VSPHERE_HOST }}"
-          datastore: "${{ vars.CRUCIBLE_VSPHERE_DATASTORE }}"
-          network_name: "${{ vars.CRUCIBLE_VSPHERE_NETWORK }}"
-          ssh_username: "${{ secrets.CRUCIBLE_OS_USER }}"
-          ssh_password: "${{ secrets.CRUCIBLE_OS_PASSWORD }}"
-        EOF
-        )
-        echo "$APPLIANCE_YAML" > appliance.yaml
+      env:
+          ENVIRONMENT_HOUSE: ${{ secrets.CRUCIBLE_ENVIRONMENT_HOUSE }}
+      run: 'echo "$ENVIRONMENT" > appliance.yaml'
       
     
