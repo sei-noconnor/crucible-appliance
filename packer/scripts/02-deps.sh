@@ -44,6 +44,10 @@ blacklist {
 EOF
 systemctl restart multipathd
 
+# Disable systemd resolver in favor of dnsmasq
+systemctl stop systemd-resolvd
+systemctl disable systemd-resolvd
+
 # Add dnsmasq resolver and other required packages
 PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
 mkdir /etc/dnsmasq.d
