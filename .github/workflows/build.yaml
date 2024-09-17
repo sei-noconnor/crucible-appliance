@@ -40,4 +40,20 @@ jobs:
     - name: Get build_name from OVF file
       run: echo "build_name=$(sh -c "find . -name '*.ovf' | xargs basename -s '.ovf'")"
       working-directory: ./dist/output
+
+    - name: Display build name
+      run: echo "$VM_NAME"
+
+    - name: Package OVA image
+      run: tar -cvf $VM_NAME.ova --format=ustar $VM_NAME{.ovf,-disk001.vmdk,.mf}
+      working-directory: ./dist/output
+
+    - name: Upload OVA to Azure Storage
+      run: |
+        az cloud set --name AzureUSGovernment
+        az storage blob upload --file $VM_NAME.ova \
+                               --container-name crucible-appliance \
+                               --name \"crucible-appliance-$VM_NAME.ova\"
+                               --connection-string "${{ secrets.AZ_STORAGE_CS }}" \
+                               --no-progress
     
