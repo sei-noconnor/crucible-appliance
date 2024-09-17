@@ -38,22 +38,22 @@ jobs:
         max_attempts: 3
         command: make build
     - name: Get build_name from OVF file
-      run: echo "build_name=$(sh -c "find . -name '*.ovf' | xargs basename -s '.ovf'")"
+      run: echo "build_name=$(sh -c "find . -name '*.ovf' | xargs basename -s '.ovf'")" >> $GITHUB_ENV
       working-directory: ./dist/output
 
     - name: Display build name
       run: echo ${{ env.build_name }}
 
     - name: Package OVA image
-      run: tar -cvf $VM_NAME.ova --format=ustar $VM_NAME{.ovf,-disk001.vmdk,.mf}
+      run: tar -cvf ${{env.build_name}}.ova --format=ustar ${{env.build.name}}{.ovf,-disk001.vmdk,.mf}
       working-directory: ./dist/output
 
     - name: Upload OVA to Azure Storage
       run: |
         az cloud set --name AzureUSGovernment
-        az storage blob upload --file $VM_NAME.ova \
+        az storage blob upload --file ${{env.build_name}}.ova \
                                --container-name crucible-appliance \
-                               --name \"crucible-appliance-$VM_NAME.ova\"
+                               --name ${{env.build_name}}.ova
                                --connection-string "${{ secrets.AZ_STORAGE_CS }}" \
                                --no-progress
     
