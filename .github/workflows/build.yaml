@@ -42,7 +42,7 @@ jobs:
       working-directory: ./dist/output
 
     - name: Display build name
-      run: echo "$VM_NAME"
+      run: echo ${{ env.build_name }}
 
     - name: Package OVA image
       run: tar -cvf $VM_NAME.ova --format=ustar $VM_NAME{.ovf,-disk001.vmdk,.mf}
