@@ -28,5 +28,16 @@ jobs:
       env:
           ENVIRONMENT_HOUSE: ${{ secrets.CRUCIBLE_ENVIRONMENT_HOUSE }}
       run: 'echo "$ENVIRONMENT_HOUSE" > appliance.yaml'
-      
+
+    - name: Build OVF image
+      uses: nick-fields/retry@v2
+      env:
+        GITHUB_PULL_REQUEST: ${{ github.event.number }}
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        command: make build
+    - name: Get build_name from OVF file
+      run: echo "build_name=$(sh -c "find . -name '*.ovf' | xargs basename -s '.ovf'")"
+      working-directory: ./dist/output
     
