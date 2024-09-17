@@ -27,6 +27,6 @@ jobs:
     - name: Write Appliance.yaml
       env:
           ENVIRONMENT_HOUSE: ${{ secrets.CRUCIBLE_ENVIRONMENT_HOUSE }}
-      run: 'echo "$ENVIRONMENT" > appliance.yaml'
+      run: 'echo "$ENVIRONMENT_HOUSE" > appliance.yaml'
       
     
