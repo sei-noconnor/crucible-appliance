@@ -45,7 +45,7 @@ jobs:
       run: echo ${{ env.build_name }}
 
     - name: Package OVA image
-      run: 'tar -cvf ${{env.build_name}}.ova --format=ustar ${{env.build_name}}{.ovf,-disk001.vmdk,.mf}'
+      run: 'tar -cvf ${{env.build_name}}.ova ${{env.build_name}}{.ovf,-disk001.vmdk,.mf}'
       working-directory: ./dist/output
 
     - name: Upload OVA to Azure Storage
