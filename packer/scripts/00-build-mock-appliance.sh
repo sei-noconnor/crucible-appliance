@@ -51,7 +51,7 @@ export VM_NAME="crucible-appliance-$BUILD_VERSION"
 echo "Setting VM Name to crucible-appliance-$BUILD_VERSION"
 mkdir -p "$OUTPUT_DIR"
 cd "$OUTPUT_DIR"
-dd if=/dev/zero bs=1M count=1000 of=$OUTPUT_DIR/$VM_NAME-disk001.vmdk
+dd if=/dev/zero bs=1M count=1000 of=$OUTPUT_DIR/$VM_NAME-disk-0.vmdk
 dd if=/dev/zero bs=1K count=5 of=$OUTPUT_DIR/$VM_NAME.ovf
 
 openssl sha1 *.vmdk *.ovf > $VM_NAME.mf
