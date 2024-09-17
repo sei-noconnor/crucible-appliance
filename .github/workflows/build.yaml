@@ -49,11 +49,12 @@ jobs:
       working-directory: ./dist/output
 
     - name: Upload OVA to Azure Storage
-      run: |
-        az cloud set --name AzureUSGovernment
-        az storage blob upload --file ${{env.build_name}}.ova \
-                               --container-name crucible-appliance \
-                               --name ${{env.build_name}}.ova
-                               --connection-string "${{ secrets.AZ_STORAGE_CS }}" \
-                               --no-progress
-    
+      uses: bacongobbler/azure-blob-storage-upload@main
+      with:
+        source_dir: ./dist/output
+        container_name: www
+        connection_string: ${{ secrets.AZ_STORAGE_CS }}
+        extra_args: '--pattern *.ova'
+        # WARNING: this will overwrite existing blobs in your blob storage
+        overwrite: 'true'
+      
