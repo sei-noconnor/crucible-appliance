@@ -27,11 +27,13 @@ EOF
 ###### Update OS #####
 ######################
 sudo apt update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt autoremove -y
-sudo apt install -y build-essential dnsmasq avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git
+sudo apt install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git
 
 ########################
 ##### Configure OS #####
 ########################
+# Set hostname 
+hostname -b crucible
 # Increase inodes for asp.net applications
 echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~
@@ -44,39 +46,46 @@ blacklist {
 EOF
 systemctl restart multipathd
 
-# Disable systemd resolver in favor of dnsmasq
-systemctl stop systemd-resolvd
-systemctl disable systemd-resolvd
+# # Add dnsmasq resolver and other required packages
+# PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
+# mkdir /etc/dnsmasq.d
+# cat <<EOF > /etc/dnsmasq.d/crucible.conf
+# bind-interfaces
+# listen-address=10.0.1.1
+# interface-name=crucible.local,$PRIMARY_INTERFACE
+# EOF
 
-# Add dnsmasq resolver and other required packages
-PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
-mkdir /etc/dnsmasq.d
-cat <<EOF > /etc/dnsmasq.d/crucible.conf
-bind-interfaces
-listen-address=10.0.1.1
-interface-name=crucible.local,$PRIMARY_INTERFACE
-EOF
+# cat <<EOF > /etc/resolv.conf
+# nameserver 192.168.1.153
+# search local
+# EOF
 
-cat <<EOF > /etc/netplan/01-loopback.yaml
-# Add loopback address for pods to use dnsmasq as upstream resolver
-network:
-  version: 2
-  ethernets:
-    lo:
-      match:
-        name: lo
-      addresses:
-        - 127.0.0.1/8:
-            label: lo
-        - 10.0.1.1/32:
-            label: lo:host-access
-        - ::1/128
-EOF
-chmod -R 600 /etc/netplan/
-netplan apply
+# cat <<EOF > /etc/netplan/01-loopback.yaml
+# # Add loopback address for pods to use dnsmasq as upstream resolver
+# network:
+#   version: 2
+#   ethernets:
+#     lo:
+#       match:
+#         name: lo
+#       addresses:
+#         - 127.0.0.1/8:
+#             label: lo
+#         - 10.0.1.1/32:
+#             label: lo:host-access
+#         - ::1/128
+# EOF
+# chmod -R 600 /etc/netplan/
+# netplan apply
 
 # Restart mDNS daemon to avoid conflict with other hosts
 systemctl restart avahi-daemon
+# enable dnsmasq disable systemd-resolvd
+# systemctl disable systemd-resolved.service
+# systemctl enable dnsmasq
+# systemctl daemon-reload
+# systemctl stop systemd-resolved.service
+# systemctl start dnsmasq
 
 # Customize MOTD and other text for the appliance
 chmod -x /etc/update-motd.d/00-header
@@ -90,27 +99,27 @@ echo -e "Crucible Appliance $APPLIANCE_VERSION \\\n \l \n" >> /etc/issue
 
 # Create systemd service to configure netplan primary interface
 
-cp packer/scripts/configure_nic /usr/local/bin
-cat <<EOF > /etc/systemd/system/configure_nic.service
-[Unit]
-Description=Configure Netplan primary Ethernet interface
-After=network.target
-Before=k3s.service
+# cp packer/scripts/configure_nic /usr/local/bin
+# cat <<EOF > /etc/systemd/system/configure_nic.service
+# [Unit]
+# Description=Configure Netplan primary Ethernet interface
+# After=network.target
+# Before=k3s.service
 
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/configure_nic
+# [Service]
+# Type=oneshot
+# ExecStart=/usr/local/bin/configure_nic
 
-[Install]
-WantedBy=multi-user.target
-EOF
-chmod +x /usr/local/bin/configure_nic
-# Remove configure_nic Flag
-if [ -f /etc/.configure-nic ]; then 
-  rm /etc/.configure-nic
-fi
-systemctl daemon-reload
-systemctl enable configure_nic
+# [Install]
+# WantedBy=multi-user.target
+# EOF
+# chmod +x /usr/local/bin/configure_nic
+# # Remove configure_nic Flag
+# if [ -f /etc/.configure-nic ]; then 
+#   rm /etc/.configure-nic
+# fi
+# systemctl daemon-reload
+# systemctl enable configure_nic
 
 APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 # Add hosts Entry 
@@ -121,9 +130,6 @@ if ! grep -q "^$APPLIANCE_IP\s\+crucible.local\$" /etc/hosts; then
 else
     echo "Entry already exists in hosts file."
 fi
-
-# Set hostname 
-hostname -b crucible
 
 ################################
 ##### Install Dependencies #####
