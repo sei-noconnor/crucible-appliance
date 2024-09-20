@@ -6,8 +6,6 @@
 #
 # Crucible Appliance 02-deps.sh
 
-echo "$APPLIANCE_VERSION" >> /etc/appliance_version
-
 # Disable swap for Kubernetes
 swapoff -a
 sed -i -r 's/(\/swap\.img.*)/#\1/' /etc/fstab
@@ -22,16 +20,60 @@ mirrors:
   "*":
 EOF
 )
+# Get the appliance version
+
+
+# Detect Mac and use greadlink
+readlink_cmd="readlink -m"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  readlink_cmd="greadlink -m"  
+fi
+
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    VERSION_TAG=$(git tag --points-at HEAD)
+    GIT_BRANCH=$(git branch --show-current)
+    GIT_HASH=$(git rev-parse --short HEAD)
+fi
+
+if [ -n "$VERSION_TAG" ]; then
+    BUILD_VERSION=$VERSION_TAG
+elif [ -n "$GITHUB_PULL_REQUEST" ]; then
+    BUILD_VERSION=PR$GITHUB_PULL_REQUEST-$GIT_HASH
+elif [ -n "$GIT_HASH" ]; then
+    BUILD_VERSION=$GIT_BRANCH-$GIT_HASH
+else
+    BUILD_VERSION="custom-$(date '+%Y%m%d')"
+fi
+
+if [ -z $APPLIANCE_VERSION ]; then 
+    APPLIANCE_VERSION="crucible-appliance-$BUILD_VERSION"
+    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/appliance_version"
+    tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
+    sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
+    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/environment"
+    sudo awk "/APPLIANCE_VERSION=/ {print \"APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+else
+    if [ $APPLIANCE_VERSION != crucible-appliance-$BUILD_VERSION ]; then 
+        sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
+    fi
+fi
+
+tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
+sudo awk "/APPLIANCE_IP=/ {print \"APPLIANCE_IP=$APPLIANCE_IP\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"APPLIANCE_ENVIRONMENT=APPLIANCE\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+
 
 ######################
 ###### Update OS #####
 ######################
 sudo apt update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt autoremove -y
-sudo apt install -y build-essential dnsmasq avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git
+sudo apt install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git
 
 ########################
 ##### Configure OS #####
 ########################
+# Set hostname 
+hostname -b crucible
 # Increase inodes for asp.net applications
 echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~
@@ -44,37 +86,6 @@ blacklist {
 EOF
 systemctl restart multipathd
 
-# Disable systemd resolver in favor of dnsmasq
-systemctl stop systemd-resolvd
-systemctl disable systemd-resolvd
-
-# Add dnsmasq resolver and other required packages
-PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
-mkdir /etc/dnsmasq.d
-cat <<EOF > /etc/dnsmasq.d/crucible.conf
-bind-interfaces
-listen-address=10.0.1.1
-interface-name=crucible.local,$PRIMARY_INTERFACE
-EOF
-
-cat <<EOF > /etc/netplan/01-loopback.yaml
-# Add loopback address for pods to use dnsmasq as upstream resolver
-network:
-  version: 2
-  ethernets:
-    lo:
-      match:
-        name: lo
-      addresses:
-        - 127.0.0.1/8:
-            label: lo
-        - 10.0.1.1/32:
-            label: lo:host-access
-        - ::1/128
-EOF
-chmod -R 600 /etc/netplan/
-netplan apply
-
 # Restart mDNS daemon to avoid conflict with other hosts
 systemctl restart avahi-daemon
 
@@ -84,46 +95,57 @@ chmod -x /etc/update-motd.d/10-help-text
 sed -i -r 's/(ENABLED=)1/\0/' /etc/default/motd-news
 echo "Current Directory is: $PWD"
 cp packer/scripts/display-banner /etc/update-motd.d/05-display-banner
+
 # Will need later when we install mkdocs #remove
 # sed -i "s/{version}/$APPLIANCE_VERSION/" ~/mkdocs/docs/index.md
-echo -e "Crucible Appliance $APPLIANCE_VERSION \\\n \l \n" >> /etc/issue
+echo -e "Crucible Appliance $APPLIANCE_VERSION" > /etc/issue
+
+# setup startup script
+echo "Setting Up crucible-appliance startup script $PWD"
+yes | cp -rf $PWD/packer/scripts/crucible-appliance-startup.service /etc/systemd/system
+yes | cp -rf $PWD/packer/scripts/crucible-appliance-startup.sh /usr/local/bin/
+chmod 744 /usr/local/bin/crucible-appliance-startup.sh
+chmod 664 /etc/systemd/system/crucible-appliance-startup.service
+sudo systemctl daemon-reload
+sudo systemctl enable crucible-appliance-startup.service
 
 # Create systemd service to configure netplan primary interface
 
-cp packer/scripts/configure_nic /usr/local/bin
-cat <<EOF > /etc/systemd/system/configure_nic.service
-[Unit]
-Description=Configure Netplan primary Ethernet interface
-After=network.target
-Before=k3s.service
+# cp packer/scripts/configure_nic /usr/local/bin
+# cat <<EOF > /etc/systemd/system/configure_nic.service
+# [Unit]
+# Description=Configure Netplan primary Ethernet interface
+# After=network.target
+# Before=k3s.service
 
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/configure_nic
+# [Service]
+# Type=oneshot
+# ExecStart=/usr/local/bin/configure_nic
 
-[Install]
-WantedBy=multi-user.target
-EOF
-chmod +x /usr/local/bin/configure_nic
-# Remove configure_nic Flag
-if [ -f /etc/.configure-nic ]; then 
-  rm /etc/.configure-nic
+# [Install]
+# WantedBy=multi-user.target
+# EOF
+# chmod +x /usr/local/bin/configure_nic
+# # Remove configure_nic Flag
+# if [ -f /etc/.configure-nic ]; then 
+#   rm /etc/.configure-nic
+# fi
+# systemctl daemon-reload
+# systemctl enable configure_nic
+
+CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
+APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
+DOMAIN=${DOMAIN:-crucible.local}
+
+if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
+    # Delete old entry
+    sudo sed -i "/$DOMAIN/d" /etc/hosts
+    msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"
+    # Append it to the hosts file
+    tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
+    sudo echo "$CURRENT_IP   $DOMAIN" >> /etc/hosts
+    msg="Entry update in host file: /etc/hosts '$CURRENT_IP   $DOMAIN'"
 fi
-systemctl daemon-reload
-systemctl enable configure_nic
-
-APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
-# Add hosts Entry 
-if ! grep -q "^$APPLIANCE_IP\s\+crucible.local\$" /etc/hosts; then
-    # If it doesn't exist, append it to the hosts file
-    echo "$APPLIANCE_IP crucible.local" >> /etc/hosts
-    echo "Entry added to hosts file."
-else
-    echo "Entry already exists in hosts file."
-fi
-
-# Set hostname 
-hostname -b crucible
 
 ################################
 ##### Install Dependencies #####
@@ -135,7 +157,7 @@ sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd6
 # Install K3s
 sudo mkdir -p /etc/rancher/k3s
 mkdir -p ~/.kube
-sudo echo "nameserver 10.0.1.1" >> /etc/rancher/k3s/resolv.conf
+# sudo echo "nameserver 10.0.1.1" >> /etc/rancher/k3s/resolv.conf
 sudo echo "$MIRRORS" > /etc/rancher/k3s/registries.yaml
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin" sh -
 mkdir ~/.kube
@@ -185,5 +207,5 @@ echo "Sleeping for 20 seconds for snapshot"
 sleep 20
 k3s etcd-snapshot save --name base-cluster
 
-# # Delete Ubuntu machine ID for proper DHCP operation on deploy
-# # echo -n > /etc/machine-id
+# Delete Ubuntu machine ID for proper DHCP operation on deploy
+echo -n > /etc/machine-id

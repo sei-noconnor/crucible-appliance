@@ -5,13 +5,11 @@ SSH_USERNAME ?= crucible
 ADMIN_PASS ?= crucible
 SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps
-ENVIRONMENT ?= DEV
-APPLIANCE_VERSION ?= crucible-appliance
+APPLIANCE_ENVIRONMENT ?= DEV
+APPLIANCE_IP ?= $(ip route get 1 | awk '{print $(NF-2);exit}')
 export SSL_DIR
 export APPS_DIR
 export ADMIN_PASS
-export APPLIANCE_VERSION
-
 
 generate_certs:
 	./scripts/generate_root_ca.sh
@@ -22,13 +20,16 @@ sudo-deps: generate_certs
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-deps.sh
 
-init: sudo-deps
+add-coredns-entry:
+	./scripts/add-coredns-entry.sh "${APPLIANCE_IP}" "${DOMAIN}" $(filter-out $@,$(MAKECMDGOALS))
+%:
+	@true
+	
+init: sudo-deps add-coredns-entry
 	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
 	./packer/scripts/03-init-argo.sh
+	make snapshot
 	
-deps:
-	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/02-deps.sh
-
 argo: 
 	./packer/scripts/03-init-argo.sh
 	
