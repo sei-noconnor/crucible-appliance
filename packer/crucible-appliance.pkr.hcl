@@ -145,7 +145,7 @@ build {
       "awk '/APPLIANCE_IP=/ {print "APPLIANCE_IP=$APPLIANCE_IP"; next} 1' /etc/environment > $tmp_file && sudo mv $tmp_file /etc/environment",
       "awk '/APPLIANCE_VERSION=/ {print "APPLIANCE_VERSION=$APPLIANCE_VERSION"; next} 1' /etc/environment > $tmp_file && sudo mv $tmp_file /etc/environment",
       "awk '/APPLIANCE_ENVIRONMENT=/ {print "APPLIANCE_ENVIRONMENT=APPLIANCE"; next} 1' /etc/environment > $tmp_file && sudo mv $tmp_file /etc/environment",
-      "awk '/APPLIANCE_ENVIRONMENT=/ {print "APPLIANCE_ENVIRONMENT=APPLIANCE"; next} 1' /etc/appliance_version > $tmp_file && sudo mv $tmp_file /etc/appliance_version"
+      "awk '/APPLIANCE_ENVIRONMENT=/ {print "APPLIANCE_ENVIRONMENT=APPLIANCE"; next} 1' /etc/appliance_version > $tmp_file && sudo mv $tmp_file /etc/appliance_version",
     ]
   }
 
