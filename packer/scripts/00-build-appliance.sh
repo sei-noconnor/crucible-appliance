@@ -47,7 +47,7 @@ cd $PACKER_DIR/../
 packer init ./packer
 echo "Setting VM Name to crucible-appliance-$BUILD_VERSION"
 if [ -n "$ONLYVAR" ]; then 
-    packer build -only=$ONLY_VAR -var "appliance_version=$BUILD_VERSION" @ ./packer
+    packer build -only=$ONLY_VAR -var "appliance_version=$BUILD_VERSION" $@ ./packer
 else
     packer build -var "appliance_version=$BUILD_VERSION" -var-file "./packer/vars.auto.pkrvars.hcl" $@ ./packer
 fi
