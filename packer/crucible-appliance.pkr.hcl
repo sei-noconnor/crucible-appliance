@@ -140,9 +140,12 @@ build {
       "APPLIANCE_VERSION=${var.appliance_version}"
     ]
     inline = [
-      "echo $APPLIANCE_VERSION > /etc/appliance_version",
-      "sudo apt update && sudo apt install make",
-      "grep -qxF 'ENVIRONMENT=APPLIANCE' '/etc/environment' || echo 'ENVIRONMENT=APPLIANCE' >> '/etc/environment'"
+      "export APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')",
+      "tmpfile=/tmp-$(openssl rand -hex 4).txt",
+      "awk '/APPLIANCE_IP=/ {print "APPLIANCE_IP=$APPLIANCE_IP"; next} 1' /etc/environment > $tmp_file && sudo mv $tmp_file /etc/environment",
+      "awk '/APPLIANCE_VERSION=/ {print "APPLIANCE_VERSION=$APPLIANCE_VERSION"; next} 1' /etc/environment > $tmp_file && sudo mv $tmp_file /etc/environment",
+      "awk '/APPLIANCE_ENVIRONMENT=/ {print "APPLIANCE_ENVIRONMENT=APPLIANCE"; next} 1' /etc/environment > $tmp_file && sudo mv $tmp_file /etc/environment",
+      "awk '/APPLIANCE_ENVIRONMENT=/ {print "APPLIANCE_ENVIRONMENT=APPLIANCE"; next} 1' /etc/appliance_version > $tmp_file && sudo mv $tmp_file /etc/appliance_version"
     ]
   }
 

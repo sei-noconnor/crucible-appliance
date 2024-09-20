@@ -1,10 +1,13 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Set the namespace and configmap name for CoreDNS
 NAMESPACE="kube-system"
 CONFIGMAP_NAME="coredns"
 IP=$1
 DOMAIN=$2
+if [ -z "$IP" ]; then
+IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
+fi 
 
 if [ -z "$IP" ] || [ -z "$DOMAIN" ]; then
   echo "Usage: $0 <ip> <domain>"

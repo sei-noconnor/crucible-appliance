@@ -6,8 +6,6 @@
 #
 # Crucible Appliance 02-deps.sh
 
-echo "$APPLIANCE_VERSION" >> /etc/appliance_version
-
 # Disable swap for Kubernetes
 swapoff -a
 sed -i -r 's/(\/swap\.img.*)/#\1/' /etc/fstab
@@ -22,6 +20,14 @@ mirrors:
   "*":
 EOF
 )
+
+tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
+sudo awk "/APPLIANCE_IP=/ {print \"APPLIANCE_IP=$APPLIANCE_IP\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+sudo awk "/APPLIANCE_VERSION=/ {print \"APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"APPLIANCE_ENVIRONMENT=APPLIANCE\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+sudo awk "/APPLIANCE_IP=/ {print \"APPLIANCE_IP=$APPLIANCE_IP\"; next} 1" /etc/appliance_version > $tmp_file && sudo mv -f $tmp_file /etc/appliance_version
+sudo awk "/APPLIANCE_VERSION=/ {print \"APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/appliance_version > $tmp_file && sudo mv -f $tmp_file /etc/appliance_version
+sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"APPLIANCE_ENVIRONMENT=APPLIANCE\"; next} 1" /etc/appliance_version > $tmp_file && sudo mv -f $tmp_file /etc/appliance_version
 
 ######################
 ###### Update OS #####
@@ -46,46 +52,8 @@ blacklist {
 EOF
 systemctl restart multipathd
 
-# # Add dnsmasq resolver and other required packages
-# PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
-# mkdir /etc/dnsmasq.d
-# cat <<EOF > /etc/dnsmasq.d/crucible.conf
-# bind-interfaces
-# listen-address=10.0.1.1
-# interface-name=crucible.local,$PRIMARY_INTERFACE
-# EOF
-
-# cat <<EOF > /etc/resolv.conf
-# nameserver 192.168.1.153
-# search local
-# EOF
-
-# cat <<EOF > /etc/netplan/01-loopback.yaml
-# # Add loopback address for pods to use dnsmasq as upstream resolver
-# network:
-#   version: 2
-#   ethernets:
-#     lo:
-#       match:
-#         name: lo
-#       addresses:
-#         - 127.0.0.1/8:
-#             label: lo
-#         - 10.0.1.1/32:
-#             label: lo:host-access
-#         - ::1/128
-# EOF
-# chmod -R 600 /etc/netplan/
-# netplan apply
-
 # Restart mDNS daemon to avoid conflict with other hosts
 systemctl restart avahi-daemon
-# enable dnsmasq disable systemd-resolvd
-# systemctl disable systemd-resolved.service
-# systemctl enable dnsmasq
-# systemctl daemon-reload
-# systemctl stop systemd-resolved.service
-# systemctl start dnsmasq
 
 # Customize MOTD and other text for the appliance
 chmod -x /etc/update-motd.d/00-header
@@ -93,9 +61,19 @@ chmod -x /etc/update-motd.d/10-help-text
 sed -i -r 's/(ENABLED=)1/\0/' /etc/default/motd-news
 echo "Current Directory is: $PWD"
 cp packer/scripts/display-banner /etc/update-motd.d/05-display-banner
+
 # Will need later when we install mkdocs #remove
 # sed -i "s/{version}/$APPLIANCE_VERSION/" ~/mkdocs/docs/index.md
-echo -e "Crucible Appliance $APPLIANCE_VERSION \\\n \l \n" >> /etc/issue
+echo -e "Crucible Appliance $APPLIANCE_VERSION" >> /etc/issue
+
+# setup startup script
+echo "Setting Up crucible-appliance startup script $PWD"
+yes | cp -rf $PWD/packer/scripts/crucible-appliance-startup.service /etc/systemd/system
+yes | cp -rf $PWD/packer/scripts/crucible-appliance-startup.sh /usr/local/bin/
+chmod 744 /usr/local/bin/crucible-appliance-startup.sh
+chmod 664 /etc/systemd/system/crucible-appliance-startup.service
+sudo systemctl daemon-reload
+sudo systemctl enable crucible-appliance-startup.service
 
 # Create systemd service to configure netplan primary interface
 
