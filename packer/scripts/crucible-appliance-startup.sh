@@ -21,52 +21,51 @@ msg="Crucible appliance startup script for version: $APPLIANCE_VERSION"
 crucible_log "$msg"
 CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
+DOMAIN=${DOMAIN:-crucible.local}
+
 if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
-    # Add hosts Entry 
-    if grep -q "crucible.local" /etc/hosts; then
-        # If it doesn't exist, append it to the hosts file
-        tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
-        sudo awk "/crucible.local/ {print '$CURRENT_IP    $DOMAIN'; next} 1" /etc/hosts > $tmp_file && yes | sudo mv -f $tmp_file /etc/hosts
-        msg="Entry update in host file: /etc/hosts '$CURRENT_IP   $DOMAIN'"
-        crucible_log "$msg"
-    else
-        msg="Entry doesn't exists in hosts file.'$CURRENT_IP    $DOMAIN'"
-        sudo echo "$CURRENT_IP    crucible.local" >> /etc/hosts
-        crucible_log "$msg"
-    fi
+    # Delete old entry
+    sudo sed -i "/$DOMAIN/d" /etc/hosts
+    msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"
+    # Append it to the hosts file
+    tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
+    sudo echo "$CURRENT_IP   $DOMAIN" >> /etc/hosts
+    msg="Entry update in host file: /etc/hosts '$CURRENT_IP   $DOMAIN'"
+    crucible_log "$msg"
+
     # Add NodeHosts entry to coredns
-    ./scripts/add-coredns-entry.sh $CURRENT_IP $DOMAIN
+    /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh $CURRENT_IP $DOMAIN
 
-    #Search for snapshot and do an offline reset
-    directory="/var/lib/rancher/k3s/server/db/snapshots"
-    prefix=${1:-crucible-appliance}
+#     # Search for snapshot and do an offline reset
+#     directory="/var/lib/rancher/k3s/server/db/snapshots"
+#     prefix=${1:-crucible-appliance}
 
-    files=($(sudo find "$directory" -type f -name "*$prefix*" -print))
+#     files=($(sudo find "$directory" -type f -name "*$prefix*" -print))
 
-    if [ ${#files[@]} -eq 0 ]; then
-        echo "No file found with the prefix '$prefix' in '$directory'."
-        exit 1
-    fi
-    filename="${files[0]}"
+#     if [ ${#files[@]} -eq 0 ]; then
+#         echo "No file found with the prefix '$prefix' in '$directory'."
+#         exit 1
+#     fi
+#     filename="${files[0]}"
     
-    if [ -n "$filename" ]; then
-        echo "You selected: $filename"
-        sudo systemctl stop k3s
-        sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
-        sudo systemctl daemon-reload
-        sudo systemctl start k3s
-    fi
+#     if [ -n "$filename" ]; then
+#         echo "You selected: $filename"
+#         sudo systemctl stop k3s
+#         sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
+#         sudo systemctl daemon-reload
+#         sudo systemctl start k3s
+#     fi
     
-    echo "CLUSTER RESET!"
-    time=15
-    echo "Sleeping for $time"
-    sleep $time
-    echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
-    kubectl wait deployment \
-    --all \
-    --for=condition=Available \
-    --all-namespaces=true \
-    --timeout=5m
+#     echo "CLUSTER RESET!"
+#     time=15
+#     echo "Sleeping for $time"
+#     sleep $time
+#     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
+#     kubectl wait deployment \
+#     --all \
+#     --for=condition=Available \
+#     --all-namespaces=true \
+#     --timeout=5m
 else 
     msg="Crucible Appliance IPs match starting normally"
     crucible_log "$msg"

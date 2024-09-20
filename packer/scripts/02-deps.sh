@@ -46,12 +46,16 @@ else
 fi
 
 if [ -z $APPLIANCE_VERSION ]; then 
-    APPLIANCE_VERSION="crucible-appliance=$BUILD_VERSION"
+    APPLIANCE_VERSION="crucible-appliance-$BUILD_VERSION"
     echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/appliance_version"
     tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
-    echo "$APPLIANCE_VERSION" > /etc/appliance_version
+    sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
     echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/environment"
     sudo awk "/APPLIANCE_VERSION=/ {print \"APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+else
+    if [ $APPLIANCE_VERSION != crucible-appliance-$BUILD_VERSION ]; then 
+        sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
+    fi
 fi
 
 tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
@@ -94,7 +98,7 @@ cp packer/scripts/display-banner /etc/update-motd.d/05-display-banner
 
 # Will need later when we install mkdocs #remove
 # sed -i "s/{version}/$APPLIANCE_VERSION/" ~/mkdocs/docs/index.md
-echo -e "Crucible Appliance $APPLIANCE_VERSION" >> /etc/issue
+echo -e "Crucible Appliance $APPLIANCE_VERSION" > /etc/issue
 
 # setup startup script
 echo "Setting Up crucible-appliance startup script $PWD"
@@ -129,14 +133,18 @@ sudo systemctl enable crucible-appliance-startup.service
 # systemctl daemon-reload
 # systemctl enable configure_nic
 
-APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
-# Add hosts Entry 
-if ! grep -q "^$APPLIANCE_IP\s\+crucible.local\$" /etc/hosts; then
-    # If it doesn't exist, append it to the hosts file
-    echo "$APPLIANCE_IP crucible.local" >> /etc/hosts
-    echo "Entry added to hosts file."
-else
-    echo "Entry already exists in hosts file."
+CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
+APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
+DOMAIN=${DOMAIN:-crucible.local}
+
+if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
+    # Delete old entry
+    sudo sed -i "/$DOMAIN/d" /etc/hosts
+    msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"
+    # Append it to the hosts file
+    tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
+    sudo echo "$CURRENT_IP   $DOMAIN" >> /etc/hosts
+    msg="Entry update in host file: /etc/hosts '$CURRENT_IP   $DOMAIN'"
 fi
 
 ################################
