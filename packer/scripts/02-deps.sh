@@ -20,14 +20,44 @@ mirrors:
   "*":
 EOF
 )
+# Get the appliance version
+
+
+# Detect Mac and use greadlink
+readlink_cmd="readlink -m"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  readlink_cmd="greadlink -m"  
+fi
+
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    VERSION_TAG=$(git tag --points-at HEAD)
+    GIT_BRANCH=$(git branch --show-current)
+    GIT_HASH=$(git rev-parse --short HEAD)
+fi
+
+if [ -n "$VERSION_TAG" ]; then
+    BUILD_VERSION=$VERSION_TAG
+elif [ -n "$GITHUB_PULL_REQUEST" ]; then
+    BUILD_VERSION=PR$GITHUB_PULL_REQUEST-$GIT_HASH
+elif [ -n "$GIT_HASH" ]; then
+    BUILD_VERSION=$GIT_BRANCH-$GIT_HASH
+else
+    BUILD_VERSION="custom-$(date '+%Y%m%d')"
+fi
+
+if [ -z $APPLIANCE_VERSION ]; then 
+    APPLIANCE_VERSION="crucible-appliance=$BUILD_VERSION"
+    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/appliance_version"
+    tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
+    echo "$APPLIANCE_VERSION" > /etc/appliance_version
+    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/environment"
+    sudo awk "/APPLIANCE_VERSION=/ {print \"APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+fi
 
 tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
 sudo awk "/APPLIANCE_IP=/ {print \"APPLIANCE_IP=$APPLIANCE_IP\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
-sudo awk "/APPLIANCE_VERSION=/ {print \"APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
 sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"APPLIANCE_ENVIRONMENT=APPLIANCE\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
-sudo awk "/APPLIANCE_IP=/ {print \"APPLIANCE_IP=$APPLIANCE_IP\"; next} 1" /etc/appliance_version > $tmp_file && sudo mv -f $tmp_file /etc/appliance_version
-sudo awk "/APPLIANCE_VERSION=/ {print \"APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/appliance_version > $tmp_file && sudo mv -f $tmp_file /etc/appliance_version
-sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"APPLIANCE_ENVIRONMENT=APPLIANCE\"; next} 1" /etc/appliance_version > $tmp_file && sudo mv -f $tmp_file /etc/appliance_version
+
 
 ######################
 ###### Update OS #####

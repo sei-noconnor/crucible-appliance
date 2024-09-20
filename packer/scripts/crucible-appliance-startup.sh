@@ -37,8 +37,36 @@ if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
     # Add NodeHosts entry to coredns
     ./scripts/add-coredns-entry.sh $CURRENT_IP $DOMAIN
 
-    #Search for snapshot and do an offline restore
-    make offline-reset
+    #Search for snapshot and do an offline reset
+    directory="/var/lib/rancher/k3s/server/db/snapshots"
+    prefix=${1:-crucible-appliance}
+
+    files=($(sudo find "$directory" -type f -name "*$prefix*" -print))
+
+    if [ ${#files[@]} -eq 0 ]; then
+        echo "No file found with the prefix '$prefix' in '$directory'."
+        exit 1
+    fi
+    filename="${files[0]}"
+    
+    if [ -n "$filename" ]; then
+        echo "You selected: $filename"
+        sudo systemctl stop k3s
+        sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
+        sudo systemctl daemon-reload
+        sudo systemctl start k3s
+    fi
+    
+    echo "CLUSTER RESET!"
+    time=15
+    echo "Sleeping for $time"
+    sleep $time
+    echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
+    kubectl wait deployment \
+    --all \
+    --for=condition=Available \
+    --all-namespaces=true \
+    --timeout=5m
 else 
     msg="Crucible Appliance IPs match starting normally"
     crucible_log "$msg"

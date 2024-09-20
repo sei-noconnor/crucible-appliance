@@ -6,13 +6,10 @@ ADMIN_PASS ?= crucible
 SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps
 APPLIANCE_ENVIRONMENT ?= DEV
-APPLIANCE_VERSION ?= $(cat /etc/appliance_version)
 APPLIANCE_IP ?= $(ip route get 1 | awk '{print $(NF-2);exit}')
 export SSL_DIR
 export APPS_DIR
 export ADMIN_PASS
-export APPLIANCE_VERSION
-
 
 generate_certs:
 	./scripts/generate_root_ca.sh
@@ -31,6 +28,7 @@ add-coredns-entry:
 init: sudo-deps add-coredns-entry
 	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
 	./packer/scripts/03-init-argo.sh
+	make snapshot
 	
 argo: 
 	./packer/scripts/03-init-argo.sh
