@@ -1,0 +1,105 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: argocd
+
+patches:
+- patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: appliance-argocd-repo-server
+      namespace: argocd
+      labels:
+        app.kubernetes.io/name: argocd-repo-server
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: crucible-root-ca
+            secret:
+              defaultMode: 420
+              secretName: crucible-root-ca
+          - name: argocd-crucible-repo
+            persistentVolumeClaim:
+              claimName: argocd-crucible-repo
+
+          containers:
+          - name: repo-server
+            env:
+              - name: ARGOCD_EXEC_TIMEOUT
+                value: "300"
+            volumeMounts:
+              - name: crucible-root-ca
+                mountPath: /etc/ssl/certs/crucible-root-ca.crt
+                subPath: crucible-root-ca.crt
+              - name: argocd-crucible-repo
+                mountPath: /crucible-repo
+- patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: appliance-argocd-server
+      namespace: argocd
+      labels:
+        app.kubernetes.io/name: argocd-server
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: crucible-root-ca
+            secret:
+              defaultMode: 420
+              secretName: crucible-root-ca
+          containers:
+          - name: server
+            volumeMounts:
+              - name: crucible-root-ca
+                mountPath: /etc/ssl/certs/crucible-root-ca.crt
+                subPath: crucible-root-ca.crt
+- patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: appliance-argocd-applicationset-controller
+      namespace: argocd
+      labels:
+        app.kubernetes.io/name: argocd-repo-server
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: crucible-root-ca
+            secret:
+              defaultMode: 420
+              secretName: crucible-root-ca
+          containers:
+          - name: applicationset-controller
+            volumeMounts:
+              - name: crucible-root-ca
+                mountPath: /etc/ssl/certs/crucible-root-ca.crt
+                subPath: crucible-root-ca.crt
+
+- patch: "- op: add\n  path: /spec/template/spec/volumes/-\n  value: \n    - name: crucible-root-ca\n      secret:\n        defaultMode: 420\n        secretName: crucible-root-ca"
+  target:
+    version: v1
+    group: apps
+    kind: deployment
+    name: appliance-argocd-repo-server
+    namespace: argocd
+
+secretGenerator:
+- name: crucible-root-ca
+  files:
+  - crucible-root-ca.crt=files/root-ca.pem
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+- ../../base
+- argocd-repo-pvc.yaml
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: argocd-crucible-repo
+  namespace: default
+  labels:
+    app: argocd-repo
+spec:
+  storageClassName: local-path
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi

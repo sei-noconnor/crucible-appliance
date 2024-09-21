@@ -1,0 +1,23 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: crucible
+    password: "$6$FhcddHFVZ7ABA4Gi$nXvs0mc4vxVIaVxWmrWhelv36V/J4AA4OzWfmSH./n39t9DtrvggkMlpYXeMwc9P0iD/cBFKFG2BpfE.n84hl1"
+    username: crucible
+  ssh:
+    install-server: true
+    allow-pw: true
+  packages:
+    - open-vm-tools
+  autoinstall:
+    updates: security
+    apt:
+      preferences:
+        - package: "*"
+          pin: "release a=jammy-security"
+          pin-priority: 200
+    late-commands:
+      - |
+        rm /target/etc/apt/preferences.d/90curtin.pref
+        true

@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mkdocs
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: mkdocs
+    server: https://kubernetes.default.svc
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+    - CreateNamespace=true
+  sources:
+  - path: argocd/apps/mkdocs/kustomize/overlays/appliance
+    repoURL: file:///crucible-repo/crucible-appliance
+    targetRevision: main
+    directory:
+      recurse: true
+

@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: keycloak
+helmCharts:
+- name: keycloak
+  includeCRDs: true
+  version: 15.1.8
+  repo: https://charts.bitnami.com/bitnami
+  releaseName: appliance
+  valuesFile: files/keycloak.values.yaml
+  valuesMerge: merge
+resources: 
+- namespace.yaml
+
+labels:
+- pairs:
+    config: keycloak
+  includeSelectors: true
+
+secretGenerator:
+- name: dod-certs
+  files:
+  - ca.crt=files/issuers-dod-certs.crt
+  
+
+- name: keycloak-truststore
+  files:
+  - truststore.jks=files/truststore.jks
+
+- name: keycloak-import
+  files:
+  - files/quarkus.properties
+
+
+configMapGenerator:
+  - name: keycloak-import
+    files:
+      - realm.json=files/crucible.json
+      - customreg.yaml=files/crucible.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true

@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: cert-manager
+    server: https://kubernetes.default.svc
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+    - CreateNamespace=true
+  sources:
+  - path: argocd/apps/cert-manager/manifests
+    repoURL: file:///crucible-repo/crucible-appliance
+    targetRevision: main
+    directory:
+      recurse: true
+  - path: argocd/apps/cert-manager/kustomize/overlays/appliance
+    repoURL: file:///crucible-repo/crucible-appliance/
+    targetRevision: main
+

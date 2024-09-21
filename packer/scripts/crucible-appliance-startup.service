@@ -1,0 +1,8 @@
+[Unit]
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/crucible-appliance-startup.sh
+
+[Install]
+WantedBy=default.target

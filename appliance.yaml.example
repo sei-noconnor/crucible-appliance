@@ -1,0 +1,12 @@
+vars:
+  vsphere_server:
+  vsphere_user:
+  vsphere_password:
+  vsphere_template:
+  datacenter:
+  cluster:
+  host:
+  datastore:
+  network_name:
+  ssh_username:
+  ssh_password:

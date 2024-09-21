@@ -1,0 +1,90 @@
+## Argo CD configuration
+## Ref: https://github.com/argoproj/argo-cd
+##
+
+## Custom resource configuration
+crds:
+  # -- Install and upgrade CRDs
+  install: true
+  # -- Keep CRDs on chart uninstall
+  keep: false
+  # -- Annotations to be added to all CRDs
+  annotations: {}
+  # -- Addtional labels to be added to all CRDs
+  additionalLabels: {}
+
+## Globally shared configuration
+global:
+  # -- Default domain used by all components
+  ## Used for ingresses, certificates, SSO, notifications, etc.
+  domain: crucible.local
+
+  # -- Common labels for the all resources
+  additionalLabels: {}
+    # app: argo-cd
+
+  # -- Number of old deployment ReplicaSets to retain. The rest will be garbage collected.
+  revisionHistoryLimit: 5
+
+  # Default image used by all components
+  image:
+    # -- If defined, a repository applied to all Argo CD deployments
+    repository: quay.io/argoproj/argocd
+    # -- If defined, a imagePullPolicy applied to all Argo CD deployments
+    imagePullPolicy: IfNotPresent
+
+## Argo Configs
+configs:
+  # General Argo CD configuration
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
+  cm:
+    # -- Create the argocd-cm configmap for [declarative setup]
+    create: true
+
+    # -- Annotations to be added to argocd-cm configmap
+    annotations: {}
+
+    # -- The name of tracking label used by Argo CD for resource pruning
+    application.instanceLabelKey: argocd.argoproj.io/instance
+
+    # -- Enable logs RBAC enforcement
+    ## Ref: https://argo-cd.readthedocs.io/en/latest/operator-manual/upgrading/2.3-2.4/#enable-logs-rbac-enforcement
+    server.rbac.log.enforce.enable: false
+
+    # -- Enable exec feature in Argo UI
+    ## Ref: https://argo-cd.readthedocs.io/en/latest/operator-manual/rbac/#exec-resource
+    exec.enabled: false
+
+    # -- Enable local admin user
+    ## Ref: https://argo-cd.readthedocs.io/en/latest/faq/#how-to-disable-admin-user
+    admin.enabled: true
+
+    # -- Timeout to discover if a new manifests version got published to the repository
+    timeout.reconciliation: 180s
+
+    # -- Timeout to refresh application data as well as target manifests cache
+    timeout.hard.reconciliation: 0s
+
+    # -- Enable Status Badge
+    ## Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/status-badge/
+    statusbadge.enabled: false
+    
+    # -- Enable Kustomize Helm
+    kustomize.buildOptions: --enable-helm
+
+  # -- Repositories list to be used by applications
+  ## Creates a secret for each key/value specified below to create repositories
+  ## Note: the last example in the list would use a repository credential template, configured under "configs.credentialTemplates".
+  repositories: {}
+    # istio-helm-repo:
+    #   url: https://storage.googleapis.com/istio-prerelease/daily-build/master-latest-daily/charts
+    #   name: istio.io
+    #   type: helm
+    # private-helm-repo:
+    #   url: https://my-private-chart-repo.internal
+    #   name: private-repo
+    #   type: helm
+    #   password: my-password
+    #   username: my-username
+    # private-repo:
+    #   url: https://github.com/argoproj/private-repo
