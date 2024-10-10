@@ -17,6 +17,8 @@ spec:
     directory:
       include: 'fortress-tls.secret.yaml'
       recurse: false
+    plugin:
+      name: avp
   sources: []
   syncPolicy:
     automated:
