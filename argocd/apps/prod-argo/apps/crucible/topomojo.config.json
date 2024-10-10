@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "topomojo",
-        "project_branch" : "topomojo",
+        "project_branch" : "main",
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart_name" : "topomojo",
         "helm_chart_version" : "0.3.8",
