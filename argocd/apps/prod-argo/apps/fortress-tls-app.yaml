@@ -14,8 +14,6 @@ spec:
     path: tls
     repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
     targetRevision: HEAD
-    directory:
-      recurse: false
     plugin:
       name: avp
   sources: []
