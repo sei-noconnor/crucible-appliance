@@ -11,10 +11,11 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: crucible/fortress-tls.secret.yaml
+    path: crucible
     repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
     targetRevision: HEAD
     directory:
+      include: 'fortress-tls.secret.yaml'
       recurse: false
   sources: []
   syncPolicy:
