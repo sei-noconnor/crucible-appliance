@@ -37,7 +37,7 @@ topomojo-api:
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
-    size: 10g
+    size: 10G
     mode: ReadWriteOnce
     class: longhorn
 
