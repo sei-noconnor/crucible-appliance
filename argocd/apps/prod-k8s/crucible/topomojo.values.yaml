@@ -12,9 +12,9 @@ topomojo-api:
     tag: "2.3.0"
   serviceAccount:
     create: true
-  service:
-    type: ClusterIP
-    port: 80
+  #service:
+  #  type: ClusterIP
+   # port: 80
 
   ingress:
     enabled: true
@@ -150,9 +150,9 @@ topomojo-ui:
     # runAsNonRoot: true
     # runAsUser: 1000
 
-  service:
-    type: ClusterIP
-    port: 80
+ # service:
+ #   type: ClusterIP
+ #   port: 80
 
   ingress:
     enabled: true
@@ -173,7 +173,6 @@ topomojo-ui:
   service:
     type: ClusterIP
     port: 8080
-
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
