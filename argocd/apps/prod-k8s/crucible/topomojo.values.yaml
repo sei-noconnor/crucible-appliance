@@ -209,23 +209,23 @@ topomojo-ui:
   ## settings is stringified json that gets included as assets/settings.json
   settings: |
     {
-      appname: 'TopoMojo',
+      "appname": "TopoMojo",
       "apphost": "",
       "mkshost": "",
-      oidc: {
-        client_id: '<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_topomojo-ui',
-        authority: 'https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>',
-        redirect_uri: 'https://<path:fortress-prod/data/shared#domain>/topomojo/oidc',
-        silent_redirect_uri: 'https://<path:fortress-prod/data/shared#domain>/topomojo/oidc-silent.html',
-        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo",
-        response_type: 'code',
-        scope: 'openid profile topomojo-api',
-        automaticSilentRenew: true,
-        useLocalStorage: true
+      "oidc": {
+        "client_id": "fortress_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_topomojo-ui",
+        "authority": "https://fortress.sei.cmu.edu/keycloak/realms/crucible",
+        "redirect_uri": "https://fortress.sei.cmu.edu/topomojo/oidc",
+        "silent_redirect_uri": "https://fortress.sei.cmu.edu/topomojo/oidc-silent.html",
+        "post_logout_redirect_uri": "https://fortress.sei.cmu.edu/topomojo",
+        "response_type": "code",
+        "scope": "openid profile topomojo-api",
+        "automaticSilentRenew": true,
+        "useLocalStorage": true
       },
       "urls": {
-        "apiUrl": "",
-        "docUrl": ""
+          "apiUrl": "",
+          "docUrl": ""
       }
     }
 
