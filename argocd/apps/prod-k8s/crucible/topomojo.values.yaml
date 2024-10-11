@@ -151,7 +151,7 @@ topomojo-ui:
     port: 80
 
   ingress:
-    enabled: false
+    enabled: true
     annotations: 
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
