@@ -34,6 +34,10 @@ topomojo-api:
     - secretName: fortress-tls
       hosts:
         - <path:fortress-prod/data/shared#domain>
+  
+  service:
+    type: ClusterIP
+    port: 8080
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
@@ -165,6 +169,11 @@ topomojo-ui:
      - secretName: fortress-tls
        hosts:
          - <path:fortress-prod/data/shared#domain>
+    
+  service:
+    type: ClusterIP
+    port: 8080
+
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
