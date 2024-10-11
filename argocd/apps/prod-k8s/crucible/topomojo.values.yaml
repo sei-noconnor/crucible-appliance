@@ -9,7 +9,7 @@ topomojo-api:
     repository: cmusei/topomojo-api
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.3.0-rc1"
+    tag: "2.3.0"
   serviceAccount:
     create: true
   service:
@@ -118,7 +118,7 @@ topomojo-ui:
     repository: cmusei/topomojo-ui
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.2.7"
+    tag: "2.3.0"
 
   imagePullSecrets: []
   nameOverride: ""
@@ -214,8 +214,8 @@ topomojo-ui:
       oidc: {
         client_id: '<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_topomojo-ui',
         authority: 'https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>',
-        redirect_uri: 'https://<path:fortress-prod/data/shared#domain>/oidc',
-        silent_redirect_uri: 'https://<path:fortress-prod/data/shared#domain>/oidc-silent.html',
+        redirect_uri: 'https://<path:fortress-prod/data/shared#domain>/topomojo/oidc',
+        silent_redirect_uri: 'https://<path:fortress-prod/data/shared#domain>/topomojo/oidc-silent.html',
         response_type: 'code',
         scope: 'openid profile topomojo-api',
         monitorSession: false,
