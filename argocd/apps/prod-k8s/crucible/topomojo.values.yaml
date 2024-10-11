@@ -216,10 +216,9 @@ topomojo-ui:
         authority: 'https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>',
         redirect_uri: 'https://<path:fortress-prod/data/shared#domain>/topomojo/oidc',
         silent_redirect_uri: 'https://<path:fortress-prod/data/shared#domain>/topomojo/oidc-silent.html',
+        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo",
         response_type: 'code',
         scope: 'openid profile topomojo-api',
-        monitorSession: false,
-        loadUserInfo: true,
         automaticSilentRenew: true,
         useLocalStorage: true
       }
