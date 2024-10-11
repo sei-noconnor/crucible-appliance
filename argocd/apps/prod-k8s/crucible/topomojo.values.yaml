@@ -12,9 +12,10 @@ topomojo-api:
     tag: "2.3.0"
   serviceAccount:
     create: true
-  #service:
-  #  type: ClusterIP
-   # port: 80
+
+  service:
+    type: ClusterIP
+    port: 8080
 
   ingress:
     enabled: true
@@ -35,17 +36,11 @@ topomojo-api:
       hosts:
         - <path:fortress-prod/data/shared#domain>
   
-  service:
-    type: ClusterIP
-    port: 8080
-
-  # storage - either an existing pvc, the size for a new pvc, or emptyDir
+    # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
     size: 10G
     mode: ReadWriteOnce
     class: longhorn
-
-  
 
   autoscaling:
     enabled: false
@@ -150,9 +145,9 @@ topomojo-ui:
     # runAsNonRoot: true
     # runAsUser: 1000
 
- # service:
- #   type: ClusterIP
- #   port: 80
+  service:
+    type: ClusterIP
+    port: 8080
 
   ingress:
     enabled: true
@@ -170,10 +165,6 @@ topomojo-ui:
        hosts:
          - <path:fortress-prod/data/shared#domain>
     
-  service:
-    type: ClusterIP
-    port: 8080
-
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
@@ -219,6 +210,8 @@ topomojo-ui:
   settings: |
     {
       appname: 'TopoMojo',
+      "apphost": "",
+      "mkshost": "",
       oidc: {
         client_id: '<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_topomojo-ui',
         authority: 'https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>',
@@ -229,6 +222,10 @@ topomojo-ui:
         scope: 'openid profile topomojo-api',
         automaticSilentRenew: true,
         useLocalStorage: true
+      },
+      "urls": {
+        "apiUrl": "",
+        "docUrl": ""
       }
     }
 
