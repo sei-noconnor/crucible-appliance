@@ -40,7 +40,6 @@ data:
     }
     import /etc/coredns/custom/*.server
   NodeHosts: |
-    192.168.1.66 crucible
     $IP $DOMAIN
 kind: ConfigMap
 metadata:
@@ -48,11 +47,10 @@ metadata:
 EOF
 
 # Apply the modified configmap
-# kubectl delete cm -n kube-system coredns
-kubectl apply -n $NAMESPACE -f "$BACKUP_FILE"
+k3s kubectl apply -n $NAMESPACE -f "$BACKUP_FILE"
 
 # Restart CoreDNS pods to apply the new config
-kubectl rollout restart deployment coredns -n $NAMESPACE
+k3s kubectl rollout restart deployment coredns -n $NAMESPACE
 
 echo "CoreDNS NodeHosts updated and pods restarted successfully."
 
