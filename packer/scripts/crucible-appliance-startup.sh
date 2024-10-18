@@ -24,6 +24,8 @@ APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
 DOMAIN=${DOMAIN:-crucible.local}
 
 if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
+    sudo sed -i "/APPLIANCE_IP=/d" /etc/environment
+    echo "APPLIANCE_IP=$CURRENT_IP" >> /etc/environment
     # Delete old entry
     sudo sed -i "/$DOMAIN/d" /etc/hosts
     msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"
@@ -32,9 +34,6 @@ if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
     sudo echo "$CURRENT_IP   $DOMAIN" >> /etc/hosts
     msg="Entry update in host file: /etc/hosts '$CURRENT_IP   $DOMAIN'"
     crucible_log "$msg"
-
-    # Add NodeHosts entry to coredns
-    /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh $CURRENT_IP $DOMAIN
 
     # Search for snapshot and do an offline reset
     directory="/var/lib/rancher/k3s/server/db/snapshots"
@@ -61,11 +60,13 @@ if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
     echo "Sleeping for $time"
     sleep $time
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
-    kubectl wait deployment \
+    k3s kubectl wait deployment \
     --all \
     --for=condition=Available \
     --all-namespaces=true \
     --timeout=5m
+    # Add NodeHosts entry to coredns
+    /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh $CURRENT_IP $DOMAIN
 else 
     msg="Crucible Appliance IPs match starting normally"
     crucible_log "$msg"
