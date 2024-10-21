@@ -2,10 +2,10 @@
 1. open keycloak admin url for the `master` realm [https://crucible.local/keycloak/admin](https://crucible.local/keycloak/admin)
 
 ```
-username: administrator
+username: admin
 password: crucible
 ```
-in the upper right corner select the dropdown that says "master" this is the realm selector. Change the realm to "crucible"
+in the upper left corner select the dropdown that says "master" this is the realm selector. Change the realm to "crucible"
 
 ![Realm Drop Down](assets/realm-drop-down.png)
 
