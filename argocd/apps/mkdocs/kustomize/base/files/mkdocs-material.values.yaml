@@ -47,13 +47,14 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/start)$ $1/ redirect;
+    cert-manager.io/cluster-issuer: ca-issuer
   hosts:
     - host: crucible.local
       paths:
         - path: /start(/|$)(.*)
           pathType: ImplementationSpecific
   tls:
-    - secretName: mkdocs-tls
+    - secretName: mkdocs-material-tls
       hosts:
         - crucible.local
 
