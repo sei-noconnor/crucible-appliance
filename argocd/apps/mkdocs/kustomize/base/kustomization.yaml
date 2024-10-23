@@ -9,8 +9,7 @@ helmCharts:
     releaseName: appliance
     valuesFile: files/mkdocs-material.values.yaml
 
-resources: 
-- namespace.yaml
+
 
 
 

@@ -19,6 +19,5 @@ spec:
   - path: argocd/apps/mkdocs/kustomize/overlays/appliance
     repoURL: file:///crucible-repo/crucible-appliance
     targetRevision: main
-    directory:
-      recurse: true
+    
 
