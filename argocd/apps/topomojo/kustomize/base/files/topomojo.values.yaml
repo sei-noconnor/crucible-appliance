@@ -63,6 +63,7 @@ topomojo-api:
         cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
         cd /app && dotnet TopoMojo.Api.dll
       cacert.crt: |-
+        
                 
 
 
@@ -120,6 +121,7 @@ topomojo-api:
     # Headers__Security__ContentSecurity: default-src 'self' 'unsafe-inline'; img-src data: 'self'
     # Headers__Security__XContentType: nosniff
     # Headers__Security__XFrame: SAMEORIGIN
+    APP_UID: 0
 
 
 topomojo-ui:
