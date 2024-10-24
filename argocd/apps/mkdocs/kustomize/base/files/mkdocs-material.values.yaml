@@ -21,7 +21,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  
 
 podAnnotations: {}
 
@@ -60,23 +60,9 @@ ingress:
 
 # storage - either an existing pvc, the size for a new pvc, or emptyDir
 storage:
-  existing: ""
-  size: 100M
+  size: 1Gi
   mode: ReadWriteOnce
   class: local-path
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
 
 ##################
 # Git deployment #
@@ -86,7 +72,7 @@ affinity: {}
 giturl: https://crucible.local/gitea/crucible/mkdocs
 
 ## gitbranch sets which repo branch to publish
-gitbranch: ""
+gitbranch: "main"
 
 ## pollInterval sets minutes between git pull
 pollInterval: 5
