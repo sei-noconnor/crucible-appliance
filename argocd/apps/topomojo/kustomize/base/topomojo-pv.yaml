@@ -10,6 +10,6 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    path: /volume1/VMWare/topomojo
-    server: 192.168.1.253
+    path: 
+    server: 
     readOnly: false
