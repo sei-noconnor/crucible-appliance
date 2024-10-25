@@ -11,6 +11,7 @@ helmCharts:
   valuesFile: files/topomojo.values.yaml
 resources: 
 - namespace.yaml
+- topomojo-pv.yaml
 - topomojo-pvc.yaml
 
 
