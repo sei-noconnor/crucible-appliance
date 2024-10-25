@@ -2,7 +2,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: topomojo-iso-pvc
+  name: topomojo-pvc
 spec:
   accessModes:
     - ReadWriteMany
