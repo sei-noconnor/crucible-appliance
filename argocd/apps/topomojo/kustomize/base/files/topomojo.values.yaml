@@ -62,96 +62,7 @@ topomojo-api:
         cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
         cd /app && dotnet TopoMojo.Api.dll
       cacert.crt: |-
-        -----BEGIN CERTIFICATE-----
-        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
-        -----END CERTIFICATE-----
-        -----BEGIN CERTIFICATE-----
-        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
-        -----END CERTIFICATE-----
-        -----BEGIN CERTIFICATE-----
-        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
-        -----END CERTIFICATE-----
+        
         
                 
 
@@ -180,20 +91,19 @@ topomojo-api:
     ApiKeyClients__0__Key: crucible
     ApiKeyClients__0__Scope: gameboard
     Core__ConsoleHost: crucible.local/console
-    Pod__Url: "https://vcsa.covert-cloud.com"
-    Pod__User: "administrator@vsphere.local"
-    Pod__Password: "Tartans@1"
-    Pod__PoolPath: "House/AMD"
-    Pod__Uplink: "dvSwitch"
-    Pod__VmStore: "[ds_nfs] topomojo/vmstore"
-    Pod__IsoStore: "[ds_nfs] topomojo/iso"
-    Pod__DiskStore: "[ds_nfs] topomojo/diskstore"
+    Pod__Url: 
+    Pod__User: 
+    Pod__Password: 
+    Pod__PoolPath: 
+    Pod__Uplink: 
+    Pod__VmStore: 
+    Pod__IsoStore: 
+    Pod__DiskStore: 
     Pod__TicketUrlHandler: "none"
     Pod__ConsoleUrl: 
-    Pod__Vlan__Reservations__0__Id: 0
-    Pod__Vlan__Reservations__0__Name: 192.168.1.0
-    Pod__Vlan__Reservations__1__Id: 10
-    Pod__Vlan__Reservations__1__Name: 192.168.10.0
+    Pod__Vlan__Reservations__0__Id: 
+    Pod__Vlan__Reservations__0__Name: 
+    
 
     Pod__Vlan__Range: [100-399]
     Pod__KeepAliveMinutes: 30
