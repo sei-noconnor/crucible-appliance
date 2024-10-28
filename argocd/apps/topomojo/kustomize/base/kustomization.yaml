@@ -11,8 +11,22 @@ helmCharts:
   valuesFile: files/topomojo.values.yaml
 resources: 
 - namespace.yaml
+- console-ingress.yaml
 - topomojo-pv.yaml
 - topomojo-pvc.yaml
+
+# replacements:
+# - source:
+#     version: v1
+#     kind: PersistentVolume
+#     name: topomojo-pv
+#     fieldPath: spec.nfs.server
+#   targets:
+#   - select:
+#       version: v1
+#       name: topomojo-pv
+#       kind: PersistentVolume
+      
 
 
 
