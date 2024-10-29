@@ -23,6 +23,9 @@ CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
 DOMAIN=${DOMAIN:-crucible.local}
 
+# Expand Volume
+sudo /home/crucible/crucible-appliance/packer/scripts/01-expand-volume.sh
+
 if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
     sudo sed -i "/APPLIANCE_IP=/d" /etc/environment
     echo "APPLIANCE_IP=$CURRENT_IP" >> /etc/environment
@@ -42,7 +45,8 @@ if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
     files=($(sudo find "$directory" -type f -name "*$prefix*" -print))
 
     if [ ${#files[@]} -eq 0 ]; then
-        echo "No file found with the prefix '$prefix' in '$directory'."
+        msg="No file found with the prefix '$prefix' in '$directory'."
+        crucible_log "$msg"
         exit 1
     fi
     filename="${files[0]}"
@@ -59,14 +63,14 @@ if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
     time=15
     echo "Sleeping for $time"
     sleep $time
+    # Add NodeHosts entry to coredns
+    /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh $CURRENT_IP $DOMAIN
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
     k3s kubectl wait deployment \
     --all \
     --for=condition=Available \
     --all-namespaces=true \
     --timeout=5m
-    # Add NodeHosts entry to coredns
-    /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh $CURRENT_IP $DOMAIN
 else 
     msg="Crucible Appliance IPs match starting normally"
     crucible_log "$msg"
