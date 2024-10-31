@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  http_proxy: aHR0cDovL2Nsb3VkcHJveHkuc2VpLmNtdS5lZHU6ODAK
+  https_proxy: aHR0cDovL2Nsb3VkcHJveHkuc2VpLmNtdS5lZHU6ODAK
+  no_proxy: bG9jYWxob3N0LC5jbXUuZWR1LC5jZXJ0Lm9yZywuY3dkLmxvY2FsLG9zdGlja2V0LW15c3FsLDEwLjY0LjE0OS4wLzI0LDEwLjQyLjAuMC8xNiwxMC40My4wLjAvMTYK
+kind: Secret
+metadata:
+  name: webproxy-info
+  namespace: monitoring
+type: Opaque
