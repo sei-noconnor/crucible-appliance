@@ -1,0 +1,64 @@
+## @section Global parameters
+## Please, note that this will override the parameters, including dependencies, configured to use the global value
+##
+global:
+  ## @param global.imageRegistry Global Docker image registry
+  ##
+  imageRegistry: ""
+  ## @param global.imagePullSecrets Global Docker registry secret names as an array
+  ## e.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  ## @param global.storageClass Global StorageClass for Persistent Volume(s)
+  ##
+  storageClass: "longhorn"
+  postgresql:
+    ## @param global.postgresql.auth.postgresPassword Password for the "postgres" admin user (overrides `auth.postgresPassword`)
+    ## @param global.postgresql.auth.username Name for a custom user to create (overrides `auth.username`)
+    ## @param global.postgresql.auth.password Password for the custom user to create (overrides `auth.password`)
+    ## @param global.postgresql.auth.database Name for a custom database to create (overrides `auth.database`)
+    ## @param global.postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials (overrides `auth.existingSecret`)
+    ##
+    auth:
+      postgresPassword: "<path:fortress-prod/data/postgresql#default-admin-pass>"
+      username: ""
+      password: ""
+      database: "postgres"
+      existingSecret: ""
+    ## @param global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
+    ##
+    service:
+      ports:
+        postgresql: ""
+
+## @section Common parameters
+##
+
+## @param kubeVersion Override Kubernetes version
+##
+
+image:
+  registry: docker.io
+  repository: bitnami/postgresql
+  tag: 15.3.0-debian-11-r7
+  pullPolicy: IfNotPresent
+
+architecture: standalone
+  ## @param primary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Example:
+primary:
+  resources:
+    requests:
+      cpu: "2.0"
+      memory: 512Mi
+    limits:
+      cpu: "2.5"
+      memory: 1024Mi
+  extendedConfiguration: |
+    max_connections=150
+    
+metrics:
+  enabled: true
+  resourcesPreset: "micro"

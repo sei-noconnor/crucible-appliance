@@ -3678,7 +3678,13 @@ prometheus:
     ## The scrape configuration example below will find master nodes, provided they have the name .*mst.*, relabel the
     ## port to 2379 and allow etcd scraping provided it is running on all Kubernetes master nodes
     ##
-    additionalScrapeConfigs: []
+    additionalScrapeConfigs:
+      - job_name: postgres
+        static_configs:
+        - targets: ['10.43.174.63:9187']
+      - job_name: ingress-nginx
+        static_configs:
+        - targets: ['10.43.81.160:10254','ingress-nginx-metrics']
     # - job_name: kube-etcd
     #   kubernetes_sd_configs:
     #     - role: node

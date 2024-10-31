@@ -2,7 +2,7 @@
 cite-ui:
   # Docker image release version
   image:
-    tag: 1.6.0
+    tag: 1.6.1
     pullPolicy: "IfNotPresent"
 
   # Ingress configuration example for NGINX
@@ -47,6 +47,7 @@ cite-ui:
 
     "AppTitle": "CITE",
     "AppTopBarHexColor": "#2d69b4",
+    "AppTopBarImage": "/cite/assets/img/account-group-white.png",
     "AppTopBarHexTextColor": "#FFFFFF",
     "AppTopBarText": "CITE  -  Collaborative Incident Threat Evaluator",
     "UseLocalAuthStorage": false,
@@ -57,7 +58,7 @@ cite-ui:
 
 cite-api:
   image:
-    tag: 1.6.0
+    tag: 1.6.1
     pullPolicy: "IfNotPresent"
 
   # Ingress configuration example for NGINX
