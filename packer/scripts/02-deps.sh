@@ -40,7 +40,7 @@ if [ -n "$VERSION_TAG" ]; then
 elif [ -n "$GITHUB_PULL_REQUEST" ]; then
     BUILD_VERSION=PR$GITHUB_PULL_REQUEST-$GIT_HASH
 elif [ -n "$GIT_HASH" ]; then
-    BUILD_VERSION=$GIT_BRANCH-$GIT_HASH
+    BUILD_VERSION=${GIT_BRANCH:0:15}-$GIT_HASH
 else
     BUILD_VERSION="custom-$(date '+%Y%m%d')"
 fi
@@ -66,8 +66,8 @@ sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"APPLIANCE_ENVIRONMENT=APPLIANCE\"; n
 ######################
 ###### Update OS #####
 ######################
-sudo apt update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt autoremove -y
-sudo apt install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git
+sudo apt-get update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt-get autoremove -y
+sudo apt-get install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git
 
 ########################
 ##### Configure OS #####
@@ -180,7 +180,7 @@ rm -rf ./get_helm.sh
 
 # Install K9s
 curl -sLo k9s_linux_amd64.deb "https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_linux_amd64.deb"
-sudo NEEDRESTART_MODE=a apt install --yes ./k9s_linux_amd64.deb
+sudo NEEDRESTART_MODE=a apt-get install --yes ./k9s_linux_amd64.deb
 #tar -xvzf k9s.tar.gz
 #sudo -s mv ./k9s /usr/local/bin/k9s
 rm k9s_linux_amd64.deb
