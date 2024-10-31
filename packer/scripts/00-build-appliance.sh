@@ -39,7 +39,7 @@ if [ -n "$VERSION_TAG" ]; then
 elif [ -n "$GITHUB_PULL_REQUEST" ]; then
     BUILD_VERSION=PR$GITHUB_PULL_REQUEST-$GIT_HASH
 elif [ -n "$GIT_HASH" ]; then
-    BUILD_VERSION=$GIT_BRANCH-$GIT_HASH
+    BUILD_VERSION=${GIT_BRANCH:0:15}-$GIT_HASH
 else
     BUILD_VERSION="custom-$(date '+%Y%m%d')"
 fi
