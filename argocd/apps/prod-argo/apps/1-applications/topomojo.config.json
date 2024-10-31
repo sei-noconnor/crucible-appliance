@@ -2,9 +2,12 @@
     "app": {
         "project_name" : "topomojo",
         "project_branch" : "main",
+        "namespace" : "default",
+        "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart_name" : "topomojo",
         "helm_chart_version" : "0.3.8",
-        "helm_args" : "-f topomojo.values.yaml"
+        "values_file" : "topomojo.values.yaml",
+	"helm_args" : ""
     }
 }

@@ -2,9 +2,12 @@
     "app": {
         "project_name" : "player",
         "project_branch" : "HEAD",
+        "namespace" : "default",
+        "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart_name" : "player",
         "helm_chart_version" : "1.4.5",
-        "helm_args" : "-f player.values.yaml"
+        "values_file" : "player.values.yaml",
+        "helm_args" : ""
     }
 }

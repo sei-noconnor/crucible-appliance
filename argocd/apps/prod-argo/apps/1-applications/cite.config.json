@@ -2,9 +2,12 @@
     "app": {
         "project_name" : "cite",
         "project_branch" : "HEAD",
+        "namespace" : "default",
+        "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart_name" : "cite",
         "helm_chart_version" : "1.4.1",
-        "helm_args" : "-f cite.values.yaml"
+        "values_file" : "cite.values.yaml",
+        "helm_args" : ""
     }
 }

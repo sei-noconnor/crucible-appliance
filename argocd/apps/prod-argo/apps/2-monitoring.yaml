@@ -1,7 +1,10 @@
+#generate and deploy apps defined in the crucible folder
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: appset-crucible-bitnami-gauntlet-prod
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  name: 2-monitoring
   namespace: argocd
 spec:
   generators:
@@ -9,7 +12,7 @@ spec:
       repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-argo.git
       revision: HEAD
       files:
-      - path: "apps/crucible-external-bitnami/*.json"
+      - path: "apps/2-monitoring/*.json"
   template:
     metadata:
       name: '{{app.project_name}}'
@@ -17,24 +20,26 @@ spec:
       project: default
       source:
         repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
-        targetRevision: HEAD
-        path: "crucible-external/bitnami"
+        targetRevision: '{{app.project_branch}}'
+        path: "monitoring"
         plugin:
-          name: avp-helm-multi-oci
+          name: argocd-vault-plugin
           env:
             - name: HELM_ARGS
               value: '{{app.helm_args}}'
             - name: CHART_VERSION
               value: '{{app.helm_chart_version}}'
+            - name: HELM_REPO
+              value: '{{app.helm_repo}}'
             - name: HELM_CHART
-              value: '{{app.helm_chart}}'
+              value: '{{app.helm_chart_name}}'
             - name: HELM_RELEASE_NAME
               value: '{{app.project_name}}'
             - name: HTTP_PROXY
               value: 'http://proxy.sei.cmu.edu:8080'
       destination:
         server: https://kubernetes.default.svc
-        namespace: default
+        namespace: monitoring
       syncPolicy:
         automated:
           prune: false
