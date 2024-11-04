@@ -14,7 +14,7 @@ export ADMIN_PASS
 generate_certs:
 	./scripts/generate_root_ca.sh
 	./scripts/k3s-ca-gen.sh
-	./scripts/distribute_certs.sh $(SSL_DIR)/server/tls
+	./scripts/distribute_certs.sh $(SSL_DIR)
 	
 sudo-deps: generate_certs 
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
