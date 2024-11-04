@@ -159,7 +159,7 @@ sudo mkdir -p /etc/rancher/k3s
 mkdir -p ~/.kube
 # sudo echo "nameserver 10.0.1.1" >> /etc/rancher/k3s/resolv.conf
 sudo echo "$MIRRORS" > /etc/rancher/k3s/registries.yaml
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin" sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.local}" sh -
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i 's/default/crucible-appliance/g' ~/.kube/config
