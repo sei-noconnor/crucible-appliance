@@ -9,7 +9,6 @@ secretGenerator:
 generatorOptions:
   disableNameSuffixHash: true
 resources: 
-- namespace.yaml
 - cert-manager.yaml
 - ClusterIssuer.yaml
 
