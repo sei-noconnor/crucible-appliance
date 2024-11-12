@@ -9,7 +9,7 @@ src_dir=$(realpath $1)
 echo "Full SRC PATH is $src_dir"
 script_dir=$(dirname "$0")
 shift
-dst_dirs=($(realpath "$script_dir/../argocd/apps/cert-manager/kustomize/base/files") \
+dst_dirs=($(realpath "$script_dir/../argocd/install/cert-manager/kustomize/base/files") \
     $(realpath "$script_dir/../argocd/install/argocd/kustomize/overlays/appliance/files") \
     $(realpath "$script_dir/../argocd/apps/topomojo/kustomize/base/files"))
 

@@ -60,8 +60,12 @@ git add "**/*.pem"
 git add "**/*.key"
 git -c user.name="Admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
 
-
+kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+kubectl kustomize $REPO_DEST/argocd/install/nginx/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+kubectl kustomize $REPO_DEST/argocd/install/postgres/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+kubectl kustomize $REPO_DEST/argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+
 time=2
 echo "Sleeping $time"
 sleep $time

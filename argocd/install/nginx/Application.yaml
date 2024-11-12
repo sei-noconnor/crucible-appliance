@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: gitea
+  name: nginx
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: gitea
+    namespace: ingress-nginx
     server: https://kubernetes.default.svc
   project: default
   syncPolicy:
@@ -15,8 +15,8 @@ spec:
       prune: true
     syncOptions:
     - CreateNamespace=true
-  sources:
-  - path: argocd/apps/gitea/kustomize/overlays/appliance
+  source:
+    path: argocd/install/nginx/kustomize/overlays/appliance
     repoURL: file:///crucible-repo/crucible-appliance
     targetRevision: main
 

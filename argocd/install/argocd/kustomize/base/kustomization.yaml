@@ -6,7 +6,7 @@ generatorOptions:
 helmCharts:
   - name: argo-cd
     includeCRDs: true
-    version: 7.4.2
+    version: 7.6.2
     repo: https://argoproj.github.io/argo-helm
     valuesFile: files/argocd.values.yaml
     releaseName: appliance
