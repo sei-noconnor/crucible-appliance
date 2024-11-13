@@ -122,8 +122,8 @@ defaultSettings:
   replicaSoftAntiAffinity: false
   replicaAutoBalance: true
   storageOverProvisioningPercentage: 200
-  storageMinimalAvailablePercentage: 15
-  storageReservedPercentageForDefaultDisk: 30
+  storageMinimalAvailablePercentage: 5
+  storageReservedPercentageForDefaultDisk: 5
   upgradeChecker: ~
   defaultReplicaCount: 1 # needed for single-node. update to 2 when expanding
   defaultLonghornStaticStorageClass: longhorn-static
