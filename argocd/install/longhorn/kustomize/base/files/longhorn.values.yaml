@@ -30,25 +30,25 @@ image:
   longhorn:
     engine:
       repository: longhornio/longhorn-engine
-      tag: v1.5.1
+      tag: v1.5.3
     manager:
       repository: longhornio/longhorn-manager
-      tag: v1.5.1
+      tag: v1.5.3
     ui:
       repository: longhornio/longhorn-ui
-      tag: v1.5.1
+      tag: v1.5.3
     instanceManager:
       repository: longhornio/longhorn-instance-manager
-      tag: v1.5.1
+      tag: v1.5.3
     shareManager:
       repository: longhornio/longhorn-share-manager
-      tag: v1.5.1
+      tag: v1.5.3
     backingImageManager:
       repository: longhornio/backing-image-manager
-      tag: v1.5.1
+      tag: v1.5.3
     supportBundleKit:
       repository: longhornio/support-bundle-kit
-      tag: v0.0.25
+      tag: v0.0.27
   csi:
     attacher:
       repository: longhornio/csi-attacher
@@ -102,6 +102,9 @@ persistence:
     selector: ""
   removeSnapshotsDuringFilesystemTrim: ignored # "enabled" or "disabled" otherwise
 
+helmPreUpgradeCheckerJob:
+  enabled: true
+
 csi:
   kubeletRootDir: ~
   attacherReplicaCount: ~
@@ -114,15 +117,16 @@ defaultSettings:
   backupTargetCredentialSecret: ~
   allowRecurringJobWhileVolumeDetached: ~
   createDefaultDiskLabeledNodes: ~
-  defaultDataPath: ~
-  defaultDataLocality: ~
+  defaultDataPath: /var/lib/longhorn
+  defaultDataLocality: best-effort
   replicaSoftAntiAffinity: ~
   replicaAutoBalance: ~
-  storageOverProvisioningPercentage: ~
-  storageMinimalAvailablePercentage: ~
+  storageOverProvisioningPercentage: 200
+  storageMinimalAvailablePercentage: 15
+  storageReservedPercentageForDefaultDisk: 30
   upgradeChecker: ~
-  defaultReplicaCount: ~
-  defaultLonghornStaticStorageClass: ~
+  defaultReplicaCount: 1 # needed for single-node. update to 2 when expanding
+  defaultLonghornStaticStorageClass: longhorn-static
   backupstorePollInterval: ~
   failedBackupTTL: ~
   restoreVolumeRecurringJobs: ~
@@ -132,41 +136,40 @@ defaultSettings:
   taintToleration: ~
   systemManagedComponentsNodeSelector: ~
   priorityClass: ~
-  autoSalvage: ~
-  autoDeletePodWhenVolumeDetachedUnexpectedly: ~
+  autoSalvage: true
+  autoDeletePodWhenVolumeDetachedUnexpectedly: true
   disableSchedulingOnCordonedNode: ~
   replicaZoneSoftAntiAffinity: ~
-  nodeDownPodDeletionPolicy: ~
-  nodeDrainPolicy: ~
+  nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+  nodeDrainPolicy: always-allow # Single-node needs "always-allow" multi-node needs "block-if-contains-last-replica"
   replicaReplenishmentWaitInterval: ~
   concurrentReplicaRebuildPerNodeLimit: ~
   concurrentVolumeBackupRestorePerNodeLimit: ~
   disableRevisionCounter: ~
-  systemManagedPodsImagePullPolicy: ~
-  allowVolumeCreationWithDegradedAvailability: ~
-  autoCleanupSystemGeneratedSnapshot: ~
+  systemManagedPodsImagePullPolicy: if-not-present
+  allowVolumeCreationWithDegradedAvailability: true
+  autoCleanupSystemGeneratedSnapshot: true
   concurrentAutomaticEngineUpgradePerNodeLimit: ~
   backingImageCleanupWaitInterval: ~
   backingImageRecoveryWaitInterval: ~
-  guaranteedEngineManagerCPU: ~
-  guaranteedReplicaManagerCPU: ~
+  guaranteedInstanceManagerCPU: ~
   kubernetesClusterAutoscalerEnabled: ~
-  orphanAutoDeletion: ~
+  orphanAutoDeletion: true
   storageNetwork: ~
   deletingConfirmationFlag: ~
   engineReplicaTimeout: ~
-  snapshotDataIntegrity: ~
-  snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: ~
+  snapshotDataIntegrity: fast-check
+  snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: true
   snapshotDataIntegrityCronjob: ~
-  removeSnapshotsDuringFilesystemTrim: ~
+  removeSnapshotsDuringFilesystemTrim: true
   fastReplicaRebuildEnabled: ~
   replicaFileSyncHttpClientTimeout: ~
-  logLevel: ~
+  logLevel: info
   backupCompressionMethod: ~
   backupConcurrentLimit: ~
   restoreConcurrentLimit: ~
   v2DataEngine: ~
-  offlineReplicaRebuilding: ~
+  offlineReplicaRebuilding: true
 privateRegistry:
   createSecret: ~
   registryUrl: ~
