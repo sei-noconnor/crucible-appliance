@@ -1,0 +1,63 @@
+server:  
+  ingress:
+    enabled: true
+    labels: {}
+      # traffic: external
+    annotations:
+      #nginx.ingress.kubernetes.io/rewrite-target: /$1$2
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
+
+    # Optionally use ingressClassName instead of deprecated annotation.
+    # See: https://kubernetes.io/docs/concepts/services-networking/ingress/#deprecated-annotation
+    ingressClassName: "nginx"
+
+    # As of Kubernetes 1.19, all Ingress Paths must have a pathType configured. The default value below should be sufficient in most cases.
+    # See: https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types for other possible values.
+    pathType: Prefix
+
+    # When HA mode is enabled and K8s service registration is being used,
+    # configure the ingress to point to the Vault active service.
+    activeService: true
+    hosts:
+      - host:  keystore.crucible.local
+        paths: []
+    tls:
+      - secretName: vault-tls
+        hosts:
+          - keystore.crucible.local
+  dataStorage:
+    enabled: true
+    # Size of the PVC created
+    size: 10Gi
+    # Location where the PVC will be mounted.
+    mountPath: "/vault/data"
+    # Name of the storage class to use.  If null it will use the
+    # configured default Storage Class.
+    storageClass: longhorn
+    # Access Mode of the storage device being used for the PVC
+    accessMode: ReadWriteOnce
+# defaults to deploying as a standalone server
+standalone:
+    enabled: "-"
+
+    # config is a raw string of default configuration when using a Stateful
+    # deployment. Default is to use a PersistentVolumeClaim mounted at /vault/data
+    # and store data there. This is only used when using a Replica count of 1, and
+    # using a stateful set. This should be HCL.
+
+    # Note: Configuration files are stored in ConfigMaps so sensitive data
+    # such as passwords should be either mounted through extraSecretEnvironmentVars
+    # or through a Kube secret.  For more information see:
+    # https://www.vaultproject.io/docs/platform/k8s/helm/run#protecting-sensitive-vault-configurations
+    config: |
+      ui = true
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      storage "file" {
+        path = "/mnt/vault/data"
+      }
