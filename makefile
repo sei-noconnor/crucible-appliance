@@ -84,7 +84,13 @@ deploy-runner:
 delete-runner:
 	.github/runners/start.sh -d $(filter-out $@,$(MAKECMDGOALS))
 %:
-	@true	
+	@true
+
+uninstall:
+	k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance
+
+startup-logs:
+	sudo cat /var/log/syslog | grep crucible-appliance
 
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh

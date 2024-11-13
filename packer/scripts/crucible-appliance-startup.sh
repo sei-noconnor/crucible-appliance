@@ -17,6 +17,7 @@ function crucible_log {
 #   It does not re-create the appliance root CA certificates all 
 #   CAs and Intermediate CAs will remain the same
 # 
+
 msg="Crucible appliance startup script for version: $APPLIANCE_VERSION"
 crucible_log "$msg"
 CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
@@ -25,10 +26,11 @@ DOMAIN=${DOMAIN:-crucible.local}
 
 # Expand Volume
 sudo /home/crucible/crucible-appliance/packer/scripts/01-expand-volume.sh
+sudo /home/crucible/crucible-appliance/packer/scripts/01-add-volume.sh
 
 if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
-    sudo sed -i "/APPLIANCE_IP=/d" /etc/environment
-    echo "APPLIANCE_IP=$CURRENT_IP" >> /etc/environment
+    sudo sed -i "/APPLIANCE_IP=/d" /etc/profile.d/crucible-env.sh
+    echo "export APPLIANCE_IP=$CURRENT_IP" >> /etc/profile.d/crucible-env.sh
     # Delete old entry
     sudo sed -i "/$DOMAIN/d" /etc/hosts
     msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"

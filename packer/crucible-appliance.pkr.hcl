@@ -142,7 +142,6 @@ build {
     inline = [
       "echo $APPLIANCE_VERSION > /etc/appliance_version",
       "sudo apt update && sudo apt install make",
-      "grep -qxF 'ENVIRONMENT=APPLIANCE' '/etc/environment' || echo 'ENVIRONMENT=APPLIANCE' >> '/etc/environment'"
     ]
   }
 

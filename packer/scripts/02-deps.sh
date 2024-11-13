@@ -20,8 +20,13 @@ mirrors:
   "*":
 EOF
 )
-# Get the appliance version
-
+CRUCIBLE_VARS=$(cat <<EOF
+#!/bin/bash 
+export APPLIANCE_VERSION=
+export APPLIANCE_IP=
+APPLIANCE_ENVIRONMENT=
+EOF
+)
 
 # Detect Mac and use greadlink
 readlink_cmd="readlink -m"
@@ -29,6 +34,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   readlink_cmd="greadlink -m"  
 fi
 
+# Get the appliance version
 if git rev-parse --git-dir > /dev/null 2>&1; then
     VERSION_TAG=$(git tag --points-at HEAD)
     GIT_BRANCH=$(git branch --show-current)
@@ -48,10 +54,14 @@ fi
 if [ -z $APPLIANCE_VERSION ]; then 
     APPLIANCE_VERSION="crucible-appliance-$BUILD_VERSION"
     echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/appliance_version"
+    if [[ ! -f /etc/profile.d/crucible-env.sh ]]; then 
+        sudo echo "$CRUCIBLE_VARS" > /etc/profile.d/crucible-env.sh
+        sudo chmod og+x /etc/profile.d/crucible-env.sh
+    fi
     tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
     sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
-    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/environment"
-    sudo awk "/APPLIANCE_VERSION=/ {print \"APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/profile.d/crucible-env.sh"
+    sudo awk "/APPLIANCE_VERSION=/ {print \"export APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/profile.d/crucible-env.sh > $tmp_file && sudo mv -f $tmp_file /etc/profile.d/crucible-env.sh
 else
     if [ $APPLIANCE_VERSION != crucible-appliance-$BUILD_VERSION ]; then 
         sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
@@ -59,21 +69,23 @@ else
 fi
 
 tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
-sudo awk "/APPLIANCE_IP=/ {print \"APPLIANCE_IP=$APPLIANCE_IP\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
-sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"APPLIANCE_ENVIRONMENT=APPLIANCE\"; next} 1" /etc/environment > $tmp_file && sudo mv -f $tmp_file /etc/environment
+sudo awk "/APPLIANCE_IP=/ {print \"export APPLIANCE_IP=$APPLIANCE_IP\"; next} 1" /etc/profile.d/crucible-env.sh > $tmp_file && sudo mv -f $tmp_file /etc/profile.d/crucible-env.sh
+sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"export APPLIANCE_ENVIRONMENT=APPLIANCE\"; next} 1" /etc/profile.d/crucible-env.sh > $tmp_file && sudo mv -f $tmp_file /etc/profile.d/crucible-env.sh
 
 
 ######################
 ###### Update OS #####
 ######################
 sudo apt-get update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt-get autoremove -y
-sudo apt-get install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git
+sudo apt-get install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git unzip
 
 ########################
 ##### Configure OS #####
 ########################
 # Set hostname 
 hostname -b crucible
+# Set Timezone EST
+sudo timedatectl set-timezone EST
 # Increase inodes for asp.net applications
 echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~
@@ -195,6 +207,13 @@ rm argocd-linux-amd64
 mkdir -p dist/tools
 curl https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz -o dist/tools/go1.22.5.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf ./dist/tools/go1.22.5.linux-amd64.tar.gz
+
+# Install Vault
+VERSION="1.15.2"
+mkdir -p dist/tools
+curl https://releases.hashicorp.com/vault/${VERSION}/vault_${VERSION}_linux_amd64.zip -o dist/tools/vault_${VERSION}_linux_amd64.zip
+unzip dist/tools/vault_${VERSION}_linux_amd64.zip -d /usr/local/bin/
+vault --version
 
 # Install Brew
 # NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
