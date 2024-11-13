@@ -62,7 +62,7 @@ ingress:
 storage:
   size: 1Gi
   mode: ReadWriteOnce
-  class: local-path
+  class: longhorn
 
 ##################
 # Git deployment #

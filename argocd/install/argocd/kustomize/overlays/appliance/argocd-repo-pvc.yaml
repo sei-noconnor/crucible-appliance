@@ -6,7 +6,7 @@ metadata:
   labels:
     app: argocd-repo
 spec:
-  storageClassName: local-path
+  storageClassName: longhorn
   accessModes:
   - ReadWriteOnce
   resources:
