@@ -62,7 +62,7 @@ lvcreate -l "$LV_SIZE" -n "$LV_NAME" "$VG_NAME"
 
 # Format the LV with ext4 filesystem
 echo "Formatting logical volume $LV_NAME with ext4 filesystem..."
-yes "N"| mkfs.ext4 -n "/dev/$VG_NAME/$LV_NAME"
+yes | mkfs.ext4 -n "/dev/$VG_NAME/$LV_NAME"
 
 # Create the mount directory if it doesn't exist
 if [ ! -d "$MOUNT_DIR" ]; then
@@ -70,7 +70,7 @@ if [ ! -d "$MOUNT_DIR" ]; then
     mkdir -p "$MOUNT_DIR"
 fi
 
-if [ -d "$MOUNT_DIR" ] && [ "$(ls -A $DIR)" ]; then
+if [ -d "$MOUNT_DIR" ] && [ "$(ls -A $MOUNT_DIR)" ]; then
     echo "Directory is not empty."
     echo "REFUSING TO MOUNT NEW DISK, $MOUNT_DIR IS NOT EMPTY, MOUNTING WOULD KILL THE CLUSTER"
     exit 0

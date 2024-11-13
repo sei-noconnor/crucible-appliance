@@ -128,3 +128,4 @@ kubectl wait deployment \
 --all-namespaces=true \
 --timeout=5m
 
+rm -rf $REPO_DEST

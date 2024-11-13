@@ -20,15 +20,16 @@ function crucible_log {
 
 msg="Crucible appliance startup script for version: $APPLIANCE_VERSION"
 crucible_log "$msg"
+source /etc/profile.d/crucible-env.sh
 CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
 DOMAIN=${DOMAIN:-crucible.local}
 
 # Expand Volume
 sudo /home/crucible/crucible-appliance/packer/scripts/01-expand-volume.sh
-sudo /home/crucible/crucible-appliance/packer/scripts/01-add-volume.sh
+#sudo /home/crucible/crucible-appliance/packer/scripts/01-add-volume.sh
 
-if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
+if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
     sudo sed -i "/APPLIANCE_IP=/d" /etc/profile.d/crucible-env.sh
     echo "export APPLIANCE_IP=$CURRENT_IP" >> /etc/profile.d/crucible-env.sh
     # Delete old entry

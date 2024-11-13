@@ -56,8 +56,8 @@ if [ -z $APPLIANCE_VERSION ]; then
     echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/appliance_version"
     if [[ ! -f /etc/profile.d/crucible-env.sh ]]; then 
         sudo echo "$CRUCIBLE_VARS" > /etc/profile.d/crucible-env.sh
-        sudo chmod og+x /etc/profile.d/crucible-env.sh
     fi
+    sudo chmod a+rx /etc/profile.d/crucible-env.sh
     tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
     sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
     echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/profile.d/crucible-env.sh"
