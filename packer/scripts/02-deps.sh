@@ -96,11 +96,17 @@ cat <<EOF >> /etc/multipath.conf
 blacklist {
     devnode "^sd[a-z0-9]+"
 }
+blacklist {
+    device {
+        vendor "IET"
+        product "VIRTUAL-DISK"
+    }
+}
 EOF
-systemctl restart multipathd
+sudo systemctl restart multipathd
 
 # Restart mDNS daemon to avoid conflict with other hosts
-systemctl restart avahi-daemon
+sudo systemctl restart avahi-daemon
 
 # Customize MOTD and other text for the appliance
 chmod -x /etc/update-motd.d/00-header
@@ -228,4 +234,4 @@ sleep 20
 k3s etcd-snapshot save --name base-cluster
 
 # Delete Ubuntu machine ID for proper DHCP operation on deploy
-echo -n > /etc/machine-id
+#echo -n > /etc/machine-id

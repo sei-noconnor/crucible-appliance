@@ -4,6 +4,10 @@ if [ $EUID != 0 ]; then
     sudo "$0" "$@"
     exit $?
 fi
+kubectl scale deployment --all -n gitea --replicas=0
+kubectl scale deployment --all -n argocd --replicas=0
+kubectl scale statefulsets --all -n argocd --replicas=0
+kubectl scale statefulsets --all -n postgres --replicas=0
 
 directory="/var/lib/rancher/k3s/server/db/snapshots"
 prefix=${1:-\*}

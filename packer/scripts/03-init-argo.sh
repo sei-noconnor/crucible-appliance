@@ -44,12 +44,15 @@ echo "REPO_DIR: ${REPO_DIR}"
 cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/topomojo/kustomize/base/files/topomojo.values.yaml
 
 # Install ArgoCD
+echo "Cleaning repo at $REPO_DEST"
 rm -rf $REPO_DEST
+echo "Creating directory $REPO_DEST"
 mkdir -p $REPO_DEST
-cp -rp $REPO_DIR/. $REPO_DEST/
+echo "Copying repo from $REPO_DIR to $REPO_DEST"
+cp -R $REPO_DIR /tmp
 GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
 echo "REPO Destination: $REPO_DEST"
-cd "$REPO_DEST"
+cd $REPO_DEST
 find . -name "Application.yaml" -exec sed -i "s/main/${GIT_BRANCH}/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> .gitignore
@@ -62,7 +65,9 @@ git add "**/*.key"
 git -c user.name="admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
 
 kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
-sleep 10
+time=10
+echo "sleeping $time"
+sleep $time
 kubectl wait deployment \
 --all \
 --for=condition=Available \
@@ -70,15 +75,18 @@ kubectl wait deployment \
 --timeout=5m
 
 kubectl kustomize $REPO_DEST/argocd/install/nginx/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
-sleep 10
+time=10
+echo "sleeping $time"
+sleep $time
 kubectl wait deployment \
 --all \
 --for=condition=Available \
 --namespace=ingress-nginx \
 --timeout=5m
 kubectl kustomize $REPO_DEST/argocd/install/longhorn/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
-echo "sleeping 120"
-sleep 120
+time=10
+echo "sleeping $time"
+sleep $time
 kubectl wait deployment \
 --all \
 --for=condition=Available \
@@ -111,6 +119,7 @@ POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-
 kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance && mkdir -p /crucible-repo/crucible-appliance"
 kubectl cp "$REPO_DEST/." "$POD:/crucible-repo/"
 kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance && \
+  git config --add safe.directory '*'
   git remote remove origin"
 
 kubectl apply -f $REPO_DEST/argocd/apps/Application.yaml  
@@ -133,4 +142,4 @@ kubectl wait deployment \
 --all-namespaces=true \
 --timeout=5m
 
-rm -rf $REPO_DEST
+#rm -rf $REPO_DEST

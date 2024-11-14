@@ -25,8 +25,8 @@ REPO_DEST=/tmp/crucible-appliance-argo
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Set git user vars
-git config --global user.name "Crucible Administrator"
-git config --global user.email "administrator@crucible.local"
+git config user.name "Crucible Administrator"
+git config user.email "administrator@crucible.local"
 
 # Create Crucible-docs organization
 curl "${CURL_OPTS[@]}" \
