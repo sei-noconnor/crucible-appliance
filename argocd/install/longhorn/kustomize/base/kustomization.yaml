@@ -4,10 +4,10 @@ namespace: longhorn-system
 helmCharts:
 - name: longhorn
   includeCRDs: true
-  version: 1.5.5
+  version: 1.6.0
   repo: https://charts.longhorn.io
   releaseName: appliance
-  valuesFile: files/longhorn.values.1.5.5.yaml
+  valuesFile: files/longhorn.values.1.6.0.yaml
 resources: 
 - namespace.yaml
 
