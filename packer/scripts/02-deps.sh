@@ -91,9 +91,10 @@ echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf && sudo
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~
 
 # Stop multipathd errors in syslog
+sudo sed -i '/^blacklist {/,/^}$/d' /etc/multipath.conf
 cat <<EOF >> /etc/multipath.conf
 blacklist {
-    devnode "sda$"
+    devnode "^sd[a-z0-9]+"
 }
 EOF
 systemctl restart multipathd

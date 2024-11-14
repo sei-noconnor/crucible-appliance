@@ -62,6 +62,7 @@ git add "**/*.key"
 git -c user.name="admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
 
 kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
+sleep 10
 kubectl wait deployment \
 --all \
 --for=condition=Available \
@@ -69,12 +70,15 @@ kubectl wait deployment \
 --timeout=5m
 
 kubectl kustomize $REPO_DEST/argocd/install/nginx/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
+sleep 10
 kubectl wait deployment \
 --all \
 --for=condition=Available \
 --namespace=ingress-nginx \
 --timeout=5m
 kubectl kustomize $REPO_DEST/argocd/install/longhorn/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
+echo "sleeping 120"
+sleep 120
 kubectl wait deployment \
 --all \
 --for=condition=Available \
