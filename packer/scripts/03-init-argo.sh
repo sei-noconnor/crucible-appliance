@@ -44,11 +44,12 @@ echo "REPO_DIR: ${REPO_DIR}"
 cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/topomojo/kustomize/base/files/topomojo.values.yaml
 
 # Install ArgoCD
-rm -rf /tmp/crucible-appliance
-mkdir -p /tmp/crucible-appliance
-cp -R $REPO_DIR /tmp
-GIT_BRANCH=$(git -C $REPO_DIR rev-parse --abbrev-ref HEAD)
-cd $REPO_DEST
+rm -rf $REPO_DEST
+mkdir -p $REPO_DEST
+cp -rp $REPO_DIR/. $REPO_DEST/
+GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
+echo "REPO Destination: $REPO_DEST"
+cd "$REPO_DEST"
 find . -name "Application.yaml" -exec sed -i "s/main/${GIT_BRANCH}/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> .gitignore
@@ -58,7 +59,7 @@ git checkout $GIT_BRANCH
 git  add -u 
 git add "**/*.pem"
 git add "**/*.key"
-git -c user.name="Admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
+git -c user.name="admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
 
 kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
 kubectl wait deployment \
@@ -103,8 +104,8 @@ kubectl config set-context --current --namespace=argocd
 echo "Uploading Initial Repo"
 
 POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
-kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance"
-kubectl cp "$REPO_DEST/" "$POD:/crucible-repo/"
+kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance && mkdir -p /crucible-repo/crucible-appliance"
+kubectl cp "$REPO_DEST/." "$POD:/crucible-repo/"
 kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance && \
   git remote remove origin"
 

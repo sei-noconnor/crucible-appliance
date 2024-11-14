@@ -105,7 +105,7 @@ source "vsphere-iso" "crucible-appliance" {
   disk_controller_type = ["pvscsi"]
   datastore            = var.datastore
   storage {
-    disk_size             = 20480
+    disk_size             = 30720
     disk_thin_provisioned = true
   }
 
