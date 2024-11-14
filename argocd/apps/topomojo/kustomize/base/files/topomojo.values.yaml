@@ -39,10 +39,10 @@ topomojo-api:
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
-    existing: ""
-    mode: ReadWriteOnce
-    size: 1Gi
-    class: longhorn
+    existing: "topomojo-pvc"
+    mode: ReadWriteMany
+    size: 
+    class: 
     
 
   autoscaling:
@@ -64,10 +64,7 @@ topomojo-api:
         cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
         cd /app && dotnet TopoMojo.Api.dll
       cacert.crt: |-
-
-
-
-
+        
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,
   # see https://github.com/cmu-sei/TopoMojo/blob/main/src/TopoMojo.Api/appsettings.conf

@@ -117,10 +117,8 @@ echo "Uploading Initial Repo"
 
 POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"
 kubectl exec $POD -- bash -c "rm -rf /crucible-repo/crucible-appliance && mkdir -p /crucible-repo/crucible-appliance"
-kubectl cp "$REPO_DEST/." "$POD:/crucible-repo/"
-kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance && \
-  git config --add safe.directory '*'
-  git remote remove origin"
+kubectl cp "$REPO_DEST/" "$POD:/crucible-repo/"
+kubectl exec $POD -- bash -c "cd /crucible-repo/crucible-appliance && git config --add safe.directory '*' && git remote remove origin"
 
 kubectl apply -f $REPO_DEST/argocd/apps/Application.yaml  
 # kubectl apply -f $APPS_DIR/cert-manager/Application.yaml
