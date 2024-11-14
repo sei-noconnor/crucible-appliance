@@ -87,7 +87,9 @@ delete-runner:
 	@true
 
 uninstall:
-	k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance
+	k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance || true
+	sudo rm -rf /var/lib/longhorn
+	sudo rm -rf /dev/longhorn
 
 startup-logs:
 	sudo cat /var/log/syslog | grep crucible-appliance
