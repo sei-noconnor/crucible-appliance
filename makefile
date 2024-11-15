@@ -37,6 +37,9 @@ init-argo:
 
 init-vault:
 	./packer/scripts/07-init-vault.sh
+
+unseal-vault:
+	./packer/scripts/09-unseal-vault.sh
 	
 init-gitea:
 	./packer/scripts/05-setup-gitea.sh

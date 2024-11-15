@@ -79,4 +79,6 @@ else
     crucible_log "$msg"
 fi
 
-
+# Unseal the vault on startup 
+crucible_log "Attempting to unseal the vault"
+/home/crucible/crucible-appliance/packer/scripts/09-unseal-vault.sh
