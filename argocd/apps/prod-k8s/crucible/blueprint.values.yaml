@@ -1,7 +1,7 @@
 # hin blueprint sei/blueprint -f blueprint.values.yaml
 blueprint-api:
   image:
-    tag: "1.4.2"
+    tag: "1.4.3"
 
 # Ingress configuration example for NGINX
 # TLS and Host URLs need configured
@@ -630,7 +630,7 @@ blueprint-api:
 blueprint-ui:
   # Docker image release version
   image:
-    tag: "1.4.2"
+    tag: "1.4.3"
 
   # Ingress configuration example for NGINX
   # TLS and Host URLs need configured
