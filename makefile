@@ -33,6 +33,7 @@ init: sudo-deps add-coredns-entry
 	
 init-argo: 
 	./packer/scripts/03-init-argo.sh
+	make init-vault
 
 init-vault:
 	./packer/scripts/07-init-vault.sh
@@ -97,9 +98,13 @@ uninstall:
 	kubectl scale statefulsets --all -n postgres --replicas=0
 	sleep 10
 	kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
-	kubectl kustomize /tmp/crucible-appliance/argocd/install/vault/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
-	sleep 20
-	k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance || true
+	kubectl -n longhorn-system delete job longhorn-uninstall || true
+	kubectl -n longhorn-system delete serviceaccount longhorn-uninstall-service-account || true
+	kubectl delete clusterrole longhorn-uninstall-role || true
+	kubectl delete clusterrolebinding longhorn-uninstall-bind || true
+	kubectl create -f ./argocd/install/longhorn/kustomize/base/files/uninstall-longhorn.yaml
+	sleep 120
+	echo "${ADMIN_PASS}" | sudo -E -S k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance || true
 	sudo rm -rf /var/lib/longhorn
 	sudo rm -rf /dev/longhorn
 
