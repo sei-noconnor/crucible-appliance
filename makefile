@@ -28,12 +28,16 @@ add-coredns-entry:
 init: sudo-deps add-coredns-entry
 	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
 	./packer/scripts/03-init-argo.sh
+	./packer/scripts/07-init-vault.sh
 	make snapshot
 	
-argo: 
+init-argo: 
 	./packer/scripts/03-init-argo.sh
+
+init-vault:
+	./packer/scripts/07-init-vault.sh
 	
-gitea:
+init-gitea:
 	./packer/scripts/05-setup-gitea.sh
 
 build:
@@ -87,6 +91,14 @@ delete-runner:
 	@true
 
 uninstall:
+	kubectl scale deployment --all -n gitea --replicas=0
+	kubectl scale deployment --all -n argocd --replicas=0
+	kubectl scale statefulsets --all -n argocd --replicas=0
+	kubectl scale statefulsets --all -n postgres --replicas=0
+	sleep 10
+	kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
+	kubectl kustomize /tmp/crucible-appliance/argocd/install/vault/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+	sleep 20
 	k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance || true
 	sudo rm -rf /var/lib/longhorn
 	sudo rm -rf /dev/longhorn

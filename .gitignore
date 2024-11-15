@@ -49,3 +49,4 @@ appliance.yaml
 **/*/*.pem
 **/*/*.crt
 **/*/*.key
+**/*/vault-keys.yaml
