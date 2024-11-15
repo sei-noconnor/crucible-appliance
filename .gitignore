@@ -50,3 +50,5 @@ appliance.yaml
 **/*/*.crt
 **/*/*.key
 **/*/vault-keys.yaml
+**/*/argo-role-id.yaml
+**/*/argo-secret-id.yaml
