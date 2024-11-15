@@ -63,6 +63,29 @@ steamfitter:
   steamfitter-api-connection-string: Server=postgresql;Port=5432;Database=steamfitter_db;Username=postgres;Password=${ADMIN_PASS};SSL Mode=Prefer;Trust Server Certificate=true;
   steamfitter-api-vm-task-api-pass: ${ADMIN_PASS}
   steamfitter-api-vm-task-api-user: administrator
+shared:
+  crucible-admin-pass: "${ADMIN_PASS}"
+  crucible-admin-user: crucible-admin@${DOMAIN}
+  crucible-log-level: Information
+  domain: "${DOMAIN}"
+  fortress-tls-fullchain: "${TLS_ROOT_CA}"
+  fortress-tls-fullchain-b64: "${TLS_ROOT_CA_B64}"
+  fortress-tls-key: "${TLS_ROOT_KEY}"
+  fortress-tls-key-b64: "${TLS_ROOT_KEY_B64}"
+  http_proxy: http://cloudproxy.sei.cmu.edu:80
+  https_proxy: http://cloudproxy.sei.cmu.edu:80
+  ingress-class: nginx
+  no_proxy: localhost,.cmu.edu,.cert.org,.cwd.local,osticket-mysql,10.64.149.0/24,10.42.0.0/16,10.43.0.0/16
+  oauth-admin-guid: d29518c4-f61c-4284-81c4-f2fbd79e6e9a
+  oauth-authority-url: realms/crucible
+  oauth-authorization-url: realms/crucible/protocol/openid-connect/auth
+  oauth-crucible-admin-guid: d29518c4-f61c-4284-81c4-f2fbd79e6e9a
+  oauth-env: fortress
+  oauth-gid: 00eb8904-5b88-4c68-ad67-cec0d2e07aa6
+  oauth-provider: keycloak
+  oauth-token-url: "realms/crucible/protocol/openid-connect/token\n "
+  oauth-userapi-url: realms/crucible/protocol/openid-connect/userinfo
+
 topomojo:
   topomojo-api-connection-string": Server=postgresql;Port=5432;Database=topomojo_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
 vsphere: 
