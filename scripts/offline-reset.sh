@@ -48,6 +48,6 @@ sleep $time
 echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
 kubectl wait deployment \
 --all \
---for=condition=running \
+--for=condition=Avaialble \
 --all-namespaces=true \
 --timeout=1m
