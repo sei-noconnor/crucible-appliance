@@ -23,11 +23,7 @@ fi
 
 cd "$DIR" || exit  # Handle potential errors with directory change
 SCRIPTS_DIR="${PWD}"
-echo "Checking if CHARTS Directory exists at ${SCRIPTS_DIR}/../../dist/charts" 
-if [ ! -d "${SCRIPTS_DIR}/../../dist/charts" ]; then
-  echo "Creating Charts Directory ${SCRIPTS_DIR}/../../dist/charts"
-  mkdir -p "${SCRIPTS_DIR}/../../dist/charts"
-fi
+
 # set all config dirs to absolute paths
 CHARTS_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../dist/charts)"
 INSTALL_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../argocd/install)"
@@ -44,61 +40,6 @@ echo "REPO_DIR: ${REPO_DIR}"
 cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/topomojo/kustomize/base/files/topomojo.values.yaml
 
 # Install ArgoCD
-echo "Cleaning repo at $REPO_DEST"
-rm -rf $REPO_DEST
-echo "Creating directory $REPO_DEST"
-mkdir -p $REPO_DEST
-echo "Copying repo from $REPO_DIR to $REPO_DEST"
-cp -R $REPO_DIR /tmp
-GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
-echo "REPO Destination: $REPO_DEST"
-cd $REPO_DEST
-find . -name "Application.yaml" -exec sed -i "s/main/${GIT_BRANCH}/g" {} \;
-# allow root-ca.pem to be commited.
-echo "!**/*/root-ca.pem" >> .gitignore
-# allow root-ca.key to be commited. This is bad, use a vault!
-echo "!**/*/root-ca.key" >> .gitignore
-git checkout $GIT_BRANCH
-git  add -u 
-git add "**/*.pem"
-git add "**/*.key"
-git -c user.name="admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
-
-kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
-time=10
-echo "sleeping $time"
-sleep $time
-kubectl wait deployment \
---all \
---for=condition=Available \
---namespace=cert-manager \
---timeout=5m
-
-kubectl kustomize $REPO_DEST/argocd/install/nginx/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
-time=10
-echo "sleeping $time"
-sleep $time
-kubectl wait deployment \
---all \
---for=condition=Available \
---namespace=ingress-nginx \
---timeout=5m
-kubectl kustomize $REPO_DEST/argocd/install/longhorn/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
-time=10
-echo "sleeping $time"
-sleep $time
-kubectl wait deployment \
---all \
---for=condition=Available \
---namespace=longhorn-system \
---timeout=5m
-# set default storageclass to longhorn remove local-path as deafult storageclass
-kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-
-kubectl kustomize $REPO_DEST/argocd/install/postgres/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
-kubectl kustomize $REPO_DEST/argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
-kubectl kustomize $REPO_DEST/argocd/install/vault/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 
 time=2
@@ -112,7 +53,6 @@ kubectl wait deployment \
 --timeout=5m
 
 kubectl config set-context --current --namespace=argocd
-
 echo "Uploading Initial Repo"
 
 POD="$(kubectl get pods -n argocd --no-headers -l app.kubernetes.io/name=argocd-repo-server | head -n1 | awk '{print $1}')"

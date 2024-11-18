@@ -54,23 +54,28 @@ fi
 if [ -z $APPLIANCE_VERSION ]; then 
     APPLIANCE_VERSION="crucible-appliance-$BUILD_VERSION"
     echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/appliance_version"
-    if [[ ! -f /etc/profile.d/crucible-env.sh ]]; then 
-        sudo echo "$CRUCIBLE_VARS" > /etc/profile.d/crucible-env.sh
-    fi
-    sudo chmod a+rx /etc/profile.d/crucible-env.sh
-    tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
     sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
-    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/profile.d/crucible-env.sh"
-    sudo awk "/APPLIANCE_VERSION=/ {print \"export APPLIANCE_VERSION=$APPLIANCE_VERSION\"; next} 1" /etc/profile.d/crucible-env.sh > $tmp_file && sudo mv -f $tmp_file /etc/profile.d/crucible-env.sh
 else
     if [ $APPLIANCE_VERSION != crucible-appliance-$BUILD_VERSION ]; then 
         sudo echo "$APPLIANCE_VERSION" > /etc/appliance_version
+        sudo sed -i "s/APPLIANCE_VERSION=/export APPLIANCE_VERSION=$APPLIANCE_VERSION/d" /etc/profile.d/crucible-env.sh
     fi
 fi
 
-tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
-sudo awk "/APPLIANCE_IP=/ {print \"export APPLIANCE_IP=$APPLIANCE_IP\"; next} 1" /etc/profile.d/crucible-env.sh > $tmp_file && sudo mv -f $tmp_file /etc/profile.d/crucible-env.sh
-sudo awk "/APPLIANCE_ENVIRONMENT=/ {print \"export APPLIANCE_ENVIRONMENT=APPLIANCE\"; next} 1" /etc/profile.d/crucible-env.sh > $tmp_file && sudo mv -f $tmp_file /etc/profile.d/crucible-env.sh
+# Set Up crucible-vars.sh
+if [[ ! -f /etc/profile.d/crucible-env.sh ]]; then 
+    sudo echo "$CRUCIBLE_VARS" > /etc/profile.d/crucible-env.sh
+    sudo chmod a+rx /etc/profile.d/crucible-env.sh
+    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/profile.d/crucible-env.sh"
+    sudo sed -i "/APPLIANCE_VERSION=/c\export APPLIANCE_VERSION=\\$APPLIANCE_VERSION" /etc/profile.d/crucible-env.sh
+    sudo sed -i "/APPLIANCE_IP=/c\export APPLIANCE_IP=\\$APPLIANCE_IP" /etc/profile.d/crucible-env.sh
+    sudo sed -i "/APPLIANCE_ENVIRONMENT=APPLIANCE/c\export APPLIANCE_ENVIRONMENT=APPLIANCE" /etc/profile.d/crucible-env.sh
+else
+    echo "Setting APPLIANCE_VERSION to $APPLIANCE_VERSION in /etc/profile.d/crucible-env.sh"
+    sudo sed -i "/APPLIANCE_VERSION=/c\export APPLIANCE_VERSION=\\$APPLIANCE_VERSION" /etc/profile.d/crucible-env.sh
+    sudo sed -i "/APPLIANCE_IP=/c\export APPLIANCE_IP=\\$APPLIANCE_IP" /etc/profile.d/crucible-env.sh
+    sudo sed -i "/APPLIANCE_ENVIRONMENT=/c\export APPLIANCE_ENVIRONMENT=APPLIANCE" /etc/profile.d/crucible-env.sh
+fi
 
 
 ######################

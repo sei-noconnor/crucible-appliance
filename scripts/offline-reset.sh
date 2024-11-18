@@ -8,6 +8,7 @@ kubectl scale deployment --all -n gitea --replicas=0
 kubectl scale deployment --all -n argocd --replicas=0
 kubectl scale statefulsets --all -n argocd --replicas=0
 kubectl scale statefulsets --all -n postgres --replicas=0
+kubectl scale statefulsets --all -n vault --replicas=0
 
 directory="/var/lib/rancher/k3s/server/db/snapshots"
 prefix=${1:-\*}
@@ -47,6 +48,6 @@ sleep $time
 echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
 kubectl wait deployment \
 --all \
---for=condition=Available \
+--for=condition=running \
 --all-namespaces=true \
---timeout=5m
+--timeout=1m

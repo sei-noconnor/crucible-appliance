@@ -27,14 +27,14 @@ add-coredns-entry:
 	
 init: sudo-deps add-coredns-entry
 	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
-	./packer/scripts/03-init-argo.sh
-	./packer/scripts/07-init-vault.sh
+	make init-argo
 	make snapshot
 	
 init-argo: 
+	./packer/scripts/03-argo-deps.sh
+	make unseal-vault
 	./packer/scripts/03-init-argo.sh
-	make init-vault
-
+	
 init-vault:
 	./packer/scripts/07-init-vault.sh
 
@@ -95,18 +95,19 @@ delete-runner:
 	@true
 
 uninstall:
-	kubectl scale deployment --all -n gitea --replicas=0
-	kubectl scale deployment --all -n argocd --replicas=0
-	kubectl scale statefulsets --all -n argocd --replicas=0
-	kubectl scale statefulsets --all -n postgres --replicas=0
+	kubectl scale deployment --all -n gitea --replicas=0 || true
+	kubectl scale deployment --all -n argocd --replicas=0 || true
+	kubectl scale statefulsets --all -n argocd --replicas=0 || true
+	kubectl scale statefulsets --all -n postgres --replicas=0 || true
+	kubectl scale statefulsets --all -n vault --replicas=0 || true
 	sleep 10
-	kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
+	kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag || true
 	kubectl -n longhorn-system delete job longhorn-uninstall || true
 	kubectl -n longhorn-system delete serviceaccount longhorn-uninstall-service-account || true
 	kubectl delete clusterrole longhorn-uninstall-role || true
 	kubectl delete clusterrolebinding longhorn-uninstall-bind || true
 	kubectl create -f ./argocd/install/longhorn/kustomize/base/files/uninstall-longhorn.yaml
-	sleep 120
+	sleep 60
 	echo "${ADMIN_PASS}" | sudo -E -S k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance || true
 	sudo rm -rf /var/lib/longhorn
 	sudo rm -rf /dev/longhorn

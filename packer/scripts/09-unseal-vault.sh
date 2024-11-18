@@ -22,7 +22,8 @@ while ! nc -vz localhost $localport > /dev/null 2>&1 ; do
   echo pid: $pid
 done
 
-
+echo "Initializing vault."
+INIT_DATA=$(vault operator init -format yaml)
 
 # kill the port-forward regardless of how this script exits
 trap '{
@@ -31,14 +32,17 @@ trap '{
 }' EXIT
 
 # Path to the YAML file
-YAML_FILE="$REPO_DIR/$YAML_DIR/vault-keys.yaml"
+YAML_FILE="./argocd/install/vault/kustomize/base/files/vault-keys.yaml"
 
-
-if [[ -f "$YAML_FILE" ]]; then
-echo "VAULT file exists"
+if [[ -n "$INIT_DATA" ]]; then
+  echo "Writing init vault data to $YAML_FILE"
+  
+  echo "$INIT_DATA" > "$YAML_FILE"
+elif [[ -f "$YAML_FILE" ]]; then
+  echo "VAULT file exists"
 else
-echo "Vault keys YAML file missing can't unseal..."
-exit 1
+  echo "No Data and no file exiting..."
+  exit 1
 fi
 
 # Extract root token
@@ -80,3 +84,4 @@ done
 
 echo "Logining in to vault with root_key"
 vault login ${ROOT_TOKEN}
+kubectl -n vault delete jobs --all

@@ -167,7 +167,8 @@ build {
     environment_vars  = [
       "DEBIAN_FRONTEND=noninteractive",
       "SSH_USERNAME=${var.ssh_username}",
-      "APPLIANCE_VERSION=${var.appliance_version}"
+      "APPLIANCE_VERSION=${var.appliance_version}",
+      "APPLIANCE_ENVIRONMENT=APPLIANCE"
     ]
     inline            = [
       "cd /home/$SSH_USERNAME/crucible-appliance",
