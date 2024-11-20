@@ -1,0 +1,6 @@
+# pack-refs with: peeled fully-peeled sorted 
+89c77d7eed81f11d310fb907842a6eeab12886a6 refs/heads/cm
+341fc63c7befd0cdfc369b9dbe2eca96a8c7f1bf refs/heads/main
+108586446e157a5ba8c87e12e1e4dda3528e7a3f refs/heads/osticket
+8eec81bd2fbd3fb012f2bf05aee24daa2ab34b11 refs/heads/simplify
+8633b80a2621d8aadc2e633e41e3a230b64122df refs/pull/1/head

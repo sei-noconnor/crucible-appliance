@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+[remote "origin"]
+	url = https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
+	fetch = +refs/*:refs/*
+[remote "appliance"]
+	url = https://administrator:crucible@crucible.local/gitea/crucible/fortress-prod-k8s.git
+	fetch = +refs/heads/*:refs/remotes/appliance/*

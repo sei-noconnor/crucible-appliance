@@ -47,6 +47,7 @@ vault-argo-role:
 init-gitea:
 	./packer/scripts/05-setup-gitea.sh
 	make download-packages
+	make init-repos
 
 init-repos:
 	./packer/scripts/05-init-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
@@ -127,8 +128,7 @@ uninstall:
 	rm -rf ./argocd/install/argocd/kustomize/appliance/files/argo-*-id
 	rm -rf ./argocd/install/vault/kustomize/base/files/argo-*-id*
 	rm -rf ./argocd/install/vault/kustomize/base/files/vault-keys*
-
-
+	
 startup-logs:
 	sudo cat /var/log/syslog | grep crucible-appliance
 
