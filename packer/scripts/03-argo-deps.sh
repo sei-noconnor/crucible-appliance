@@ -28,12 +28,10 @@ REPO_DEST="/tmp/crucible-appliance"
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "INSTALL_DIR: ${INSTALL_DIR}"
 echo "REPO_DIR: ${REPO_DIR}"
-echo "Cleaning repo at $REPO_DEST"
-rm -rf $REPO_DEST
 echo "Creating directory $REPO_DEST"
 mkdir -p $REPO_DEST
 echo "Copying repo from $REPO_DIR to $REPO_DEST"
-cp -R $REPO_DIR /tmp
+rsync -avP $REPO_DIR/ $REPO_DEST/
 GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
 echo "REPO Destination: $REPO_DEST"
 cd $REPO_DEST
@@ -82,4 +80,4 @@ kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storagecla
 
 kubectl kustomize $REPO_DEST/argocd/install/postgres/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 kubectl kustomize $REPO_DEST/argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
-kubectl kustomize $REPO_DEST/argocd/install/vault/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+kubectl kustomize $REPO_DEST/argocd/install/vault/kustomize/overlays/appliance --enable-helm | kubectl apply -f - || true

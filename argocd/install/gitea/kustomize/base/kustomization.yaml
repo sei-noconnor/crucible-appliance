@@ -4,7 +4,7 @@ namespace: gitea
 helmCharts:
 - name: gitea
   includeCRDs: true
-  version: 10.4.0
+  version: 10.6.0
   repo: https://dl.gitea.io/charts/
   releaseName: appliance
   valuesFile: files/gitea.values.yaml

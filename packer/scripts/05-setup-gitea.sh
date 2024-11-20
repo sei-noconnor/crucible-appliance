@@ -26,14 +26,8 @@ curl "${CURL_OPTS[@]}" \
   --request POST "https://crucible.local/gitea/api/v1/orgs" \
   --data @- <<EOF
   {
-    "description": "",
-    "email": "",
-    "full_name": "",
-    "location": "",
     "repo_admin_change_team_access": true,
-    "username": "crucible",
-    "visibility": "public",
-    "website": ""
+    "username": "crucible"
   }
 EOF
 
@@ -66,13 +60,13 @@ GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 find . -name "Application.yaml" -exec sed -i 's/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.local\/gitea\/crucible\/crucible-appliance.git/g' {} \;
 # Modify app path slightly
 
-
+git -C $REPO_DEST add --all
 git -C $REPO_DEST add "**/*.pem"
 git -C $REPO_DEST add "**/*.key"
 git -C $REPO_DEST commit -m "update repo urls and add certificates"
 git -C $REPO_DEST remote remove appliance
 git -C $REPO_DEST remote add appliance https://administrator:${ADMIN_PASS}@crucible.local/gitea/crucible/crucible-appliance.git
-git -C $REPO_DEST push -u appliance --all -f
+git -C $REPO_DEST push -u appliance --mirror -f || true
 
 # echo "Creating argocd app to gitea source control on branch ${GIT_BRANCH}"
 # kubectl apply -f $REPO_DEST/argocd/install/argocd/Application.yaml

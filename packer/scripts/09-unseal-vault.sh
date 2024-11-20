@@ -22,9 +22,6 @@ while ! nc -vz localhost $localport > /dev/null 2>&1 ; do
   echo pid: $pid
 done
 
-echo "Initializing vault."
-INIT_DATA=$(vault operator init -format yaml)
-
 # kill the port-forward regardless of how this script exits
 trap '{
     # echo killing $pid
@@ -33,6 +30,9 @@ trap '{
 
 # Path to the YAML file
 YAML_FILE="./argocd/install/vault/kustomize/base/files/vault-keys.yaml"
+
+echo "Initializing vault."
+INIT_DATA=$(vault operator init -format yaml)
 
 if [[ -n "$INIT_DATA" ]]; then
   echo "Writing init vault data to $YAML_FILE"

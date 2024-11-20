@@ -10,6 +10,7 @@ APPLIANCE_IP ?= $(ip route get 1 | awk '{print $(NF-2);exit}')
 export SSL_DIR
 export APPS_DIR
 export ADMIN_PASS
+export DOMAIN
 
 generate_certs:
 	./scripts/generate_root_ca.sh
@@ -30,19 +31,27 @@ init: sudo-deps add-coredns-entry
 	make init-argo
 	make snapshot
 	
-init-argo: 
+init-argo: add-coredns-entry
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault
+	make vault-argo-role
+	make init-gitea
 	./packer/scripts/03-init-argo.sh
 	
-init-vault:
-	./packer/scripts/07-init-vault.sh
-
 unseal-vault:
 	./packer/scripts/09-unseal-vault.sh
+
+vault-argo-role:
+	./packer/scripts/08-vault-argo-args.sh
 	
 init-gitea:
 	./packer/scripts/05-setup-gitea.sh
+	make download-packages
+
+download-packages:
+	./packer/scripts/05-download-packages.sh ./argocd/install/gitea/kustomize/base/files/packages.yaml
+%:
+	@true
 
 build:
 	rm -rf ./packer/output && \
@@ -106,11 +115,16 @@ uninstall:
 	kubectl -n longhorn-system delete serviceaccount longhorn-uninstall-service-account || true
 	kubectl delete clusterrole longhorn-uninstall-role || true
 	kubectl delete clusterrolebinding longhorn-uninstall-bind || true
-	kubectl create -f ./argocd/install/longhorn/kustomize/base/files/uninstall-longhorn.yaml
+	kubectl create -f ./argocd/install/longhorn/kustomize/base/files/uninstall-longhorn.yaml || true
 	sleep 60
 	echo "${ADMIN_PASS}" | sudo -E -S k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance || true
 	sudo rm -rf /var/lib/longhorn
 	sudo rm -rf /dev/longhorn
+	rm -rf ./argocd/install/argocd/kustomize/base/files/argo-*-id
+	rm -rf ./argocd/install/argocd/kustomize/appliance/files/argo-*-id
+	rm -rf ./argocd/install/vault/kustomize/base/files/argo-*-id*
+	rm -rf ./argocd/install/vault/kustomize/base/files/vault-keys*
+
 
 startup-logs:
 	sudo cat /var/log/syslog | grep crucible-appliance

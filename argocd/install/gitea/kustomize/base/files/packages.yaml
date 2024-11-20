@@ -1,0 +1,161 @@
+giteaServer: https://${DOMAIN}
+owner: crucible
+
+helm:
+- name: sei
+  repoUrl: https://helm.cmusei.dev/charts
+  giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - topomojo:0.3.8
+  - player:1.4.5
+  - alloy:1.4.1
+  - steamfitter:1.4.2
+  - caster:1.4.3 
+  - blueprint:1.4.1
+- name: bitnami
+  repoUrl: https://dl.gitea.io/charts/
+  giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - keycloak:15.1.8
+  - postgresql:12.8.0
+- name: gitea
+  repoUrl: https://charts.bitnami.com/bitnami
+  giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - gitea:1.4.0
+- name: ingress-nginx
+  repoUrl: https://kubernetes.github.io/ingress-nginx
+  giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - ingress-nginx:4.11.1
+- name: argo-cd
+  repoUrl: https://argoproj.github.io/argo-helm
+  giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - argocd:7.4.2
+
+
+containers:
+  giteaUrl: http://${DOMAIN}/api/v1/packages/${OWNER}/container/${ITEM}/${VERSION}
+  items:
+  # - docker.io/busybox:1.28
+  # - docker.io/cmusei/alloy-api:3.4.3
+  # - docker.io/cmusei/alloy-ui:3.2.6
+  # - docker.io/cmusei/blueprint-api:1.2.1
+  # - docker.io/cmusei/blueprint-ui:1.2.2
+  # - docker.io/cmusei/caster-api:3.3.0
+  # - docker.io/cmusei/caster-ui:3.3.2
+  # - docker.io/cmusei/cite-api:1.6.1
+  # - docker.io/cmusei/cite-ui:1.6.1
+  # - docker.io/cmusei/gallery-api:1.6.0
+  # - docker.io/cmusei/gallery-ui:1.6.3
+  # - docker.io/cmusei/keycloak-auth-plugin:development-0dfcedb
+  # - docker.io/cmusei/player-api:3.2.4
+  # - docker.io/cmusei/player-ui:3.2.7
+  # - docker.io/cmusei/st2packs:1.0.0
+  # - docker.io/cmusei/steamfitter-api:3.7.2
+  # - docker.io/cmusei/steamfitter-ui:3.7.4
+  # - docker.io/cmusei/topomojo-api:2.3.0
+  # - docker.io/cmusei/topomojo-ui:2.3.0
+  # - docker.io/cmusei/vm-api:3.6.2
+  # - docker.io/cmusei/vm-console-ui:3.2.9
+  # - docker.io/cmusei/vm-ui:3.4.8
+  # - cr.fluentbit.io/fluent/fluent-bit:2.2.2
+  # - docker.io/devinsolutions/osticket:1.17
+  # - docker.io/bitnami/keycloak:21.0.2-debian-11-r0
+  # - docker.io/bitnami/memcached:1.6.9-debian-10-r114
+  # - docker.io/bitnami/mongodb:7.0.5-debian-11-r6
+  # - docker.io/bitnami/mysql:8.0.30-debian-11-r15
+  # - docker.io/bitnami/opensearch:2.11.1-debian-11-r6
+  # - docker.io/bitnami/os-shell:11-debian-11-r96
+  # - docker.io/bitnami/postgres-exporter:0.15.0-debian-12-r31
+  # - docker.io/bitnami/postgresql:15.3.0-debian-11-r7
+  # - docker.io/bitnami/rabbitmq:3.8.9-debian-10-r37
+  # - docker.io/bitnami/redis-exporter:1.43.0-debian-11-r4
+  # - docker.io/bitnami/redis-sentinel:6.0.9-debian-10-r66
+  # - docker.io/bitnami/redis:6.2.7-debian-11-r11
+  # - docker.io/dpage/pgadmin4:6.21
+  # - docker.io/grafana/grafana:10.2.3
+  # - docker.io/library/busybox:1.31.1
+  # - gcr.io/k8s-staging-sig-storage/nfs-provisioner:v3.0.0
+  # - ghcr.io/dexidp/dex:v2.37.0
+  # - ghcr.io/linuxserver/code-server:v3.9.1-ls73
+  # - docker.io/gitea/gitea:1.19.3
+  # - docker.io/graylog/graylog:5.0.3
+  # - docker.io/hashicorp/vault-k8s:1.2.1
+  # - docker.io/hashicorp/vault:1.13.1
+  # - docker.io/longhornio/csi-attacher:v4.2.0
+  # - docker.io/longhornio/csi-node-driver-registrar:v2.7.0
+  # - docker.io/longhornio/csi-provisioner:v3.4.1
+  # - docker.io/longhornio/csi-resizer:v1.7.0
+  # - docker.io/longhornio/csi-snapshotter:v6.2.1
+  # - docker.io/longhornio/livenessprobe:v2.9.0
+  # - docker.io/longhornio/longhorn-engine:v1.5.3
+  # - docker.io/longhornio/longhorn-instance-manager:v1.5.3
+  # - docker.io/longhornio/longhorn-manager:v1.5.3
+  # - docker.io/longhornio/longhorn-share-manager:v1.5.3
+  # - docker.io/longhornio/longhorn-ui:v1.5.3
+  # - docker.io/mattermost/mattermost-enterprise-edition:7.10.3
+  # - docker.io/minio/minio:RELEASE.2019-05-14T23-57-45Z
+  # - docker.io/postgres:15.3-alpine
+  # - public.ecr.aws/docker/library/redis:7.0.13-alpine
+  # - quay.io/argoproj/argocd:latest
+  # - quay.io/argoproj/argocd:v2.10.7
+  # - quay.io/kiwigrid/k8s-sidecar:1.25.2
+  # - quay.io/metallb/controller:v0.10.2
+  # - quay.io/metallb/speaker:v0.10.2
+  - quay.io/prometheus-operator/prometheus-config-reloader:v0.71.2
+  - quay.io/prometheus/alertmanager:v0.26.0
+  - quay.io/prometheus/node-exporter:v1.7.0
+  - quay.io/prometheus/prometheus:v2.49.1
+  - ghcr.io/rancher/local-path-provisioner:v0.0.24
+  - ghcr.io/rancher/mirrored-coredns-coredns:1.10.1
+  - ghcr.io/rancher/mirrored-library-traefik:2.10.5
+  - ghcr.io/rancher/mirrored-metrics-server:v0.6.3
+  - registry.access.redhat.com/ubi8
+  - registry.gitlab.com/gitlab-org/build/cng/certificates:v17.3.6
+  - registry.gitlab.com/gitlab-org/build/cng/gitaly:v17.3.6
+  - registry.gitlab.com/gitlab-org/build/cng/gitlab-base:v17.3.6
+  - registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter:15.0.0
+  - registry.gitlab.com/gitlab-org/build/cng/gitlab-kas:v17.3.6
+  - registry.gitlab.com/gitlab-org/build/cng/gitlab-shell:v14.38.0
+  - registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce:v17.3.6
+  - registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ce:v17.3.6
+  - registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce:v17.3.6
+  - registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce:v17.3.6
+  - registry.gitlab.com/gitlab-org/cloud-native/mirror/images/busybox:latest
+  - registry.k8s.io/ingress-nginx/controller:v1.7.1
+  - registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.10.1
+  - docker.io/stackstorm/st2actionrunner:3.6
+  - docker.io/stackstorm/st2api:3.6
+  - docker.io/stackstorm/st2auth:3.6
+  - docker.io/stackstorm/st2garbagecollector:3.6
+  - docker.io/stackstorm/st2notifier:3.6
+  - docker.io/stackstorm/st2rulesengine:3.6
+  - docker.io/stackstorm/st2scheduler:3.6
+  - docker.io/stackstorm/st2sensorcontainer:3.6
+  - docker.io/stackstorm/st2stream:3.6
+  - docker.io/stackstorm/st2timersengine:3.6
+  - docker.io/stackstorm/st2web:3.6
+  - docker.io/stackstorm/st2workflowengine:3.6
+
+
+
+debian:
+- distro: jammy
+  os: ubuntu
+  version: 22.04
+  giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/debian/pool/${DISTRO}/main/upload
+  items:
+  - build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git vim
+  - open-vm-tools
+
+generic:
+- giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/generic/${FILE}/${FILE_VERSION}/${FILE_NAME}
+  items:
+  # - https://github.com/k3s-io/k3s/releases/download/v1.29.10%2Bk3s1/k3s
+  # - https://releases.ubuntu.com/jammy/ubuntu-22.04.5-live-server-amd64.iso
+  # - https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+  # - https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
+  # - https://github.com/vmware/govmomi/releases/download/v0.46.0/govc_Linux_x86_64.tar.gz
+  - https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v1.17.0/argocd-vault-plugin_1.17.0_linux_amd64

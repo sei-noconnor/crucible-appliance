@@ -40,7 +40,8 @@ data:
     }
     import /etc/coredns/custom/*.server
   NodeHosts: |
-    $IP $DOMAIN keystore.$DOMAIN
+    $IP $DOMAIN
+    $IP keystore.$DOMAIN
 kind: ConfigMap
 metadata:
   name: coredns
