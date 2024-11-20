@@ -71,9 +71,9 @@ if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
     k3s kubectl wait deployment \
     --all \
-    --for=condition=Available \
+    --for=condition=available \
     --all-namespaces=true \
-    --timeout=5m
+    --timeout=1m
 else 
     msg="Crucible Appliance IPs match starting normally"
     crucible_log "$msg"

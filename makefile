@@ -48,6 +48,9 @@ init-gitea:
 	./packer/scripts/05-setup-gitea.sh
 	make download-packages
 
+init-repos:
+	./packer/scripts/05-init-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
+
 download-packages:
 	./packer/scripts/05-download-packages.sh ./argocd/install/gitea/kustomize/base/files/packages.yaml
 %:
@@ -128,6 +131,13 @@ uninstall:
 
 startup-logs:
 	sudo cat /var/log/syslog | grep crucible-appliance
+
+tail-startup-logs:
+	sudo tail -f /var/log/syslog | grep crucible-appliance
+
+update-startup-script:
+	sudo cp ./packer/scripts/crucible-appliance-startup.sh /usr/local/bin/crucible-appliance-startup.sh
+	sudo chmod +x /usr/local/bin/crucible-appliance-startup.sh
 
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh

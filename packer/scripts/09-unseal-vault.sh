@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 localport=8200
 typename=service/appliance-vault
@@ -13,11 +13,11 @@ YAML_DIR=argocd/install/vault/kustomize/base/files
 
 while ! nc -vz localhost $localport > /dev/null 2>&1 ; do
   echo "waiting for pod to be running"
-  k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
+  sudo k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
   echo sleeping
   sleep 5
   echo "Forwarding port..."
-  k3s kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
+  sudo k3s kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
   pid=$!
   echo pid: $pid
 done
@@ -29,30 +29,33 @@ trap '{
 }' EXIT
 
 # Path to the YAML file
-YAML_FILE="./argocd/install/vault/kustomize/base/files/vault-keys.yaml"
+VAULT_FILE="$REPO_DIR/$YAML_DIR/vault-keys.yaml"
 
-echo "Initializing vault."
-INIT_DATA=$(vault operator init -format yaml)
 
-if [[ -n "$INIT_DATA" ]]; then
-  echo "Writing init vault data to $YAML_FILE"
-  
-  echo "$INIT_DATA" > "$YAML_FILE"
-elif [[ -f "$YAML_FILE" ]]; then
-  echo "VAULT file exists"
+
+# Check for vault file
+if [[ ! -f "$VAULT_FILE" ]]; then 
+  echo "Initializing vault."
+  INIT_DATA=$(vault operator init -format yaml)
+  if [[ -n "$INIT_DATA" ]]; then
+  echo "Writing init vault data to $VAULT_FILE"
+  echo "$INIT_DATA" > "$VAULT_FILE"
+  fi
+elif [[ -f "$VAULT_FILE" ]]; then
+    echo "VAULT file exists attempting to unseal"
 else
   echo "No Data and no file exiting..."
-  exit 1
+  exit 0
 fi
 
 # Extract root token
-ROOT_TOKEN=$(grep "root_token:" "$YAML_FILE" | awk '{print $2}')
+ROOT_TOKEN=$(grep "root_token:" "$VAULT_FILE" | awk '{print $2}')
 
 # Extract unseal threshold
-UNSEAL_THRESHOLD=$(grep "unseal_threshold:" "$YAML_FILE" | awk '{print $2}')
+UNSEAL_THRESHOLD=$(grep "unseal_threshold:" "$VAULT_FILE" | awk '{print $2}')
 
 # Extract unseal keys (base64) into an array
-readarray -t UNSEAL_KEYS < <(awk '/unseal_keys_b64:/ {flag=1; next} /unseal_keys_hex:/ {flag=0} flag' "$YAML_FILE" | sed 's/- //g')
+readarray -t UNSEAL_KEYS < <(awk '/unseal_keys_b64:/ {flag=1; next} /unseal_keys_hex:/ {flag=0} flag' "$VAULT_FILE" | sed 's/- //g')
 
 # Display the root token
 echo "Root Token: $ROOT_TOKEN"
@@ -84,4 +87,4 @@ done
 
 echo "Logining in to vault with root_key"
 vault login ${ROOT_TOKEN}
-kubectl -n vault delete jobs --all
+k3s kubectl -n vault delete jobs --all
