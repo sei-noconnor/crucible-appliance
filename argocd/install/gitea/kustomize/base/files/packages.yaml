@@ -139,8 +139,6 @@ containers:
   - docker.io/stackstorm/st2web:3.6
   - docker.io/stackstorm/st2workflowengine:3.6
 
-
-
 debian:
 - distro: jammy
   os: ubuntu
@@ -159,3 +157,6 @@ generic:
   # - https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
   # - https://github.com/vmware/govmomi/releases/download/v0.46.0/govc_Linux_x86_64.tar.gz
   - https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v1.17.0/argocd-vault-plugin_1.17.0_linux_amd64
+
+git:
+- giteaUrl: http://${DOMAIN}/api/
