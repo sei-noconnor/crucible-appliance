@@ -1,5 +1,4 @@
 #!/bin/bash
-
 localport="8200"
 typename="service/appliance-vault"
 remoteport="8200"
@@ -10,54 +9,60 @@ YAML_DIR="argocd/install/vault/kustomize/base/files"
 # nmap -sT -p $localport localhost || true
 # wait for $localport to become available
 
-while ! nc -vz localhost "$localport" > /dev/null 2>&1; do
-  echo "waiting for pod to be running"
-  sudo k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
-  echo "sleeping"
-  sleep 5
-  echo "Forwarding port $remoteport to $localport"
-  sudo k3s kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
-  pid="$!"
-  echo "pid: $pid"
+while ! nc -vz localhost "$localport"; do
+    echo "Waiting for pod to be running..."
+		# TODO: investigate this command it's causing weird output
+    sudo k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
+		
+    echo "Sleeping for 5 seconds..."
+    sleep 5
+
+    echo "Forwarding port $remoteport to $localport..."
+    # Kill previous port-forward if it exists
+    pkill -f "kubectl port-forward -n vault $typename" 2>/dev/null || true
+    sudo k3s kubectl port-forward -n vault $typename $localport:$remoteport &> /dev/null &
+    pid=$!
 done
 
+trap 'echo "Cleaning up port-forward..."; kill $pid' EXIT
+
 # kill the port-forward regardless of how this script exits
-trap '{
-    echo "killing $pid"
-    kill $pid
-}' EXIT
+# trap '{
+# 		echo "killing $pid"
+# 		kill $pid
+# }' EXIT
 
 # Path to the YAML file
 VAULT_FILE="$REPO_DIR/$YAML_DIR/vault-keys.yaml"
 
-# Check for vault file, 
-if [[ ! -f "$VAULT_FILE" ]]; then 
-  echo "Initializing vault."
-  INIT_DATA=$(vault operator init -format yaml)
-  if [[ -n "$INIT_DATA" ]]; then
-    echo "Writing init vault data to $VAULT_FILE"
-    echo "$INIT_DATA" > "$VAULT_FILE"
-  fi
+# Check for vault file,
+if [[ ! -f "$VAULT_FILE" ]]; then
+	echo "Initializing vault."
+	INIT_DATA=$(vault operator init -format yaml)
+	if [[ -n "$INIT_DATA" ]]; then
+		echo "Writing init vault data to $VAULT_FILE"
+		echo "$INIT_DATA" > "$VAULT_FILE"
+	fi
 elif [[ -f "$VAULT_FILE" ]]; then
-    echo "VAULT file exists checking vault status"
-    vault status -format=yaml
-    initialized=$(vault status -format=yaml | yq '.initialized')
-    sealed=$(vault status -format=yaml | yq '.sealed')
-    if [ $initialized == false ]; then
-      echo "Vault File exist, but vault is not initialized, overwriting $VAULT_FILE"
-      INIT_DATA=$(vault operator init -format yaml)
-      if [[ -n "$INIT_DATA" ]]; then
-        echo "Writing init vault data to $VAULT_FILE"
-        echo "$INIT_DATA" > "$VAULT_FILE"
-      fi
-    fi
-    echo "Sealed Status: $sealed"
-    if [ $sealed == true ]; then
-      echo "Vault is sealed, attempting to unseal"
-    fi
+		echo "VAULT file exists checking vault status"
+		vault status -format=yaml
+		initialized=$(vault status -format=yaml | yq '.initialized')
+		sealed=$(vault status -format=yaml | yq '.sealed')
+		if [ $initialized == false ]; then
+			echo "Vault File exist, but vault is not initialized, overwriting $VAULT_FILE"
+			INIT_DATA=$(vault operator init -format yaml)
+			if [[ -n "$INIT_DATA" ]]; then
+				echo "Writing init vault data to $VAULT_FILE"
+				echo "$INIT_DATA" > "$VAULT_FILE"
+			fi
+		fi
+		echo "Sealed Status: $sealed"
+		if [ $sealed == true ]; then
+			echo "Vault is sealed, attempting to unseal"
+		fi
 else
-  echo "No Data and no file exiting, vault cannot be instantiated"
-  exit 0
+	echo "No Data and no file exiting, vault cannot be instantiated"
+	exit 0
 fi
 
 # Extract root token
@@ -77,24 +82,22 @@ echo "Unseal Threshold: $UNSEAL_THRESHOLD"
 
 # Assign unseal keys to individual variables
 for i in "${!UNSEAL_KEYS[@]}"; do
-  eval "UNSEAL_KEY_$((i + 1))=${UNSEAL_KEYS[i]}"
-  echo "Unseal Key $((i + 1)): ${UNSEAL_KEYS[i]}"
+	eval "UNSEAL_KEY_$((i + 1))=${UNSEAL_KEYS[i]}"
+	echo "Unseal Key $((i + 1)): ${UNSEAL_KEYS[i]}"
 done
 
 # Example: Access individual unseal keys as variables
-echo
 echo "Accessing individual unseal keys:"
 echo "Unseal Key 1: $UNSEAL_KEY_1"
 echo "Unseal Key 2: $UNSEAL_KEY_2"
 echo "Unseal Key 3: $UNSEAL_KEY_3"
 
 # Logic to automatically use the threshold number of keys for unsealing
-echo
 echo "Using the first $UNSEAL_THRESHOLD keys for unsealing..."
 for ((i = 1; i <= UNSEAL_THRESHOLD; i++)); do
-  KEY_VAR="UNSEAL_KEY_$i"
-  echo "Using $KEY_VAR: ${!KEY_VAR}"
-  vault operator unseal ${!KEY_VAR}
+	KEY_VAR="UNSEAL_KEY_$i"
+	echo "Using $KEY_VAR: ${!KEY_VAR}"
+	vault operator unseal ${!KEY_VAR}
 done
 
 echo "Logining in to vault with root_key"
