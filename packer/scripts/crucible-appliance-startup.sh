@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Logs a message to /var/log/syslog with tag crucible-appliance
 # #find crucible related logs

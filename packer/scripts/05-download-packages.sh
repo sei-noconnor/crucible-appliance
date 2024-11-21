@@ -1,4 +1,4 @@
-#!/bin/bash -x 
+#!/bin/bash 
 #export $(cat .env)
 # Gitea details and YAML file path
 YAML_FILE="$1"

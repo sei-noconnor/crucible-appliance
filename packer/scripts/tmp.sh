@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # Create systemd service to configure netplan primary interface
 echo "Current Directory is: ${PWD}"
 cp ./packer/scripts/configure_nic /usr/local/bin/configure_nic

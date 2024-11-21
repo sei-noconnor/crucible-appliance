@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # Change to the current directory and inform the user
 echo "Changing to script directory..."
 DIR=$(dirname "${BASH_SOURCE[0]}")

@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Default values
 CLUSTER_NAME_DEFAULT="githubactions"

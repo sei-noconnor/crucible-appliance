@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Set the namespace and configmap name for CoreDNS
 NAMESPACE="kube-system"

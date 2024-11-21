@@ -1,4 +1,4 @@
-#!/bin/bash -x 
+#!/bin/bash 
 sudo journalctl --vacuum-size=300M
 sudo logrotate /etc/logrotate.conf
 sudo apt-get -y autoremove 

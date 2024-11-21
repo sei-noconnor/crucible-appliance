@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 GITEA_USERNAME="${ADMIN_USER:-administrator}"        # Replace with your Gitea username
 GITEA_PASSWORD="${ADMIN_PASS:-crucible}"        # Replace with your Gitea password

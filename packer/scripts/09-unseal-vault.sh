@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 localport=8200
 typename=service/appliance-vault
