@@ -42,6 +42,8 @@ data:
   NodeHosts: |
     $IP $DOMAIN
     $IP keystore.$DOMAIN
+    $IP cd.$DOMAIN
+    $IP code.$DOMAIN
 kind: ConfigMap
 metadata:
   name: coredns

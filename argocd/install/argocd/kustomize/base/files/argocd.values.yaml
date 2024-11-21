@@ -53,6 +53,10 @@ configs:
       # target manifests cache
     timeout.hard.reconciliation: 0s 
       # -- allow for health-check/sync icons on app-of-apps
+    
+    # -- Enable Kustomize Helm
+    kustomize.buildOptions: --enable-helm
+
     resource.customizations: |
       argoproj.io/Application: 
         health.lua: | 
@@ -190,7 +194,7 @@ configs:
     certificates: 
       fortress.sei.cmu.edu: |
         <ADD CERTS HERE>
-        code.fortress.sei.cmu.edu: |
+      code.fortress.sei.cmu.edu: |
         <ADD CERT HERE>
         # server.example.com: | -----BEGIN
         # CERTIFICATE----- ...  -----END
@@ -366,6 +370,16 @@ redis:
       capabilities:
         drop:
         - ALL
+controller:
+  volumeMounts:
+    - name: custom-ca-certificates
+      mountPath: /etc/ssl/certs/custom-ca-certificates.crt
+      subPath: custom-ca-certificates.crt
+  volumes:
+    - name: custom-ca-certificates
+      secret:
+        defaultMode: 420
+        secretName: custom-ca-certificates
 server:
   # -- Argo CD server name
   name: server
@@ -411,12 +425,21 @@ server:
 
     # -- Ingress TLS configuration
     tls: 
-      - secretName: fortress-tls
+      - secretName: argocd-tls
         hosts:
           - cd.crucible.local
     # -- Uses `server.service.servicePortHttps` instead `server.service.servicePortHttp`
     https: false
 
+  volumeMounts:
+    - name: custom-ca-certificates
+      mountPath: /etc/ssl/certs/custom-ca-certificates.crt
+      subPath: custom-ca-certificates.crt
+  volumes:
+    - name: custom-ca-certificates
+      secret:
+        defaultMode: 420
+        secretName: custom-ca-certificates
 ## Repo Server
 repoServer:
   # -- Repo server name
@@ -469,23 +492,27 @@ repoServer:
       env:
         - name: AVP_VERSION
           value: 1.17.0
-      image: registry.access.redhat.com/ubi8
+      image: docker.io/alpine/curl:8.9.1
       command: [sh, -c]
       args:
         - >-
-          curl -Lk https://crucible.local/gitea/api/packages/crucible/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
+          /usr/sbin/update-ca-certificates &&
+          curl -L https://crucible.local/gitea/api/packages/crucible/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
           chmod +x argocd-vault-plugin &&
           mv argocd-vault-plugin /custom-tools/          
       volumeMounts:
         - mountPath: /custom-tools
           name: custom-tools
-        # - name: custom-ca-certificates
-        #   mountPath: /etc/pki/ca-trust/source/anchors/
-        #   subPath: custom-ca-certificates.crt
+        - name: custom-ca-certificates
+          mountPath: /usr/local/share/ca-certificates/custom-ca-certificates.crt
+          subPath: custom-ca-certificates.crt
       envFrom:
         - secretRef:
             name: vault-configuration
-  volumeMounts: []
+  volumeMounts:
+    - name: custom-ca-certificates
+      mountPath: /etc/ssl/certs/custom-ca-certificates.crt
+      subPath: custom-ca-certificates.crt
 
   # -- Additional volumes to the repo server pod
   volumes: 

@@ -46,7 +46,7 @@ git add "**/*.pem"
 git add "**/*.key"
 git -c user.name="admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
 
-kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
+kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 time=10
 echo "sleeping $time"
 sleep $time
@@ -56,7 +56,18 @@ kubectl wait deployment \
 --namespace=cert-manager \
 --timeout=5m
 
-kubectl kustomize $REPO_DEST/argocd/install/nginx/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
+# Quick Fix for ClusterIssuer CRD Reapply Cert-Manager
+kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+time=10
+echo "sleeping $time"
+sleep $time
+kubectl wait deployment \
+--all \
+--for=condition=Available \
+--namespace=cert-manager \
+--timeout=5m
+
+kubectl kustomize $REPO_DEST/argocd/install/nginx/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 time=10
 echo "sleeping $time"
 sleep $time
@@ -65,7 +76,7 @@ kubectl wait deployment \
 --for=condition=Available \
 --namespace=ingress-nginx \
 --timeout=5m
-kubectl kustomize $REPO_DEST/argocd/install/longhorn/kustomize/overlays/appliance --enable-helm | kubectl apply --wait=true -f -
+kubectl kustomize $REPO_DEST/argocd/install/longhorn/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 time=10
 echo "sleeping $time"
 sleep $time

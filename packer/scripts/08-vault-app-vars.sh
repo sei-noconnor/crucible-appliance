@@ -10,9 +10,9 @@ VAULT_FILE="${REPO_DIR}/${VAULT_DIR}/vault-keys.yaml"
 # Extract root token
 ROOT_TOKEN=$(grep "root_token:" "$VAULT_FILE" | awk '{print $2}')
 # Configuration
-VAULT_TOKEN="${ROOT_TOKEN}"                     # Replace with your Vault token
-VAULT_KV_PATH="crucible-appliance"              # Replace with your KV mount path
-VARS_TEMPLATE="${REPO_DIR}/${VAULT_DIR}/app-vars.example.yaml"           # Replace with your YAML file path
+VAULT_TOKEN="${ROOT_TOKEN}"
+VAULT_KV_PATH="crucible-appliance"
+VARS_TEMPLATE="${REPO_DIR}/${VAULT_DIR}/app-vars.example.yaml"
 VARS_FILE="${REPO_DIR}/${VAULT_DIR}/app-vars.yaml"
 
 # This would show that the port is closed
@@ -22,17 +22,17 @@ VARS_FILE="${REPO_DIR}/${VAULT_DIR}/app-vars.yaml"
 while ! nc -vz localhost $localport > /dev/null 2>&1 ; do
   echo "waiting for pod to be running"
   sudo k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
-  echo sleeping
+  echo "sleeping"
   sleep 5
   echo "Forwarding port..."
   sudo k3s kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
   pid=$!
-  echo pid: $pid
+  echo "pid: $pid"
 done
 
 # kill the port-forward regardless of how this script exits
 trap '{
-    # echo killing $pid
+    echo "killing $pid"
     kill $pid
 }' EXIT
 

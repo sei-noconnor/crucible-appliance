@@ -16,7 +16,7 @@ spec:
     - CreateNamespace=true
   sources:
   - path: argocd/apps
-    repoURL: file:///crucible-repo/crucible-appliance
-    targetRevision: main
+    repoURL: https://crucible.local/gitea/crucible/crucible-appliance.git
+    targetRevision: offline-reorg
 
 
