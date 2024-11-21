@@ -16,6 +16,7 @@ dst_dirs=(
     $(realpath "$script_dir/../argocd/install/cert-manager/kustomize/base/files") \
     $(realpath "$script_dir/../argocd/install/argocd/kustomize/overlays/appliance/files") \
     $(realpath "$script_dir/../argocd/apps/topomojo/kustomize/base/files") \
+    $(realpath "$script_dir/../argocd/install/vault/kustomize/base/files")
     )
 
 ADMIN_PASS="${ADMIN_PASS:-crucible}"

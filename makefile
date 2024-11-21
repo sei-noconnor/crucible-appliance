@@ -35,11 +35,15 @@ init-argo: add-coredns-entry
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault
 	make vault-argo-role
+	make vault-app-vars
 	make init-gitea
 	./packer/scripts/03-init-argo.sh
 	
 unseal-vault:
 	./packer/scripts/09-unseal-vault.sh
+
+vault-app-vars:
+	./packer/scripts/08-vault-app-vars.sh
 
 vault-argo-role:
 	./packer/scripts/08-vault-argo-args.sh
