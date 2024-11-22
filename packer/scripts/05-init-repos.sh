@@ -94,7 +94,6 @@ for DIR in "$BASE_DIR"/*; do
         git remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
         git config --unset remote.origin.mirror
         git config --bool core.bare false
-        # git checkout main
         git push appliance main
         git push appliance --mirror
 

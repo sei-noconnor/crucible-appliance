@@ -2,9 +2,9 @@
 	repositoryformatversion = 0
 	filemode = true
 	bare = false
-[remote "origin"]
-	url = https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-argo
-	fetch = +refs/*:refs/*
 [remote "appliance"]
 	url = https://administrator:crucible@crucible.local/gitea/crucible/fortress-prod-argo.git
 	fetch = +refs/heads/*:refs/remotes/appliance/*
+[remote "origin"]
+	url = https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-argo.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
