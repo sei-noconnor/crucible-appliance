@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # Copyright 2022 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
@@ -40,8 +40,11 @@ echo "REPO_DIR: ${REPO_DIR}"
 cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/topomojo/kustomize/base/files/topomojo.values.yaml
 
 # Update argocd admin password in argocd values
-ARGO_ADMIN_PASS=$(htpasswd -nbBC 10 "" $ADMIN_PASS | tr -d ':\n' | sed 's/$2y/$2a/')
-sed -i '/argocdServerAdminPassword:/c\argocdServerAdminPassword: "${ARGO_ADMIN_PASS}"' ${INSTALL_DIR}/argocd/kustomize/base/files/argocd.values.yaml
+export ARGO_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ADMIN_PASS" | tr -d ':\n' | sed 's/$2y/$2a/')
+
+# Need unwrapscalar to preserve formating of "|-" "|" "->"
+yq -i --unwrapScalar=true '.configs.secret.argocdServerAdminPassword = env(ARGO_ADMIN_PASS)' ${INSTALL_DIR}/argocd/kustomize/base/files/argocd.values.yaml
+
 # Install ArgoCD
 #kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
 kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -

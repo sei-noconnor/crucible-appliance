@@ -11,12 +11,14 @@ GITEA_PASSWORD="${ADMIN_PASS:-crucible}"        # Replace with your Gitea passwo
 GITEA_ORG="${GITEA_ORG:-crucible}"
 
 # Gitea server details
-GITEA_SERVER="https://${GITEA_USERNAME}:${GITEA_PASSWORD}@${DOMAIN}/gitea"
+GITEA_SERVER="https://${DOMAIN}/gitea"
 
 # Specify the base directory containing subdirectories
 BASE_DIR="$($readlink_cmd $1)"
-
-echo "Processing repos in ${BASE_DIR}"
+REPO_TMP=/tmp/appliance-repos
+# reset tmp folder
+rm -rf ${REPO_TMP}
+mkdir -p ${REPO_TMP}
 
 # Check if the base directory exists
 if [[ ! -d "$BASE_DIR" ]]; then
@@ -25,7 +27,7 @@ if [[ ! -d "$BASE_DIR" ]]; then
 fi
 
 # Generate a random token name
-TOKEN_NAME="repo-mirror-$(date +%s)-$RANDOM"
+TOKEN_NAME="repo-modify-$(date +%s)-$RANDOM"
 
 # Request a token with the necessary scopes
 echo "Generating API token..."
@@ -65,41 +67,25 @@ for DIR in "$BASE_DIR"/*; do
             -H "Authorization: token ${GITEA_TOKEN}")
         
         if echo "$REPO_CHECK" | jq -e '.id' >/dev/null 2>&1; then
-            echo "Repository $REPO_NAME already exists. Skipping creation."
-        else
-            # Create the repository in Gitea using the API
-            RESPONSE=$(curl -s -X POST "${GITEA_SERVER}/api/v1/orgs/${GITEA_ORG}/repos" \
-                -H "Authorization: token ${GITEA_TOKEN}" \
-                -H "Content-Type: application/json" \
-                -d '{
-                    "name": "'"${REPO_NAME}"'",
-                    "private": false,
-                    "description": "Mirror of '"${REPO_NAME}"'",
-                    "auto_init": false
-                }')
+            echo "Repository $REPO_NAME exists. cloning to ${REPO_TMP}"
+            REPO_DEST="$($readlink_cmd ${REPO_TMP}/${REPO_NAME})"
+            git clone ${GITEA_SERVER}/${GITEA_ORG}/${REPO_NAME} ${REPO_TMP}/${REPO_NAME} ${REPO_DEST} 
+             # Directory to search for YAML files
+            cd ${REPO_DEST}
+            git config user.name "${GITEA_USERNAME}"
+            git config user.email "${GITEA_USERNAME}@${DOMAIN}"
+            git remote set-url origin "https://${GITEA_TOKEN}@${DOMAIN}/gitea/${GITEA_ORG}/${REPO_NAME}"
+            git checkout main
+            # Loop through all YAML files in the directory
+            find . -type f -name "*.yaml" | while read -r file; do
+                # Perform the replacement in each file
+                sed -i 's#<path:fortress-prod/\(.*\)>#<path:crucible-appliance/\1>#g' "$file"
+                echo "Updated $file"
+            done
             
-            if echo "$RESPONSE" | jq -e '.id' >/dev/null 2>&1; then
-                echo "Repository $REPO_NAME created successfully."
-            else
-                echo "Failed to create repository for $REPO_NAME. Response: $RESPONSE"
-                continue
-            fi
+            git add --all
+            git commit -m "(automated) - updated vault paths"
+            git push origin main
         fi
-
-        # Clone, initialize Git repo, and push to Gitea
-        cd "$DIR"
-        
-        # Set the remote and push
-        REMOTE_URL="${GITEA_SERVER}/${GITEA_ORG}/${REPO_NAME}.git"
-        git remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
-        git config --unset remote.origin.mirror
-        git config --bool core.bare false
-        # git checkout main
-        git push appliance main
-        git push appliance --mirror
-
-        echo "Directory $REPO_NAME mirrored to Gitea successfully."
-        cd - >/dev/null
     fi
 done
-echo "All directories processed."

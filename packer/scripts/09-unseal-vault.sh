@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Terminal Options $(printf %s\\n \"$-\")"
 localport="8200"
 typename="service/appliance-vault"
 remoteport="8200"
@@ -9,28 +10,18 @@ YAML_DIR="argocd/install/vault/kustomize/base/files"
 # nmap -sT -p $localport localhost || true
 # wait for $localport to become available
 
-while ! nc -vz localhost "$localport"; do
-    echo "Waiting for pod to be running..."
-		# TODO: investigate this command it's causing weird output
-    sudo k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
-		
-    echo "Sleeping for 5 seconds..."
-    sleep 5
-
-    echo "Forwarding port $remoteport to $localport..."
-    # Kill previous port-forward if it exists
-    pkill -f "kubectl port-forward -n vault $typename" 2>/dev/null || true
-    sudo k3s kubectl port-forward -n vault $typename $localport:$remoteport &> /dev/null &
-    pid=$!
+while ! nc -vz localhost $localport > /dev/null 2>&1 ; do
+  echo "waiting for pod to be running"
+  k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
+  echo "sleeping"
+  sleep 5
+  echo "Forwarding port..."
+  k3s kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
+  pid=$!
+  echo "pid: $pid"
 done
 
 trap 'echo "Cleaning up port-forward..."; kill $pid' EXIT
-
-# kill the port-forward regardless of how this script exits
-# trap '{
-# 		echo "killing $pid"
-# 		kill $pid
-# }' EXIT
 
 # Path to the YAML file
 VAULT_FILE="$REPO_DIR/$YAML_DIR/vault-keys.yaml"

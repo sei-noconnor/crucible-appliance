@@ -49,12 +49,22 @@ vault-argo-role:
 	./packer/scripts/08-vault-argo-args.sh
 	
 init-gitea:
+	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'create database gitea;'"
+	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 	./packer/scripts/05-setup-gitea.sh
 	make download-packages
-	make init-repos
+	# make gitea-init-repos
+	# make gitea-replace-repos
 
-init-repos:
+gitea-init-repos:
 	./packer/scripts/05-init-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
+
+gitea-replace-repos:
+	./packer/scripts/05-replace-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
+
+gitea-reset:
+	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
 
 download-packages:
 	./packer/scripts/05-download-packages.sh ./argocd/install/gitea/kustomize/base/files/packages.yaml

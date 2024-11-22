@@ -82,7 +82,7 @@ fi
 ###### Update OS #####
 ######################
 sudo apt-get update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt-get autoremove -y
-sudo apt-get install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git unzip
+sudo NONINTERACTIVE=1 apt-get install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git unzip apache2-utils
 
 ########################
 ##### Configure OS #####
