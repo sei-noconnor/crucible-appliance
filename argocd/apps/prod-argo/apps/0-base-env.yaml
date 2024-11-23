@@ -41,7 +41,7 @@ spec:
             - name: NAMESPACE
               value: '{{app.namespace}}'
             - name: VALUES_FILE
-              name: '{{app.values_file}}'
+              value: '{{app.values_file}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: default
