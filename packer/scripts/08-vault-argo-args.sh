@@ -36,7 +36,6 @@ ROOT_TOKEN=$(grep "root_token:" "$VAULT_KEYS_FILE" | awk '{print $2}')
 
 vault login ${ROOT_TOKEN}
 
-if [ ! -f $VAULT_ARGO_ROLE_ID_FILE ]; then
 VAULT_ARGO_AGENT=$(cat <<-EOF
 path "fortress-prod/*" 
 {
@@ -48,8 +47,6 @@ echo "$VAULT_ARGO_AGENT" | vault policy write argo-vault-agent - || true
 vault auth enable approle || true
 vault write auth/approle/role/argo-vault-agent token_policies=argo-vault-agent
 vault read -format=yaml auth/approle/role/argo-vault-agent/role-id | grep "role_id:" | awk '{print $2}' > $VAULT_ARGO_ROLE_ID_FILE
-fi
-if [ ! -f $VAULT_ARGO_SECRET_ID_FILE ]; then 
-    vault write --format=yaml -f auth/approle/role/argo-vault-agent/secret-id | grep "secret_id:" | awk '{print $2}' > $VAULT_ARGO_SECRET_ID_FILE
-fi 
+vault write --format=yaml -f auth/approle/role/argo-vault-agent/secret-id | grep "secret_id:" | awk '{print $2}' > $VAULT_ARGO_SECRET_ID_FILE
+
 

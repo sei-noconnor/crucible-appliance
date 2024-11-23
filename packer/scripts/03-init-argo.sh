@@ -46,6 +46,8 @@ export ARGO_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ADMIN_PASS" | tr -d ':\n' | sed 
 #yq -i --unwrapScalar=true '.configs.secret.argocdServerAdminPassword = env(ARGO_ADMIN_PASS)' ${INSTALL_DIR}/argocd/kustomize/base/files/argocd.values.yaml
 
 # Install ArgoCD
+# kubectl kustomize ./argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+# kubectl kustomize ./argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 #kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
 kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 
