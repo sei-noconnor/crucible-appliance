@@ -11,7 +11,7 @@ VAULT_FILE="${REPO_DIR}/${VAULT_DIR}/vault-keys.yaml"
 ROOT_TOKEN=$(grep "root_token:" "$VAULT_FILE" | awk '{print $2}')
 # Configuration
 VAULT_TOKEN="${ROOT_TOKEN}"
-VAULT_KV_PATH="crucible"
+VAULT_KV_PATH="fortress-prod"
 VARS_TEMPLATE="${REPO_DIR}/${VAULT_DIR}/app-vars.example.yaml"
 VARS_FILE="${REPO_DIR}/${VAULT_DIR}/app-vars.yaml"
 
