@@ -13,6 +13,7 @@ sleep 5
 
 REPO_DIR=/home/crucible/crucible-appliance
 REPO_DEST=/tmp/crucible-appliance
+GITEA_ORG=fortress-manifests
 
 # Change to the current directory
 cd ${REPO_DEST}
@@ -27,13 +28,13 @@ curl "${CURL_OPTS[@]}" \
   --data @- <<EOF
   {
     "repo_admin_change_team_access": true,
-    "username": "crucible"
+    "username": "${GITEA_ORG}"
   }
 EOF
 
 # Create repo
 curl "${CURL_OPTS[@]}" \
-    --request POST "https://crucible.local/gitea/api/v1/orgs/crucible/repos" \
+    --request POST "https://crucible.local/gitea/api/v1/orgs/${GITEA_ORG}/repos" \
     --data @- <<EOF
 {
   "auto_init": true,
@@ -57,7 +58,7 @@ cd /tmp/crucible-appliance
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 # Replace Repo URL to cluster gitea
-find . -name "Application.yaml" -exec sed -i 's/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.local\/gitea\/crucible\/crucible-appliance.git/g' {} \;
+find . -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.local\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
 # Modify app path slightly
 
 git -C $REPO_DEST add --all
@@ -65,7 +66,7 @@ git -C $REPO_DEST add "**/*.pem"
 git -C $REPO_DEST add "**/*.key"
 git -C $REPO_DEST commit -m "update repo urls and add certificates"
 git -C $REPO_DEST remote remove appliance
-git -C $REPO_DEST remote add appliance https://administrator:${ADMIN_PASS}@crucible.local/gitea/crucible/crucible-appliance.git
+git -C $REPO_DEST remote add appliance https://administrator:${ADMIN_PASS}@crucible.local/gitea/${GITEA_ORG}/crucible-appliance.git
 git -C $REPO_DEST push -u appliance --mirror -f || true
 
 # echo "Creating argocd app to gitea source control on branch ${GIT_BRANCH}"

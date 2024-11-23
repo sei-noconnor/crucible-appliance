@@ -12,6 +12,7 @@ GITEA_ORG="${GITEA_ORG:-crucible}"
 
 # Gitea server details
 GITEA_SERVER="https://${DOMAIN}/gitea"
+GITEA_TARGET_BRANCH="main"
 
 # Specify the base directory containing subdirectories
 BASE_DIR="$($readlink_cmd $1)"
@@ -69,23 +70,25 @@ for DIR in "$BASE_DIR"/*; do
         if echo "$REPO_CHECK" | jq -e '.id' >/dev/null 2>&1; then
             echo "Repository $REPO_NAME exists. cloning to ${REPO_TMP}"
             REPO_DEST="$($readlink_cmd ${REPO_TMP}/${REPO_NAME})"
-            git clone ${GITEA_SERVER}/${GITEA_ORG}/${REPO_NAME} ${REPO_TMP}/${REPO_NAME} ${REPO_DEST} 
+            git clone ${GITEA_SERVER}/${GITEA_ORG}/${REPO_NAME} ${REPO_DEST} 
              # Directory to search for YAML files
             cd ${REPO_DEST}
+            git checkout ${GITEA_TARGET_BRANCH}
             git config user.name "${GITEA_USERNAME}"
             git config user.email "${GITEA_USERNAME}@${DOMAIN}"
-            git remote set-url origin "https://${GITEA_TOKEN}@${DOMAIN}/gitea/${GITEA_ORG}/${REPO_NAME}"
-            git checkout main
-            # Loop through all YAML files in the directory
-            find . -type f -name "*.yaml" | while read -r file; do
-                # Perform the replacement in each file
-                sed -i 's#<path:fortress-prod/\(.*\)>#<path:crucible-appliance/\1>#g' "$file"
-                echo "Updated $file"
-            done
+            git remote remove origin
+            git remote add appliance "https://${GITEA_TOKEN}@${DOMAIN}/gitea/${GITEA_ORG}/${REPO_NAME}"
             
-            git add --all
-            git commit -m "(automated) - updated vault paths"
-            git push origin main
+            # Loop through all YAML files in the directory
+            # find . -type f -name "*.yaml" | while read -r file; do
+            #     # Perform the replacement in each file
+            #     echo "Updated $file"
+            # done
+            
+            # git add --all
+            # git commit -m "(automated) - updated vault paths"
+            # git push origin main
         fi
+        cd - >/dev/null
     fi
 done

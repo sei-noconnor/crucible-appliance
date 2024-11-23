@@ -8,7 +8,7 @@ fi
 
 GITEA_USERNAME="${ADMIN_USER:-administrator}"        # Replace with your Gitea username
 GITEA_PASSWORD="${ADMIN_PASS:-crucible}"        # Replace with your Gitea password
-GITEA_ORG="${GITEA_ORG:-crucible}"
+GITEA_ORG="${GITEA_ORG:-fortress-manifests}"
 
 # Gitea server details
 GITEA_SERVER="https://${GITEA_USERNAME}:${GITEA_PASSWORD}@${DOMAIN}/gitea"
