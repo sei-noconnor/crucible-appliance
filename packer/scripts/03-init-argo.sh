@@ -43,7 +43,7 @@ cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(
 export ARGO_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ADMIN_PASS" | tr -d ':\n' | sed 's/$2y/$2a/')
 
 # Need unwrapscalar to preserve formating of "|-" "|" "->"
-yq -i --unwrapScalar=true '.configs.secret.argocdServerAdminPassword = env(ARGO_ADMIN_PASS)' ${INSTALL_DIR}/argocd/kustomize/base/files/argocd.values.yaml
+#yq -i --unwrapScalar=true '.configs.secret.argocdServerAdminPassword = env(ARGO_ADMIN_PASS)' ${INSTALL_DIR}/argocd/kustomize/base/files/argocd.values.yaml
 
 # Install ArgoCD
 #kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
