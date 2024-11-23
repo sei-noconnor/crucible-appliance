@@ -142,6 +142,8 @@ uninstall:
 	rm -rf ./argocd/install/argocd/kustomize/appliance/files/argo-*-id
 	rm -rf ./argocd/install/vault/kustomize/base/files/argo-*-id*
 	rm -rf ./argocd/install/vault/kustomize/base/files/vault-keys*
+	rm -rf ./argocd/install/argocd/kustomize/overylays/appliance/files/argo-role-id
+	rm -rf ./argocd/install/argocd/kustomize/overylays/appliance/files/argo-secret-id
 	
 startup-logs:
 	sudo cat /var/log/syslog | grep crucible-appliance

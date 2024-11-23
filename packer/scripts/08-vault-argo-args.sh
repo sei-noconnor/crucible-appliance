@@ -38,7 +38,7 @@ vault login ${ROOT_TOKEN}
 
 if [ ! -f $VAULT_ARGO_ROLE_ID_FILE ]; then
 VAULT_ARGO_AGENT=$(cat <<-EOF
-path "crucible-appliance/*" 
+path "fortress-prod/*" 
 {
     capabilities = ["read"]
 }
