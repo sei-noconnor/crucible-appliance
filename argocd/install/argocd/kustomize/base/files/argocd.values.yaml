@@ -49,14 +49,15 @@ configs:
       # published to the repository
     timeout.reconciliation: 180s
 
-      # -- Timeout to refresh application data as well as
-      # target manifests cache
-    timeout.hard.reconciliation: 0s 
-      # -- allow for health-check/sync icons on app-of-apps
-    
+
+    timeout.hard.reconciliation: 0s
+    # -- Timeout to refresh application data as well as
     # -- Enable Kustomize Helm
     kustomize.buildOptions: --enable-helm
 
+      
+      # target manifests cache
+      # -- allow for health-check/sync icons on app-of-apps
     resource.customizations: |
       argoproj.io/Application: 
         health.lua: | 
@@ -207,7 +208,7 @@ configs:
                 helm template $ARGOCD_ENV_HELM_CHART --version $ARGOCD_ENV_CHART_VERSION --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE ${ARGOCD_ENV_HELM_ARGS} | argocd-vault-plugin generate -
               elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "kustomize" ]]; then
                 kustomize build . | argocd-vault-plugin generate -
-              fi              
+              fi
   # Argo CD sensitive data
   # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#sensitive-data-and-sso-client-secrets
   secret:
@@ -481,8 +482,8 @@ repoServer:
           chmod +x argocd-vault-plugin &&
           mv argocd-vault-plugin /custom-tools/
       volumeMounts:
-        - mountPath: /custom-tools
-          name: custom-tools
+        - name: custom-tools
+          mountPath: /custom-tools
         - name: custom-ca-certificates
           mountPath: /usr/local/share/ca-certificates/custom-ca-certificates.crt
           subPath: custom-ca-certificates.crt
