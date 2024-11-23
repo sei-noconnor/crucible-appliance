@@ -3,7 +3,7 @@
 # Gitea details and YAML file path
 YAML_FILE="$1"
 DOMAIN="${DOMAIN:-localhost:3000}/gitea"
-OWNER="${OWNER:-crucible}"
+OWNER="${OWNER:-fortress-manifests}"
 ADMIN_USER="${ADMIN_USER:-administrator}"
 DIST_OUTPUT="${DIST_OUTPUT:-./dist}"
 retry=""
