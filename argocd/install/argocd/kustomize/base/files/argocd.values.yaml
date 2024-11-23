@@ -439,7 +439,7 @@ repoServer:
   ## Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/config-management-plugins/
   ## Note: Supports use of custom Helm templates
   extraContainers: 
-    - name: avp-helm-multi
+    - name: argocd-vault-plugin
       command: [/var/run/argocd/argocd-cmp-server]
       image: quay.io/argoproj/argocd
       securityContext:
@@ -452,12 +452,12 @@ repoServer:
           name: plugins
         # Register plugins into sidecar
         - mountPath: /home/argocd/cmp-server/config/plugin.yaml
-          subPath: avp-helm-multi.yaml
+          subPath: argocd-vault-plugin.yaml
           name: argocd-cmp-cm
         # Important: Mount tools into $PATH
         - name: custom-tools
-          subPath: avp-helm-multi
-          mountPath: /usr/local/bin/avp-helm-multi
+          subPath: argocd-vault-plugin
+          mountPath: /usr/local/bin/argocd-vault-plugin
         - name: custom-ca-certificates
           mountPath: /etc/ssl/certs/custom-ca-certificates.crt
           subPath: custom-ca-certificates.crt
@@ -475,9 +475,9 @@ repoServer:
       args:
         - >-
           /usr/sbin/update-ca-certificates &&
-          curl -L https://crucible.local/gitea/api/packages/crucible/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
+          curl -L https://crucible.local/gitea/api/packages/fortress-manifests/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
           chmod +x argocd-vault-plugin &&
-          mv argocd-vault-plugin /custom-tools/avp-helm-multi
+          mv argocd-vault-plugin /custom-tools/
       volumeMounts:
         - mountPath: /custom-tools
           name: custom-tools
