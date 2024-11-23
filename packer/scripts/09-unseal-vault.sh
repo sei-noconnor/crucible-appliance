@@ -93,4 +93,4 @@ done
 
 echo "Logining in to vault with root_key"
 vault login ${ROOT_TOKEN}
-sudo k3s kubectl -n vault delete jobs --all
+k3s kubectl -n vault delete jobs --all
