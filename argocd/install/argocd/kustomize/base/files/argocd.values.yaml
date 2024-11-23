@@ -73,28 +73,6 @@ configs:
           end 
           return hs
 
-        # Dex configuration dex.config: | connectors: #
-        # GitHub example - type: github id: github name:
-        # GitHub config: clientID: aabbccddeeff00112233
-        # clientSecret: $dex.github.clientSecret #
-        # Alternatively
-        # $<some_K8S_secret>:dex.github.clientSecret orgs:
-        #         - name: your-github-org
-
-        # OIDC configuration as an alternative to dex
-        # (optional).  oidc.config: | name: AzureAD issuer:
-        # https://login.microsoftonline.com/TENANT_ID/v2.0
-        # clientID: CLIENT_ID clientSecret:
-        # $oidc.azuread.clientSecret rootCA: | -----BEGIN
-        # CERTIFICATE----- ... encoded certificate data here
-        # ...
-        #     -----END CERTIFICATE-----
-        #     requestedIDTokenClaims: groups: essential: true
-        #     requestedScopes: - openid - profile - email
-
-        # Argo CD configuration parameters
-        ## Ref:
-        #https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cmd-params-cm.yaml      
   params:
     # -- Create the argocd-cmd-params-cm configmap If
     # false, it is expected the configmap will be created
@@ -214,7 +192,7 @@ configs:
     # argocd-cmp-cm
     plugins:
       # --- plugin for replacing placeholders with secrets using argocd-vault-plugin
-      argocd-vault-plugin:
+      avp-helm-multi:
         allowConcurrency: true
         generate:
           command:
@@ -461,7 +439,7 @@ repoServer:
   ## Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/config-management-plugins/
   ## Note: Supports use of custom Helm templates
   extraContainers: 
-    - name: argocd-vault-plugin
+    - name: avp-helm-multi
       command: [/var/run/argocd/argocd-cmp-server]
       image: quay.io/argoproj/argocd
       securityContext:
@@ -474,12 +452,12 @@ repoServer:
           name: plugins
         # Register plugins into sidecar
         - mountPath: /home/argocd/cmp-server/config/plugin.yaml
-          subPath: argocd-vault-plugin.yaml
+          subPath: avp-helm-multi.yaml
           name: argocd-cmp-cm
         # Important: Mount tools into $PATH
         - name: custom-tools
-          subPath: argocd-vault-plugin
-          mountPath: /usr/local/bin/argocd-vault-plugin
+          subPath: avp-helm-multi
+          mountPath: /usr/local/bin/avp-helm-multi
         - name: custom-ca-certificates
           mountPath: /etc/ssl/certs/custom-ca-certificates.crt
           subPath: custom-ca-certificates.crt
@@ -499,7 +477,7 @@ repoServer:
           /usr/sbin/update-ca-certificates &&
           curl -L https://crucible.local/gitea/api/packages/crucible/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
           chmod +x argocd-vault-plugin &&
-          mv argocd-vault-plugin /custom-tools/          
+          mv argocd-vault-plugin /custom-tools/avp-helm-multi
       volumeMounts:
         - mountPath: /custom-tools
           name: custom-tools

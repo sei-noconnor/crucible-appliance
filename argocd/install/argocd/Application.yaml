@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
+  name: fortress-prod-app
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
@@ -10,16 +10,15 @@ spec:
     namespace: argocd
     server: https://kubernetes.default.svc
   project: default
+  source:
+    path: apps
+    repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-argo.git
+    targetRevision: HEAD
+    directory:
+      recurse: false
+  sources: []
   syncPolicy:
     automated:
       prune: true
-    syncOptions:
-    - CreateNamespace=true
-  sources:
-  - path: argocd/install/argocd/kustomize/overlays/appliance
-    repoURL: file:///crucible-repo/crucible-appliance
-    targetRevision: main
-    kustomize:
-      commonLabels:
-        foo: bar
+      selfHeal: false
 
