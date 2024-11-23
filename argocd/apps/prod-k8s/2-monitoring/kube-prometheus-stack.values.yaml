@@ -860,6 +860,7 @@ alertmanager:
       fsGroup: 2000
       seccompProfile:
         type: RuntimeDefault
+      fsGroupChangePolicy: "OnRootMismatch"
 
     ## ListenLocal makes the Alertmanager server listen on loopback, so that it does not bind against the Pod IP.
     ## Note this is only for the Alertmanager UI, not the gossip communication.
@@ -2381,6 +2382,7 @@ prometheusOperator:
         runAsUser: 65534
         seccompProfile:
           type: RuntimeDefault
+        fsGroupChangePolicy: "OnRootMismatch"
 
       ## Container-specific security context configuration
       ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
@@ -2422,6 +2424,7 @@ prometheusOperator:
         runAsUser: 2000
         seccompProfile:
           type: RuntimeDefault
+        fsGroupChangePolicy: "OnRootMismatch"
 
     # Security context for create job container
     createSecretJob:
@@ -2692,6 +2695,7 @@ prometheusOperator:
     runAsUser: 65534
     seccompProfile:
       type: RuntimeDefault
+    fsGroupChangePolicy: "OnRootMismatch"
 
   ## Container-specific security context configuration
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
@@ -4544,6 +4548,7 @@ thanosRuler:
       fsGroup: 2000
       seccompProfile:
         type: RuntimeDefault
+      fsGroupChangePolicy: "OnRootMismatch"
 
     ## ListenLocal makes the ThanosRuler server listen on loopback, so that it does not bind against the Pod IP.
     ## Note this is only for the ThanosRuler UI, not the gossip communication.
