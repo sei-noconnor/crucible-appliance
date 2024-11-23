@@ -80,13 +80,14 @@ ingress:
   className: <path:fortress-prod/data/shared#ingress-class>
   annotations: 
     nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: ca-issuer
   hosts:
     - host: help.<path:fortress-prod/data/shared#domain>
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls: 
-   - secretName: appliance-cert
+   - secretName: help.<path:fortress-prod/data/shared#domain>-tls
      hosts:
        - help.<path:fortress-prod/data/shared#domain>
 
