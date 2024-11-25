@@ -35,6 +35,7 @@ REPO_DEST="/tmp/crucible-appliance"
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "INSTALL_DIR: ${INSTALL_DIR}"
 echo "REPO_DIR: ${REPO_DIR}"
+rsync -avP $REPO_DIR/ $REPO_DEST/
 
 # Add certificate to topomojo, This is the only way it works. TODO: Update topomojo helm chart
 cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/topomojo/kustomize/base/files/topomojo.values.yaml
