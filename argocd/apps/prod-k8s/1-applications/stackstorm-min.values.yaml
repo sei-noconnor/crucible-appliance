@@ -77,6 +77,7 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
     nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: ca-issuer
   hosts:
     - host: <path:fortress-prod/data/shared#domain>
       paths:
@@ -85,7 +86,7 @@ ingress:
           serviceName: stackstorm-ha-st2web
           servicePort: 80
   tls:
-    - secretName: appliance-cert
+    - secretName: <path:fortress-prod/data/shared#domain>-tls
       hosts:
         - <path:fortress-prod/data/shared#domain>
 

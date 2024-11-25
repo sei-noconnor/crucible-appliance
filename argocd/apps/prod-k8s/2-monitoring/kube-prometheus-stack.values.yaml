@@ -993,9 +993,9 @@ grafana:
 
   grafana.ini :
     server:
-      domain: fortress.sei.cmu.edu
+      domain: crucible.local
         #root_url: '%(protocol)s://%(domain)s:%(http_port)s/monitoring/'
-      root_url: https://fortress.sei.cmu.edu/monitoring
+      root_url: https://crucible.local/monitoring
       serve_from_sub_path: true
 
     smtp:
@@ -1053,7 +1053,7 @@ grafana:
     # hosts:
     #   - grafana.domain.com
     hosts:
-      - fortress.sei.cmu.edu
+      - crucible.local
 
     ## Path for grafana ingress
     path: /monitoring
@@ -1066,7 +1066,7 @@ grafana:
     tls:
       - secretName: appliance-cert
         hosts:
-          - fortress.sei.cmu.edu
+          - crucible.local
 
     # - secretName: grafana-general-tls
     #   hosts:

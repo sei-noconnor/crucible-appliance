@@ -4,15 +4,7 @@ caster-api:
     repository: cmusei/caster-api
     tag: "3.3.0"
     pullPolicy: IfNotPresent
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: In
-            values:
-            - fortress-ctrl-01.sei.cmu.edu
+  
   ingress:
     enabled: true
     annotations:
@@ -20,13 +12,14 @@ caster-api:
       nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
         paths:
           - path: /caster/(api|swagger|hubs)
             pathType: Prefix
     tls:
-      - secretName: appliance-cert
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
         hosts:
           - <path:fortress-prod/data/shared#domain>
 

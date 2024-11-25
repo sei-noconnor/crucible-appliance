@@ -11,13 +11,14 @@ cite-ui:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      cert-manager.io/cluster-issuer: ca-issuer
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
         paths:
           - path: /cite
             pathType: Prefix
     tls:
-      - secretName: appliance-cert
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
         hosts:
           - <path:fortress-prod/data/shared#domain>
 

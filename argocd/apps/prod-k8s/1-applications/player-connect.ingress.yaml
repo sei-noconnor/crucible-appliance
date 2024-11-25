@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: ca-issuer
     nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
     nginx.ingress.kubernetes.io/server-snippet: |
@@ -36,7 +37,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: fortress.sei.cmu.edu
+  - host: crucible.local
     http:
       paths:
       - backend:
@@ -48,8 +49,8 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - fortress.sei.cmu.edu
-    secretName: fortress-tls
+    - crucible.local
+    secretName: <path:fortress-prod/data/shared#domain>-tls
 status:
   loadBalancer:
     ingress:

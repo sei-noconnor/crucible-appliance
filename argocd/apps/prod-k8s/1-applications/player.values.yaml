@@ -39,6 +39,7 @@ player-api:
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
       nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
 
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
@@ -47,7 +48,7 @@ player-api:
             pathType: Prefix
 
     tls:
-      - secretName: appliance-cert
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
         hosts:
           - <path:fortress-prod/data/shared#domain>
 
