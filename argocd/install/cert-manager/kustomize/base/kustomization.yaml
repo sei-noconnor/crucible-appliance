@@ -17,7 +17,7 @@ secretGenerator:
 configMapGenerator:
 - name: root-ca
   files:
-    - root-ca.crt=files/root-chain.crt
+    - root-ca.crt=files/root-chain.pem
     
 generatorOptions:
   disableNameSuffixHash: true
