@@ -14,4 +14,4 @@ spec:
     - namespace: default
       server: '*'
   sourceRepos:
-    - 'https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git'
+    - 'https://crucible.local/gitea/fortress-manifests/fortress-prod-k8s.git'

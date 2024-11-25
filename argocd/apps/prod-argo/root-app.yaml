@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: apps
-    repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-argo.git
+    repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-argo.git
     targetRevision: HEAD
     directory:
       recurse: false

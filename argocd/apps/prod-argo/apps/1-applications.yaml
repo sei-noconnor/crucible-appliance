@@ -9,7 +9,7 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-argo.git
+      repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-argo.git
       revision: HEAD
       files:
       - path: "apps/1-applications/*.json"
@@ -19,7 +19,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
+        repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-k8s.git
         targetRevision: HEAD
         path: "1-applications"
         plugin:
