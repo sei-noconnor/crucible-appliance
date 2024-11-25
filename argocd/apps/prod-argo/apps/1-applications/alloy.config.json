@@ -5,7 +5,7 @@
         "namespace" : "default",
         "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",
-        "helm_chart_name" : "alloy",
+        "helm_chart" : "alloy",
         "helm_chart_version" : "1.4.1",
         "values_file" : "alloy.values.yaml",
         "helm_args" : ""
