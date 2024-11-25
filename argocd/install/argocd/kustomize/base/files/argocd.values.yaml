@@ -411,9 +411,6 @@ server:
           - cd.crucible.local
     # -- Uses `server.service.servicePortHttps` instead `server.service.servicePortHttp`
     https: false
-  envFrom:
-    - secretRef:
-      name: vault-configuration
   volumeMounts:
     - name: custom-ca-certificates
       mountPath: /etc/ssl/certs/custom-ca-certificates.crt
@@ -447,6 +444,9 @@ repoServer:
     - name: argocd-vault-plugin
       command: [/var/run/argocd/argocd-cmp-server]
       image: quay.io/argoproj/argocd:v2.12.3
+      envFrom:
+      - secretRef:
+          name: vault-configuration
       securityContext:
         runAsNonRoot: true
         runAsUser: 999
@@ -468,9 +468,7 @@ repoServer:
           subPath: custom-ca-certificates.crt
         - mountPath: /tmp
           name: cmp-tmp
-      envFrom:
-        - secretRef:
-          name: vault-configuration
+      
   
   # -- Init containers to add a-v-p to the repo server pods
   initContainers:
@@ -478,6 +476,7 @@ repoServer:
       env:
         - name: AVP_VERSION
           value: 1.17.0
+        
       image: docker.io/alpine/curl:8.9.1
       command: [sh, -c]
       args:
@@ -492,9 +491,6 @@ repoServer:
         - name: custom-ca-certificates
           mountPath: /usr/local/share/ca-certificates/custom-ca-certificates.crt
           subPath: custom-ca-certificates.crt
-      envFrom:
-        - secretRef:
-            name: vault-configuration
   volumeMounts:
     - name: custom-ca-certificates
       mountPath: /etc/ssl/certs/custom-ca-certificates.crt

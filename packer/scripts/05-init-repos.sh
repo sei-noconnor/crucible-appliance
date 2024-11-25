@@ -1,58 +1,95 @@
 #!/bin/bash -x
-
 # Detect Mac and use greadlink
 readlink_cmd="readlink -m"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   readlink_cmd="greadlink -m"  
 fi
 
-GITEA_USERNAME="${ADMIN_USER:-administrator}"        # Replace with your Gitea username
-GITEA_PASSWORD="${ADMIN_PASS:-crucible}"        # Replace with your Gitea password
-GITEA_ORG="${GITEA_ORG:-fortress-manifests}"
+## Variables
+# The Source server variables specify the URLs and repos to clone into the appliance 
+# Source server
+GITEA_SOURCE_SERVER="fortress.sei.cmu.edu/gitea"
+GITEA_SOURCE_USERNAME=${GITEA_SOURCE_USERNAME:-administrator}
+GITEA_SOURCE_PASSWORD=${GITEA_SOURCE_PASSWORD:-}
+GITEA_SOURCE_ORG=${GITEA_SOURCE_ORG:-fortress-manifests}
 
-# Gitea server details
-GITEA_SERVER="https://${GITEA_USERNAME}:${GITEA_PASSWORD}@${DOMAIN}/gitea"
+# The Destination server variables are essentially pre-defined. We use the DOMAIN 
+# environment variable to construct the URLs.
+# Duplicate repos will be overwritten with last in array
+# Destination server
+GITEA_DEST_SERVER="${DOMAIN}/gitea"
+GITEA_DEST_USERNAME=${GITEA_DEST_USERNAME:-administrator}
+GITEA_DEST_PASSWORD=${GITEA_DEST_PASSWORD:-crucible}
+GITEA_DEST_ORG=${GITEA_DEST_ORG:-fortress-manifests}
 
-# Specify the base directory containing subdirectories
-BASE_DIR="$($readlink_cmd $1)"
+# Local vars
+LOCAL_REPO_DIR=/home/$USER/repos
 
-echo "Processing repos in ${BASE_DIR}"
+# Check for source repo admin password.
+if [[ -z "${GITEA_SOURCE_PASSWORD}" || "${GITEA_SOURCE_PASSWORD}" == "null" ]]; then 
+    read -sp "Enter the password for ${GITEA_SOURCE_SERVER}:  " USER_INPUT
+    echo
+    if [ -z "$USER_INPUT" ]; then
+        echo "Password cannot be empty. Exiting."
+        exit 1
+    fi
+    # Set the environment variable
+    export GITEA_SOURCE_PASSWORD="$USER_INPUT"
+fi
+
+echo "Processing repos in ${LOCAL_REPO_DIR}"
 
 # Check if the base directory exists
-if [[ ! -d "$BASE_DIR" ]]; then
-    echo "Error: Directory $BASE_DIR does not exist."
-    exit 1
+if [[ ! -d "${LOCAL_REPO_DIR}" ]]; then
+    echo "Error: Directory ${LOCAL_REPO_DIR} does not exist. Creating."
+    mkdir -p ${LOCAL_REPO_DIR}
 fi
 
-# Generate a random token name
-TOKEN_NAME="repo-mirror-$(date +%s)-$RANDOM"
+function get_token() {
+    local SERVER=$1
+    local USERNAME=$2
+    local PASSWORD=$3
+    local SCOPES=$4
+    # Generate a random token name
+    local TOKEN_NAME="repo-mirror-$(date +%s)-$RANDOM"
 
-# Request a token with the necessary scopes
-echo "Generating API token..."
-RESPONSE=$(curl -s -X POST "${GITEA_SERVER}/api/v1/users/${GITEA_USERNAME}/tokens" \
-    -u "${GITEA_USERNAME}:${GITEA_PASSWORD}" \
-    -H "Content-Type: application/json" \
-    -d '{
-        "name": "'"${TOKEN_NAME}"'",
-        "scopes": [
-          "write:repository",
-          "write:user",
-          "write:organization"
-        ]
-    }')
+    # Request a token with the necessary scopes
+    RESPONSE=$(curl -s -X POST "https://${SERVER}/api/v1/users/${USERNAME}/tokens" \
+        -u "${USERNAME}:${PASSWORD}" \
+        -H "Content-Type: application/json" \
+        -d '{
+            "name": "'"${TOKEN_NAME}"'",
+            "scopes": ["'"${SCOPES}"'"]
+        }')
 
-# Extract the token value
-GITEA_TOKEN=$(echo "$RESPONSE" | jq -r '.sha1')
+    # Extract the token value
+    TOKEN=$(echo "$RESPONSE" | jq -r '.sha1')
+    if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
+        echo "Error: Failed to generate API token. Response: $RESPONSE"
+        exit 1
+    fi
 
-if [[ -z "$GITEA_TOKEN" || "$GITEA_TOKEN" == "null" ]]; then
-    echo "Error: Failed to generate API token. Response: $RESPONSE"
-    exit 1
-fi
+    #echo "Token generated successfully: $TOKEN_NAME from ${SERVER}"
+    echo $TOKEN
+}
+GITEA_SOURCE_TOKEN=$(get_token "${GITEA_SOURCE_SERVER}" "${GITEA_SOURCE_USERNAME}" "${GITEA_SOURCE_PASSWORD}" "repo,write:org")
+GITEA_DEST_TOKEN=$(get_token "${GITEA_DEST_SERVER}" "${GITEA_DEST_USERNAME}" "${GITEA_DEST_PASSWORD}" "write:organization,write:package,write:repository")
 
-echo "Token generated successfully: $TOKEN_NAME"
+# You could also specify arbitrary repos anywhere 
+GITEA_SOURCE_REPOS=(
+    "https://${GITEA_SOURCE_TOKEN}@${GITEA_SOURCE_SERVER}/${GITEA_SOURCE_ORG}/fortress-prod-argo.git"
+    "https://${GITEA_SOURCE_TOKEN}@${GITEA_SOURCE_SERVER}/${GITEA_SOURCE_ORG}/fortress-prod-k8s.git"
+)
+#Download the source repos
+for repo in "${GITEA_SOURCE_REPOS[@]}"; do
+    echo "Downloading repo $repo"
+    BASENAME=$(basename "$repo")
+    REPO_NAME=${BASENAME%.*}
+    git clone $repo --mirror ${LOCAL_REPO_DIR}/${REPO_NAME}
+done
 
-# Iterate over each subdirectory in the base directory
-for DIR in "$BASE_DIR"/*; do
+# Iterate over each subdirectory in the base directory and load to appliance gitea server
+for DIR in "${LOCAL_REPO_DIR}"/*; do
     if [[ -d "$DIR" ]]; then
         # Get the directory name
         BASENAME=$(basename "$DIR")
@@ -61,15 +98,15 @@ for DIR in "$BASE_DIR"/*; do
         echo "Processing directory: $DIR"
         
         # Check if the repository already exists
-        REPO_CHECK=$(curl -s -X GET "${GITEA_SERVER}/api/v1/repos/${GITEA_ORG}/${REPO_NAME}" \
-            -H "Authorization: token ${GITEA_TOKEN}")
+        REPO_CHECK=$(curl -s -X GET "https://${GITEA_DEST_SERVER}/api/v1/repos/${GITEA_DEST_ORG}/${REPO_NAME}" \
+            -H "Authorization: token ${GITEA_DEST_TOKEN}")
         
         if echo "$REPO_CHECK" | jq -e '.id' >/dev/null 2>&1; then
             echo "Repository $REPO_NAME already exists. Skipping creation."
         else
             # Create the repository in Gitea using the API
-            RESPONSE=$(curl -s -X POST "${GITEA_SERVER}/api/v1/orgs/${GITEA_ORG}/repos" \
-                -H "Authorization: token ${GITEA_TOKEN}" \
+            RESPONSE=$(curl -s -X POST "https://${GITEA_DEST_SERVER}/api/v1/orgs/${GITEA_DEST_ORG}/repos" \
+                -H "Authorization: token ${GITEA_DEST_TOKEN}" \
                 -H "Content-Type: application/json" \
                 -d '{
                     "name": "'"${REPO_NAME}"'",
@@ -90,12 +127,12 @@ for DIR in "$BASE_DIR"/*; do
         cd "$DIR"
         
         # Set the remote and push
-        REMOTE_URL="${GITEA_SERVER}/${GITEA_ORG}/${REPO_NAME}.git"
+        REMOTE_URL="https://${GITEA_DEST_TOKEN}@${GITEA_DEST_SERVER}/${GITEA_DEST_ORG}/${REPO_NAME}.git"
         git remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
         git config --unset remote.origin.mirror
         git config --bool core.bare false
-        git push appliance main
-        git push appliance --mirror
+        git push -u appliance main
+        git push -u appliance --mirror
 
         echo "Directory $REPO_NAME mirrored to Gitea successfully."
         cd - >/dev/null
