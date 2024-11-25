@@ -7,7 +7,6 @@
         "helm_chart" : "oci://registry-1.docker.io/bitnamicharts/postgresql",
         "helm_chart_version" : "15.3.3",
         "repo_url": "",
-        "http_proxy": "",
         "values_file" : "postgresql.values.yaml",
         "helm_args" : ""
     }
