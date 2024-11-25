@@ -33,7 +33,7 @@ spec:
             - name: HELM_REPO
               value: '{{app.repo_repo}}'
             - name: HELM_CHART
-              value: '{{app.helm_chart_name}}'
+              value: '{{app.helm_chart}}'
             - name: HELM_RELEASE_NAME
               value: '{{app.project_name}}'
             - name: HTTP_PROXY
