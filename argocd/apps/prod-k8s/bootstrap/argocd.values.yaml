@@ -1,0 +1,826 @@
+## Argo CD configuration
+## Ref: https://github.com/argoproj/argo-cd #
+
+## Globally shared configuration
+global:
+  # -- Common labels for the all resources
+  additionalLabels: {}
+  domain: cd.fortress.sei.cmu.edu
+  # app: argo-cd
+  # -- Number of old deployment ReplicaSets to retain. The rest will be
+  # garbage collected.
+  revisionHistoryLimit: 3
+  # -- Add Prometheus scrape annotations to all metrics services.
+  # This can be used as an alternative to the ServiceMonitors.
+  addPrometheusAnnotations: true
+  
+## Argo Configs
+configs:
+  # General Argo CD configuration
+  ## Ref:
+  #https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
+  cm:
+    # -- Create the argocd-cm configmap for [declarative
+    # setup]
+    create: true
+
+      # -- Annotations to be added to argocd-cm configmap
+    annotations: {}
+
+      # -- Argo CD's externally facing base URL (optional).
+      # Required when configuring SSO
+    url: ""
+
+      # -- The name of tracking label used by Argo CD for
+      # resource pruning @default -- Defaults to
+      # app.kubernetes.io/instance
+    application.instanceLabelKey: argocd.argoproj.io/instance
+
+      # -- Enable logs RBAC enforcement
+      ## Ref:
+      #https://argo-cd.readthedocs.io/en/latest/operator-manual/upgrading/2.3-2.4/#enable-logs-rbac-enforcement
+    server.rbac.log.enforce.enable: false
+
+      # -- Enable exec feature in Argo UI
+      ## Ref:
+      #https://argo-cd.readthedocs.io/en/latest/operator-manual/rbac/#exec-resource
+    exec.enabled: false
+
+      # -- Enable local admin user
+      ## Ref:
+      #https://argo-cd.readthedocs.io/en/latest/faq/#how-to-disable-admin-user
+    admin.enabled: true
+
+      # -- Timeout to discover if a new manifests version got
+      # published to the repository
+    timeout.reconciliation: 180s
+
+      # -- Timeout to refresh application data as well as
+      # target manifests cache
+    timeout.hard.reconciliation: 0s 
+    resource.customizations: |
+      argoproj.io/Application: 
+        health.lua: | 
+          hs = {}
+          hs.status = "Progressing" 
+          hs.message = "" 
+          if obj.status ~= nil then 
+            if obj.status.health ~= nil then 
+              hs.status = obj.status.health.status 
+              if obj.status.health.message ~= nil then 
+                hs.message = obj.status.health.message 
+              end 
+            end 
+          end 
+          return hs
+
+        # Dex configuration dex.config: | connectors: #
+        # GitHub example - type: github id: github name:
+        # GitHub config: clientID: aabbccddeeff00112233
+        # clientSecret: $dex.github.clientSecret #
+        # Alternatively
+        # $<some_K8S_secret>:dex.github.clientSecret orgs:
+        #         - name: your-github-org
+
+        # OIDC configuration as an alternative to dex
+        # (optional).  oidc.config: | name: AzureAD issuer:
+        # https://login.microsoftonline.com/TENANT_ID/v2.0
+        # clientID: CLIENT_ID clientSecret:
+        # $oidc.azuread.clientSecret rootCA: | -----BEGIN
+        # CERTIFICATE----- ... encoded certificate data here
+        # ...
+        #     -----END CERTIFICATE-----
+        #     requestedIDTokenClaims: groups: essential: true
+        #     requestedScopes: - openid - profile - email
+
+        # Argo CD configuration parameters
+        ## Ref:
+        #https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cmd-params-cm.yaml
+  params:
+    # -- Create the argocd-cmd-params-cm configmap If
+    # false, it is expected the configmap will be created
+    # by something else.
+    create: true
+
+      # -- Annotations to be added to the
+      # argocd-cmd-params-cm ConfigMap
+    annotations: {}
+
+      ## Generic parameters -- Open-Telemetry collector
+      #address: (e.g. "otel-collector:4317")
+    otlp.address: ''
+
+      ## Controller Properties -- Number of application
+      #status processors
+    controller.status.processors: 20
+      # -- Number of application operation processors
+    controller.operation.processors: 10
+      # -- Specifies timeout between application self
+      # heal attempts
+    controller.self.heal.timeout.seconds: 5
+      # -- Repo server RPC call timeout seconds.
+    controller.repo.server.timeout.seconds: 60
+
+      ## Server properties -- Run server without TLS
+    server.insecure: false
+      # -- Value for base href in index.html. Used if
+      # Argo CD is running behind reverse proxy under
+      # subpath different from /
+    server.basehref: /
+      # -- Used if Argo CD is running behind reverse
+      # proxy under subpath different from /
+    server.rootpath: ''
+      # -- Directory path that contains additional static
+      # assets
+    server.staticassets: /shared/app
+      # -- Disable Argo CD RBAC for user authentication
+    server.disable.auth: false
+      # -- Enable GZIP compression
+    server.enable.gzip: true
+      # -- Set X-Frame-Options header in HTTP responses
+      # to value. To disable, set to "".
+    server.x.frame.options: sameorigin
+
+      ## Repo-server properties -- Limit on number of
+      #concurrent manifests generate requests. Any value
+      #less the 1 means no limit.
+    reposerver.parallelism.limit: 0
+
+      ## ApplicationSet Properties -- Modify how
+      #application is synced between the generator and
+      #the cluster. One of: `sync`, `create-only`,
+      #`create-update`, `create-delete`
+    applicationsetcontroller.policy: sync
+      # -- Enables use of the Progressive Syncs
+      # capability
+    applicationsetcontroller.enable.progressive.syncs:
+      false
+
+      # -- Enables [Applications in any namespace]
+      ## List of additional namespaces where applications
+      #may be created in and reconciled from.  # The
+      #namespace where Argo CD is installed to will
+      #always be allowed.  # Set comma-separated list.
+      #(e.g. app-team-one, app-team-two)
+    application.namespaces: ""
+  ssh:
+    # -- Annotations to be added to
+    # argocd-ssh-known-hosts-cm configmap
+    annotations: {}
+
+      # -- Known hosts to be added to the known
+      # host list by default.  @default -- See
+      # [values.yaml]
+    knownHosts: | 
+      [ssh.github.com]:443 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+      [ssh.github.com]:443 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+      [ssh.github.com]:443 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+      github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+      github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+
+      # -- Additional known hosts for private
+      # repositories
+    extraHosts: ''
+
+      # Repository TLS certificates Ref:
+      # https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#repositories-using-self-signed-tls-certificates-or-are-signed-by-custom-ca
+  tls:
+    # -- Annotations to be added to
+    # argocd-tls-certs-cm configmap
+    annotations: {}
+
+      # -- TLS certificates for Git repositories
+      # @default -- `{}` (See [values.yaml])
+    certificates: 
+      fortress.sei.cmu.edu: |
+        <ADD CERTS HERE>
+      code.fortress.sei.cmu.edu: |
+        <ADD CERT HERE>
+      # server.example.com: | -----BEGIN
+      # CERTIFICATE----- ...  -----END
+      # CERTIFICATE-----
+
+      # ConfigMap for Config Management Plugins
+      # Ref:
+      # https://argo-cd.readthedocs.io/en/stable/operator-manual/config-management-plugins/
+  cmp:
+    # -- Create the argocd-cmp-cm configmap
+    create: true
+
+    # -- Annotations to be added to argocd-cmp-cm configmap
+    annotations: {} 
+
+    # -- Plugin yaml files to be added to
+    # argocd-cmp-cm
+    plugins:
+      # --- plugin for replacing placeholders with secrets
+      argocd-vault-plugin:
+        allowConcurrency: true
+        generate:
+          command:
+            - bash
+            - "-c"
+            - >
+              if [[ $ARGOCD_ENV_MANIFEST_TYPE == "yaml" ]]; then
+                cat $ARGOCD_ENV_VALUES_FILE | argocd-vault-plugin generate -
+              elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "helm" ]]; then
+                helm template --version $ARGOCD_ENV_CHART_VERSION --repo $ARGOCD_ENV_HELM_REPO $ARGOCD_ENV_HELM_CHART --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE -f $ARGOCD_ENV_VALUES_FILE $ARGOCD_ENV_ADDITIONAL_ARGS | argocd-vault-plugin generate -
+              elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "helm-oci" ]]; then
+                 helm template $ARGOCD_ENV_HELM_CHART --version $ARGOCD_ENV_CHART_VERSION --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE ${ARGOCD_ENV_HELM_ARGS} | argocd-vault-plugin generate -
+              fi
+  # Argo CD sensitive data
+  # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#sensitive-data-and-sso-client-secrets
+  secret:
+    # -- Create the argocd-secret
+    createSecret: true
+    # -- Labels to be added to argocd-secret
+    labels: {}
+    # -- Annotations to be added to argocd-secret
+    annotations: {}
+
+    # -- Shared secret for authenticating GitHub webhook events
+    githubSecret: ""
+    # -- Shared secret for authenticating GitLab webhook events
+    gitlabSecret: ""
+    # -- Shared secret for authenticating BitbucketServer webhook events
+    bitbucketServerSecret: ""
+    # -- UUID for authenticating Bitbucket webhook events
+    bitbucketUUID: ""
+    # -- Shared secret for authenticating Gogs webhook events
+    gogsSecret: ""
+
+    # -- add additional secrets to be added to argocd-secret
+    ## Custom secrets. Useful for injecting SSO secrets into environment variables.
+    ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#sensitive-data-and-sso-client-secrets
+    ## Note that all values must be non-empty.
+    extra:
+      {}
+      # LDAP_PASSWORD: "mypassword"
+
+    # -- Argo TLS Data
+    # DEPRECATED - Use server.certificate or server.certificateSecret
+    # argocdServerTlsConfig:
+    #  key: ''
+    #  crt: ''
+
+    # -- Bcrypt hashed admin password
+    ## Argo expects the password in the secret to be bcrypt hashed. You can create this hash with
+    ## `htpasswd -nbBC 10 "" $ARGO_PWD | tr -d ':\n' | sed 's/$2y/$2a/'`
+    argocdServerAdminPassword: ""
+    # -- Admin password modification time. Eg. `"2006-01-02T15:04:05Z"`
+    # @default -- `""` (defaults to current time)
+    argocdServerAdminPasswordMtime: ""
+
+  # -- Define custom [CSS styles] for your argo instance.
+  # This setting will automatically mount the provided CSS and reference it in the argo configuration.
+  # @default -- `""` (See [values.yaml])
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/custom-styles/
+  styles: ""
+  # styles: |
+  #  .sidebar {
+  #    background: linear-gradient(to bottom, #999, #777, #333, #222, #111);
+  #  }
+
+# -- Array of extra K8s manifests to deploy
+## Note: Supports use of custom Helm templates
+extraObjects: []
+  # - apiVersion: secrets-store.csi.x-k8s.io/v1
+  #   kind: SecretProviderClass
+  #   metadata:
+  #     name: argocd-secrets-store
+  #   spec:
+  #     provider: aws
+  #     parameters:
+  #       objects: |
+  #         - objectName: "argocd"
+  #           objectType: "secretsmanager"
+  #           jmesPath:
+  #               - path: "client_id"
+  #                 objectAlias: "client_id"
+  #               - path: "client_secret"
+  #                 objectAlias: "client_secret"
+  #     secretObjects:
+  #     - data:
+  #       - key: client_id
+  #         objectName: client_id
+  #       - key: client_secret
+  #         objectName: client_secret
+  #       secretName: argocd-secrets-store
+  #       type: Opaque
+  #       labels:
+  #         app.kubernetes.io/part-of: argocd
+
+## Redis
+redis:
+  # -- Enable redis
+  enabled: true
+  # -- Redis name
+  name: redis
+
+  ## Redis Pod Disruption Budget
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  pdb:
+    # -- Deploy a [PodDisruptionBudget] for the Redis
+    enabled: false
+    # -- Labels to be added to Redis pdb
+    labels: {}
+    # -- Annotations to be added to Redis pdb
+    annotations: {}
+    # -- Number of pods that are available after eviction as number or percentage (eg.: 50%)
+    # @default -- `""` (defaults to 0 if not specified)
+    minAvailable: ""
+    # -- Number of pods that are unavailble after eviction as number or percentage (eg.: 50%).
+    ## Has higher precedence over `redis.pdb.minAvailable`
+    maxUnavailable: ""
+
+  ## Redis image
+  image:
+    # -- Redis repository
+    repository: public.ecr.aws/docker/library/redis
+    # -- Redis tag
+    tag: 7.2.4-alpine
+    # -- Redis image pull policy
+    # @default -- `""` (defaults to global.image.imagePullPolicy)
+    imagePullPolicy: ""
+
+  ## Prometheus redis-exporter sidecar
+  exporter:
+    # -- Enable Prometheus redis-exporter sidecar
+    enabled: false
+    # -- Environment variables to pass to the Redis exporter
+    env: []
+    ## Prometheus redis-exporter image
+    image:
+      # -- Repository to use for the redis-exporter
+      repository: public.ecr.aws/bitnami/redis-exporter
+      # -- Tag to use for the redis-exporter
+      tag: 1.58.0
+      # -- Image pull policy for the redis-exporter
+      # @default -- `""` (defaults to global.image.imagePullPolicy)
+      imagePullPolicy: ""
+
+    # -- Redis exporter security context
+    # @default -- See [values.yaml]
+    containerSecurityContext:
+      runAsNonRoot: true
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop:
+        - ALL
+server:
+  # -- Argo CD server name
+  name: server
+  ingress:
+    # -- Enable an ingress resource for the Argo CD server
+    enabled: true
+    # -- Additional ingress annotations
+    #
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # -- Additional ingress labels
+    labels: {}
+    # -- Defines which ingress controller will implement the resource
+    ingressClassName: "nginx"
+
+    # -- List of ingress hosts
+    ## Argo Ingress.
+    ## Hostnames must be provided if Ingress is enabled.
+    ## Secrets must be manually created in the namespace
+    hosts: 
+      - cd.fortress.sei.cmu.edu
+    # - argocd.example.com
+    # -- List of ingress paths
+    paths:
+    - backend:
+        service:
+          name: argo-cd-argocd-server
+          port:
+            number: 443
+    # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
+    pathType: Prefix
+    # -- Additional ingress paths
+    extraPaths: []
+      # - path: /*
+      #   pathType: Prefix
+      #   backend:
+      #     service:
+      #       name: ssl-redirect
+      #       port:
+      #         name: use-annotation
+
+    # -- Ingress TLS configuration
+    tls: 
+      - secretName: fortress-tls
+        hosts:
+          - cd.fortress.sei.cmu.edu
+    # -- Uses `server.service.servicePortHttps` instead `server.service.servicePortHttp`
+    https: false
+
+## Repo Server
+repoServer:
+  # -- Repo server name
+  name: repo-server
+
+  # -- The number of repo server pods to run
+  replicas: 1
+
+  ## Repo server Horizontal Pod Autoscaler
+  autoscaling:
+    # -- Enable Horizontal Pod Autoscaler ([HPA]) for the repo server
+    enabled: false
+    # -- Minimum number of replicas for the repo server [HPA]
+    minReplicas: 1
+    # -- Maximum number of replicas for the repo server [HPA]
+    maxReplicas: 5
+    # -- Average CPU utilization percentage for the repo server [HPA]
+    targetCPUUtilizationPercentage: 50
+    # -- Average memory utilization percentage for the repo server [HPA]
+    targetMemoryUtilizationPercentage: 50
+    # -- Configures the scaling behavior of the target in both Up and Down directions.
+    behavior: {}
+      # scaleDown:
+      #  stabilizationWindowSeconds: 300
+      #  policies:
+      #   - type: Pods
+      #     value: 1
+      #     periodSeconds: 180
+      # scaleUp:
+      #   stabilizationWindowSeconds: 300
+      #   policies:
+      #   - type: Pods
+      #     value: 2
+      #     periodSeconds: 60
+    # -- Configures custom HPA metrics for the Argo CD repo server
+    # Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+    metrics: []
+
+  ## Repo server Pod Disruption Budget
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  pdb:
+    # -- Deploy a [PodDisruptionBudget] for the repo server
+    enabled: false
+    # -- Labels to be added to repo server pdb
+    labels: {}
+    # -- Annotations to be added to repo server pdb
+    annotations: {}
+    # -- Number of pods that are available after eviction as number or percentage (eg.: 50%)
+    # @default -- `""` (defaults to 0 if not specified)
+    minAvailable: ""
+    # -- Number of pods that are unavailable after eviction as number or percentage (eg.: 50%).
+    ## Has higher precedence over `repoServer.pdb.minAvailable`
+    maxUnavailable: ""
+
+  ## Repo server image
+  image:
+    # -- Repository to use for the repo server
+    # @default -- `""` (defaults to global.image.repository)
+    repository: ""
+    # -- Tag to use for the repo server
+    # @default -- `""` (defaults to global.image.tag)
+    tag: ""
+    # -- Image pull policy for the repo server
+    # @default -- `""` (defaults to global.image.imagePullPolicy)
+    imagePullPolicy: ""
+
+  # -- Secrets with credentials to pull images from a private registry
+  # @default -- `[]` (defaults to global.imagePullSecrets)
+  imagePullSecrets: []
+
+  # -- Additional command line arguments to pass to repo server
+  extraArgs: []
+
+  # -- Environment variables to pass to repo server
+  env: [] 
+
+  # -- envFrom to pass to repo server
+  # @default -- `[]` (See [values.yaml])
+  envFrom:
+    - secretRef:
+        name: vault-configuration
+  # - configMapRef:
+  #     name: config-map-name
+  # - secretRef:
+  #     name: secret-name
+
+  # -- Specify postStart and preStop lifecycle hooks for your argo-repo-server container
+  lifecycle: {}
+
+  # -- Additional containers to be added to the repo server pod
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/config-management-plugins/
+  ## Note: Supports use of custom Helm templates
+  extraContainers: 
+    - name: argocd-vault-plugin
+      command: [/var/run/argocd/argocd-cmp-server]
+      image: quay.io/argoproj/argocd
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+      volumeMounts:
+        - mountPath: /var/run/argocd
+          name: var-files
+        - mountPath: /home/argocd/cmp-server/plugins
+          name: plugins
+        # Register plugins into sidecar
+        - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+          subPath: argocd-vault-plugin.yaml
+          name: argocd-cmp-cm
+        # Important: Mount tools into $PATH
+        - name: custom-tools
+          subPath: argocd-vault-plugin
+          mountPath: /usr/local/bin/argocd-vault-plugin
+        - name: custom-ca-certificates
+          mountPath: /etc/ssl/certs/custom-ca-certificates.crt
+          subPath: custom-ca-certificates.crt
+        - mountPath: /tmp
+          name: cmp-tmp
+  
+  # -- Init containers to add to the repo server pods
+  initContainers:
+    - name: download-tools
+      env:
+        - name: http_proxy
+          value: http://cloudproxy.sei.cmu.edu:80
+        - name: https_proxy
+          value: http://cloudproxy.sei.cmu.edu:80
+        - name: HTTP_PROXY
+          value: http://cloudproxy.sei.cmu.edu:80
+        - name: HTTPS_PROXY
+          value: http://cloudproxy.sei.cmu.edu:80
+        - name: no_proxy
+          value: .cert.org,.cmu.edu,vidcas,vidcas-odx,slag,gitlab-webservice-default,10.64.0.0/16
+        - name: NO_PROXY
+          value: .cert.org,.cmu.edu,vidcas,vidcas-odx,slag,gitlab-webservice-default,10.64.0.0/16
+        - name: AVP_VERSION
+          value: 1.17.0
+      image: registry.access.redhat.com/ubi7
+      command: [sh, -c]
+      args:
+        - >-
+          curl -L https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v$(AVP_VERSION)/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
+          chmod +x argocd-vault-plugin &&
+          mv argocd-vault-plugin /custom-tools/
+      volumeMounts:
+        - mountPath: /custom-tools
+          name: custom-tools
+      envFrom:
+        - secretRef:
+            name: vault-configuration
+              #
+              #    - name: download-tools
+              #      env: 
+              #        - name: AVP_VERSION
+              #          value: 1.18.1
+              #      image: registry.access.redhat.com/ubi8
+              #      command: [sh, -c]
+              #      args:
+              #        - >-
+              #          curl -L https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v$(AVP_VERSION)/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
+              #          chmod +x argocd-vault-plugin &&
+              #          mv argocd-vault-plugin /custom-tools/
+              #      volumeMounts:
+              #        - mountPath: /custom-tools
+              #          name: custom-tools
+              #      envFrom:
+              #        - secretRef:
+              #            name: vault-configuration
+              #  # -- Additional volumeMounts to the repo server main container
+  volumeMounts: []
+
+  # -- Additional volumes to the repo server pod
+  volumes: 
+    - name: argocd-cmp-cm
+      configMap:
+        name: argocd-cmp-cm
+    - name: cmp-tmp
+      emptyDir: {}
+    - name: custom-tools
+      emptyDir: {}
+    - name: custom-ca-certificates
+      secret:
+        defaultMode: 420
+        secretName: custom-ca-certificates
+  #  - name: argocd-cmp-cm
+  #    configMap:
+  #      name: argocd-cmp-cm
+  #  - name: cmp-tmp
+  #    emptyDir: {}
+
+  # -- Toggle the usage of a ephemeral Helm working directory
+  useEphemeralHelmWorkingDir: true
+
+  # -- Annotations to be added to repo server Deployment
+  deploymentAnnotations: {}
+
+  # -- Annotations to be added to repo server pods
+  podAnnotations: {}
+
+  # -- Labels to be added to repo server pods
+  podLabels: {}
+
+  # -- Resource limits and requests for the repo server pods
+  resources: {}
+  #  limits:
+  #    cpu: 50m
+  #    memory: 128Mi
+  #  requests:
+  #    cpu: 10m
+  #    memory: 64Mi
+
+  # Repo server container ports
+  containerPorts:
+    # -- Repo server container port
+    server: 8081
+    # -- Metrics container port
+    metrics: 8084
+
+  # -- Host Network for Repo server pods
+  hostNetwork: false
+
+    # -- [DNS configuration]
+  dnsConfig: {}
+  # -- Alternative DNS policy for Repo server pods
+  dnsPolicy: "ClusterFirst"
+
+  # -- Repo server container-level security context
+  # @default -- See [values.yaml]
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+      - ALL
+
+  ## Readiness and liveness probes for default backend
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
+  readinessProbe:
+    # -- Minimum consecutive failures for the [probe] to be considered failed after having succeeded
+    failureThreshold: 3
+    # -- Number of seconds after the container has started before [probe] is initiated
+    initialDelaySeconds: 10
+    # -- How often (in seconds) to perform the [probe]
+    periodSeconds: 10
+    # -- Minimum consecutive successes for the [probe] to be considered successful after having failed
+    successThreshold: 1
+    # -- Number of seconds after which the [probe] times out
+    timeoutSeconds: 1
+
+  livenessProbe:
+    # -- Minimum consecutive failures for the [probe] to be considered failed after having succeeded
+    failureThreshold: 3
+    # -- Number of seconds after the container has started before [probe] is initiated
+    initialDelaySeconds: 10
+    # -- How often (in seconds) to perform the [probe]
+    periodSeconds: 10
+    # -- Minimum consecutive successes for the [probe] to be considered successful after having failed
+    successThreshold: 1
+    # -- Number of seconds after which the [probe] times out
+    timeoutSeconds: 1
+
+  # -- terminationGracePeriodSeconds for container lifecycle hook
+  terminationGracePeriodSeconds: 30
+
+  # -- [Node selector]
+  # @default -- `{}` (defaults to global.nodeSelector)
+  nodeSelector: {}
+
+  # -- [Tolerations] for use with node taints
+  # @default -- `[]` (defaults to global.tolerations)
+  tolerations: []
+
+  # -- Assign custom [affinity] rules to the deployment
+  # @default -- `{}` (defaults to global.affinity preset)
+  affinity: {}
+
+  # -- Assign custom [TopologySpreadConstraints] rules to the repo server
+  # @default -- `[]` (defaults to global.topologySpreadConstraints)
+  ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+  ## If labelSelector is left out, it will default to the labelSelector configuration of the deployment
+  topologySpreadConstraints: []
+    # - maxSkew: 1
+    #   topologyKey: topology.kubernetes.io/zone
+    #   whenUnsatisfiable: DoNotSchedule
+
+  # -- Deployment strategy to be added to the repo server Deployment
+  deploymentStrategy: {}
+    # type: RollingUpdate
+    # rollingUpdate:
+    #   maxSurge: 25%
+    #   maxUnavailable: 25%
+
+  # -- Priority class for the repo server pods
+  # @default -- `""` (defaults to global.priorityClassName)
+  priorityClassName: ""
+
+  # TLS certificate configuration via Secret
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/tls/#configuring-tls-to-argocd-repo-server
+  ## Note: Issuing certificates via cert-manager in not supported right now because it's not possible to restart repo server automatically without extra controllers.
+  certificateSecret:
+    # -- Create argocd-repo-server-tls secret
+    enabled: false
+    # -- Annotations to be added to argocd-repo-server-tls secret
+    annotations: {}
+    # -- Labels to be added to argocd-repo-server-tls secret
+    labels: {}
+    # -- Certificate authority. Required for self-signed certificates.
+    ca: ''
+    # -- Certificate private key
+    key: ''
+    # -- Certificate data. Must contain SANs of Repo service (ie: argocd-repo-server, argocd-repo-server.argo-cd.svc)
+    crt: ''
+
+  ## Repo server service configuration
+  service:
+    # -- Repo server service annotations
+    annotations: {}
+    # -- Repo server service labels
+    labels: {}
+    # -- Repo server service port
+    port: 8081
+    # -- Repo server service port name
+    portName: https-repo-server
+
+  ## Repo server metrics service configuration
+  metrics:
+    # -- Deploy metrics service
+    enabled: false
+    service:
+      # -- Metrics service type
+      type: ClusterIP
+      # -- Metrics service clusterIP. `None` makes a "headless service" (no virtual IP)
+      clusterIP: ""
+      # -- Metrics service annotations
+      annotations: {}
+      # -- Metrics service labels
+      labels: {}
+      # -- Metrics service port
+      servicePort: 8084
+      # -- Metrics service port name
+      portName: http-metrics
+    serviceMonitor:
+      # -- Enable a prometheus ServiceMonitor
+      enabled: false
+      # -- Prometheus ServiceMonitor interval
+      interval: 30s
+      # -- Prometheus [RelabelConfigs] to apply to samples before scraping
+      relabelings: []
+      # -- Prometheus [MetricRelabelConfigs] to apply to samples before ingestion
+      metricRelabelings: []
+      # -- Prometheus ServiceMonitor selector
+      selector: {}
+        # prometheus: kube-prometheus
+
+      # -- Prometheus ServiceMonitor scheme
+      scheme: ""
+      # -- Prometheus ServiceMonitor tlsConfig
+      tlsConfig: {}
+      # -- Prometheus ServiceMonitor namespace
+      namespace: "" # "monitoring"
+      # -- Prometheus ServiceMonitor labels
+      additionalLabels: {}
+      # -- Prometheus ServiceMonitor annotations
+      annotations: {}
+
+  ## Enable Custom Rules for the Repo server's Cluster Role resource
+  ## Enable this and set the rules: to whatever custom rules you want for the Cluster Role resource.
+  ## Defaults to off
+  clusterRoleRules:
+    # -- Enable custom rules for the Repo server's Cluster Role resource
+    enabled: false
+    # -- List of custom rules for the Repo server's Cluster Role resource
+    rules: []
+
+  ## Repo server service account
+  ## If create is set to true, make sure to uncomment the name and update the rbac section below
+  serviceAccount:
+    # -- Create repo server service account
+    create: true
+    # -- Repo server service account name
+    name: "argocd-repo-server"
+    # -- Annotations applied to created service account
+    annotations: {}
+    # -- Labels applied to created service account
+    labels: {}
+    # -- Automount API credentials for the Service Account
+    automountServiceAccountToken: true
+
+  # -- Repo server rbac rules
+  rbac: []
+    # - apiGroups:
+    #   - argoproj.io
+    #   resources:
+    #   - applications
+    #   - secrets
+    #   - configmaps
+    #   verbs:
+    #   - get
+    #   - list
+    #   - watch
+
