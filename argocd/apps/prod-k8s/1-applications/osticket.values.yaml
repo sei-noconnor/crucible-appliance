@@ -87,7 +87,7 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: 
-   - secretName: <path:fortress-prod/data/shared#domain>-tls
+   - secretName: help.<path:fortress-prod/data/shared#domain>-tls
      hosts:
        - help.<path:fortress-prod/data/shared#domain>
 

@@ -78,7 +78,7 @@ cite-api:
           - path: /cite/(api|swagger|hubs)
             pathType: Prefix
     tls:
-      - secretName: appliance-cert
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
         hosts:
           - <path:fortress-prod/data/shared#domain>
   resources:

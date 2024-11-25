@@ -92,7 +92,7 @@ gallery-ui:
           - path: /gallery
             pathType: Prefix
     tls:
-      - secretName: appliance-cert
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
         hosts:
          - <path:fortress-prod/data/shared#domain>
 

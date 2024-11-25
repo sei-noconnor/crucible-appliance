@@ -663,16 +663,16 @@ blueprint-ui:
   # some basic configuration
   settings: |-
     {
-      "ApiUrl": "https://crucible.local/blueprint",
+      "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/blueprint",
       "OIDCSettings": {
-        "authority": "https://crucible.local/keycloak/realms/crucible",
+        "authority": "https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible",
         "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_blueprint-ui",
-        "redirect_uri": "https://crucible.local/blueprint/auth-callback",
-        "post_logout_redirect_uri": "https://crucible.local/blueprint",
+        "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/blueprint/auth-callback",
+        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/blueprint",
         "response_type": "code",
         "scope": "openid profile blueprint-api cite-api gallery-api player-api vm-api steamfitter-api",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://crucible.local/blueprint/auth-callback-silent"
+        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/blueprint/auth-callback-silent"
       },
       "AppTitle": "Blueprint",
       "AppTopBarHexColor": "#2d69b4",

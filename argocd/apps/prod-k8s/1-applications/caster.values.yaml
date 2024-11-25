@@ -2,9 +2,8 @@ caster-api:
   kind: "StatefulSet"
   image:
     repository: cmusei/caster-api
-    tag: "3.3.0"
+    tag: "3.3.3"
     pullPolicy: IfNotPresent
-  
   ingress:
     enabled: true
     annotations:
@@ -50,12 +49,12 @@ caster-api:
     # plugins to run Caster properly.  Internet access is required for this script to run properly.
     # It's recommended that this should remain false.  Please see the file "terraform-installation.tpl"
     # for more information on the installation process.
-    http_proxy: http://cloudproxy.sei.cmu.edu:80
-    https_proxy: http://cloudproxy.sei.cmu.edu:80
-    HTTP_PROXY: http://cloudproxy.sei.cmu.edu:80
-    HTTPS_PROXY: http://cloudproxy.sei.cmu.edu:80
-    no_proxy: .cert.org,.cmu.edu,vidcas,vidcas-odx,slag,gitlab-webservice-default,10.64.0.0/16
-    NO_PROXY: .cert.org,.cmu.edu,vidcas,vidcas-odx,slag,gitlab-webservice-default,10.64.0.0/16
+    http_proxy: <path:fortress-prod/data/shared#http_proxy>
+    https_proxy: <path:fortress-prod/data/shared#https_proxy>
+    HTTP_PROXY: <path:fortress-prod/data/shared#http_proxy>
+    HTTPS_PROXY: <path:fortress-prod/data/shared#https_proxy>
+    no_proxy: <path:fortress-prod/data/shared#no_proxy>,slag,gitlab-webservice-default
+    NO_PROXY: <path:fortress-prod/data/shared#no_proxy>,slag,gitlab-webservice-default
     SKIP_TERRAFORM_INSTALLATION: false
 
     VSPHERE_SERVER: "<path:fortress-prod/data/vsphere#vsphere-server>"
@@ -139,9 +138,8 @@ caster-api:
 caster-ui:
   image:
     repository: cmusei/caster-ui
-    tag: "3.3.0"
+    tag: "3.3.2"
     pullPolicy: IfNotPresent
- 
   ingress:
     enabled: true
     annotations:
@@ -156,7 +154,7 @@ caster-ui:
           - path: "/caster(/|$)(.*)"
             pathType: Prefix
     tls:
-      - secretName: appliance-cert
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
         hosts:
           - <path:fortress-prod/data/shared#domain>
 

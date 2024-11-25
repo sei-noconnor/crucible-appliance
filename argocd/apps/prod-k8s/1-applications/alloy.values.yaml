@@ -13,7 +13,6 @@ alloy-api:
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/use-regex: "true"
       cert-manager.io/cluster-issuer: ca-issuer
-
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
         paths:
