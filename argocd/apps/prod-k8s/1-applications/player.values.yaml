@@ -200,17 +200,8 @@ vm-api:
     pullPolicy: IfNotPresent
     tag: "3.6.2"
   
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: In
-            values:
-            - fortress-wrkr-02
-            - fortress-wrkr-03
-
+  affinity: {}
+    
   # iso - an NFS volume mount for ISO uploads
   iso:
     enabled: true
@@ -390,17 +381,8 @@ vm-ui:
     repository: cmusei/vm-ui
     pullPolicy: IfNotPresent
     tag: "3.4.8"
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: In
-            values:
-            - fortress-wrkr-02
-            - fortress-wrkr-03
-
+  affinity: {}
+  
   # Ingress configuration example for NGINX
   # TLS and Host URLs need configured
   ingress:
