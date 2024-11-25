@@ -90,8 +90,8 @@ secretGenerator:
   - AVP_AUTH_TYPE=approle
   - VAULT_ADDR=https://keystore.crucible.local
   files:
-  - AVP_ROLE_ID=./files/argo-role-id
-  - AVP_SECRET_ID=./files/argo-secret-id
+  - AVP_ROLE_ID=files/argo-role-id
+  - AVP_SECRET_ID=files/argo-secret-id
 generatorOptions:
   disableNameSuffixHash: true
 

@@ -85,7 +85,7 @@ for repo in "${GITEA_SOURCE_REPOS[@]}"; do
     echo "Downloading repo $repo"
     BASENAME=$(basename "$repo")
     REPO_NAME=${BASENAME%.*}
-    git clone $repo --mirror ${LOCAL_REPO_DIR}/${REPO_NAME}
+    git clone $repo --bare ${LOCAL_REPO_DIR}/${REPO_NAME}
 done
 
 # Iterate over each subdirectory in the base directory and load to appliance gitea server
@@ -127,12 +127,12 @@ for DIR in "${LOCAL_REPO_DIR}"/*; do
         cd "$DIR"
         
         # Set the remote and push
+        git config --local --bool core.bare false 
+        git reset HEAD -- .
         REMOTE_URL="https://${GITEA_DEST_TOKEN}@${GITEA_DEST_SERVER}/${GITEA_DEST_ORG}/${REPO_NAME}.git"
         git remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
-        git config --unset remote.origin.mirror
-        git config --bool core.bare false
         git push -u appliance main
-        git push -u appliance --mirror
+        git push -u appliance --all
 
         echo "Directory $REPO_NAME mirrored to Gitea successfully."
         cd - >/dev/null

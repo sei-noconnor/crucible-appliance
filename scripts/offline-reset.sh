@@ -51,5 +51,5 @@ kubectl wait deployment \
 --for=condition=Available \
 --all-namespaces=true \
 --timeout=30s
-rm ./argocd/install/argocd/kustomize/overylays/appliance/files/argo-role-id
-rm ./argocd/install/argocd/kustomize/overylays/appliance/files/argo-secret-id
+rm ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-role-id
+rm ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-secret-id

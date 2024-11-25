@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 localport=8200
 typename=service/appliance-vault
@@ -46,7 +46,7 @@ echo "logging into vault"
 vault login ${ROOT_TOKEN}
 
 echo "Creating appliance key value store"
-vault secrets enable -path="${VAULT_KV_PATH}" kv
+vault secrets enable -path="${VAULT_KV_PATH}" -version=2 kv
 
 cat ${VARS_TEMPLATE} | envsubst > ${VARS_FILE}
 
@@ -57,8 +57,8 @@ for key in $(yq 'keys | .[]' "${VARS_FILE}"); do
     curl --silent --show-error --fail \
         --header "X-Vault-Token: $VAULT_TOKEN" \
         --request POST \
-        --data "$payload" \
-        "$VAULT_ADDR/v1/$VAULT_KV_PATH/$key"
+        --data "{\"data\": $payload }" \
+        "$VAULT_ADDR/v1/$VAULT_KV_PATH/data/$key"
     
     if [ $? -eq 0 ]; then
         echo "Uploaded $key to $VAULT_KV_PATH"

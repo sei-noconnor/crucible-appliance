@@ -53,7 +53,7 @@ init-gitea:
 	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f - || true
 	./packer/scripts/05-setup-gitea.sh
 	make download-packages
-	make gitea-init-repos
+	# make gitea-init-repos
 	# make gitea-replace-repos
 
 gitea-init-repos:
@@ -142,8 +142,8 @@ uninstall:
 	rm -rf ./argocd/install/argocd/kustomize/appliance/files/argo-*-id
 	rm -rf ./argocd/install/vault/kustomize/base/files/argo-*-id*
 	rm -rf ./argocd/install/vault/kustomize/base/files/vault-keys*
-	rm -rf ./argocd/install/argocd/kustomize/overylays/appliance/files/argo-role-id
-	rm -rf ./argocd/install/argocd/kustomize/overylays/appliance/files/argo-secret-id
+	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-role-id
+	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-secret-id
 	
 startup-logs:
 	sudo cat /var/log/syslog | grep crucible-appliance

@@ -14,6 +14,11 @@ secretGenerator:
     files: 
     - tls.crt=files/root-chain.pem
     - tls.key=files/intermediate-ca.key
+configMapGenerator:
+- name: root-ca
+  files:
+    - root-ca.crt=files/root-chain.crt
+    
 generatorOptions:
   disableNameSuffixHash: true
 resources: 
