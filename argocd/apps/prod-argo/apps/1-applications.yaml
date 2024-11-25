@@ -32,13 +32,13 @@ spec:
             - name: CHART_VERSION
               value: '{{app.helm_chart_version}}'
             - name: HELM_REPO
-              value: '{{app.repo_url}}'
+              value: '{{app.helm_repo}}'
             - name: HELM_CHART
-              value: '{{app.helm_chart}}'
+              value: '{{app.helm_chart_name}}'
             - name: HELM_RELEASE_NAME
               value: '{{app.project_name}}'
             - name: HTTP_PROXY
-              value: 'http://proxy.sei.cmu.edu:8080'
+              value: ''
             - name: NAMESPACE
               value: '{{app.namespace}}'
             - name: VALUES_FILE

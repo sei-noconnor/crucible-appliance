@@ -25,7 +25,9 @@ spec:
         plugin:
           name: argocd-vault-plugin
           env:
-            - name: HELM_ARGS
+            - name: MANIFEST_TYPE
+              value: '{{app.manifest_type}}'
+            - name: ADDITIONAL_ARGS
               value: '{{app.helm_args}}'
             - name: CHART_VERSION
               value: '{{app.helm_chart_version}}'
@@ -36,7 +38,7 @@ spec:
             - name: HELM_RELEASE_NAME
               value: '{{app.project_name}}'
             - name: HTTP_PROXY
-              value: 'http://proxy.sei.cmu.edu:8080'
+              value: ''
       destination:
         server: https://kubernetes.default.svc
         namespace: monitoring
