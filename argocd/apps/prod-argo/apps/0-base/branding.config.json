@@ -2,11 +2,11 @@
     "app": {
         "project_name" : "branding",
         "project_branch" : "HEAD",
-	"namespace" : "default",
-	"manifest_type": "yaml",
+	    "namespace" : "default",
+	    "manifest_type": "yaml",
         "helm_chart" : "",
         "helm_chart_version" : "",
-	"repo_url": "",
+	    "helm_repo": "",
         "values_file" : "branding.configmap.yaml",
         "helm_args" : ""
     }
