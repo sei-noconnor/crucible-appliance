@@ -20,7 +20,7 @@ spec:
       project: default
       source:
         repoURL: https://fortress.sei.cmu.edu/gitea/fortress-manifests/fortress-prod-k8s.git
-        targetRevision: HEAD
+        targetRevision: '{{app.project_branch}}'
         path: "1-applications"
         plugin:
           name: argocd-vault-plugin
@@ -32,7 +32,7 @@ spec:
             - name: CHART_VERSION
               value: '{{app.helm_chart_version}}'
             - name: HELM_REPO
-              value: '{{app.repo_url}}'
+              value: '{{app.helm_repo}}'
             - name: HELM_CHART
               value: '{{app.helm_chart}}'
             - name: HELM_RELEASE_NAME

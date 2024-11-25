@@ -32,7 +32,7 @@ spec:
             - name: CHART_VERSION
               value: '{{app.helm_chart_version}}'
             - name: HELM_REPO
-              value: '{{app.repo_url}}'
+              value: '{{app.helm_repo}}'
             - name: HELM_CHART
               value: '{{app.helm_chart}}'
             - name: HELM_RELEASE_NAME
@@ -42,7 +42,7 @@ spec:
             - name: NAMESPACE
               value: '{{app.namespace}}'
             - name: VALUES_FILE
-              value: '{{app.values_file}}
+              value: '{{app.values_file}}'
 
       destination:
         server: https://kubernetes.default.svc

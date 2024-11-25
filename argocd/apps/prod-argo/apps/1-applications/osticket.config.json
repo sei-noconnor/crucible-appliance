@@ -1,11 +1,11 @@
 {
     "app": {
         "project_name" : "osticket",
-        "project_branch" : "osticket",
+        "project_branch" : "main",
         "namespace" : "default",
         "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",
-        "helm_chart_name" : "osticket",
+        "helm_chart" : "osticket",
         "helm_chart_version" : "1.17.5",
         "values_file" : "osticket.values.yaml",
         "helm_args" : ""

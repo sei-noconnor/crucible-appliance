@@ -5,7 +5,7 @@
         "namespace" : "default",
         "manifest_type": "helm",
         "helm_repo" : "https://helm.stackstorm.com/",
-        "helm_chart_name" : "stackstorm-ha",
+        "helm_chart" : "stackstorm-ha",
         "helm_chart_version" : "0.110.0",
         "values_file" : "stackstorm-min.values.yaml",
 	"helm_args" : ""

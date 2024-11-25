@@ -5,7 +5,7 @@
         "namespace" : "default",
         "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",
-        "helm_chart_name" : "caster",
+        "helm_chart" : "caster",
         "helm_chart_version" : "1.4.3",
         "values_file" : "caster.values.yaml",
         "helm_args" : ""
