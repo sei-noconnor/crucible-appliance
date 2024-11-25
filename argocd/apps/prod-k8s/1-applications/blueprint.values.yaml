@@ -640,6 +640,7 @@ blueprint-ui:
     annotations:
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
       nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
     hosts:
       - host: "<path:fortress-prod/data/shared#domain>"
         paths:

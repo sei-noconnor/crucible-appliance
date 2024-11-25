@@ -55,7 +55,7 @@ player-api:
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
   # the configMap name here
-  certificateMap: "appliance-root-ca"
+  certificateMap: "root-ca"
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   # this is used to store uploaded files
@@ -129,6 +129,7 @@ player-ui:
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
       nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
         paths:
@@ -295,7 +296,7 @@ vm-api:
   # create a configMap with the needed certifcates and specify
   # the configMap name here
 
-  certificateMap: "appliance-root-ca"
+  certificateMap: "root-ca"
 
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,

@@ -34,7 +34,7 @@ caster-api:
       plugin_cache_dir = "/terraform/plugin-cache"
       plugin_cache_may_break_dependency_lock_file = true
 
-  certificateMap: "appliance-root-ca"
+  certificateMap: "root-ca"
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
@@ -141,16 +141,7 @@ caster-ui:
     repository: cmusei/caster-ui
     tag: "3.3.0"
     pullPolicy: IfNotPresent
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: In
-            values:
-            - fortress-ctrl-01.sei.cmu.edu
-
+ 
   ingress:
     enabled: true
     annotations:
@@ -158,6 +149,7 @@ caster-ui:
       nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
         paths:

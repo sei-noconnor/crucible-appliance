@@ -49,9 +49,8 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - crucible.local
+    - <path:fortress-prod/data/shared#domain>
     secretName: <path:fortress-prod/data/shared#domain>-tls
 status:
   loadBalancer:
-    ingress:
-    - ip: 10.64.149.40
+    

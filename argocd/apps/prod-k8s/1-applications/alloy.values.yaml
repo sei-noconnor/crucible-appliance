@@ -27,7 +27,7 @@ alloy-api:
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
   # the configMap name here
-  certificateMap: "appliance-root-ca"
+  certificateMap: "root-ca"
 
   env:
     PathBase: "/alloy"
@@ -77,13 +77,14 @@ alloy-ui:
       nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
         paths:
           - path: "/alloy(/|$)(.*)"
             pathType: Prefix
     tls:
-      - secretName: appliance-cert
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
         hosts:
           - <path:fortress-prod/data/shared#domain>
 

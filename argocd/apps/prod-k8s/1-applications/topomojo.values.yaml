@@ -155,6 +155,7 @@ topomojo-ui:
     annotations: 
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
+      cert-manager.io/cluster-issuer: ca-issuer
       # kubernetes.io/tls-acme: "true"
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
@@ -162,7 +163,7 @@ topomojo-ui:
           - path: /topomojo
             pathType: ImplementationSpecific
     tls: 
-     - secretName: fortress-tls
+     - secretName: <path:fortress-prod/data/shared#domain>-tls
        hosts:
          - <path:fortress-prod/data/shared#domain>
     
