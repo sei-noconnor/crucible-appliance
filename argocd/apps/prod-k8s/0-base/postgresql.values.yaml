@@ -23,10 +23,10 @@ global:
     ##
     auth:
       postgresPassword: "<path:fortress-prod/data/postgresql#default-admin-pass>"
-      username: ""
-      password: ""
+      username: "postgres"
+      password: "<path:fortress-prod/data/postgresql#default-admin-pass>"
       database: "postgres"
-      existingSecret: ""
+      existingSecret: "postgresql"
     ## @param global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
     ##
     service:
