@@ -86,29 +86,6 @@ alloy-ui:
       - secretName: <path:fortress-prod/data/shared#domain>-tls
         hosts:
           - <path:fortress-prod/data/shared#domain>
-
-  extraVolumes: |
-    - name: fortress-branding-vol
-      configMap:
-        name: branding-ico
-    - name: fortress-branding-svg-vol
-      configMap:
-        name: branding-svg
-
-  extraVolumeMounts: |
-    - name: fortress-branding-vol
-      mountPath: /usr/share/nginx/html/assets/img/alloy.ico
-      subPath: alloy.ico
-    - name: fortress-branding-vol
-      mountPath: /usr/share/nginx/html/assets/img/crucible-logo-light.png
-      subPath: crucible-logo-light.png
-    - name: fortress-branding-vol
-      mountPath: /usr/share/nginx/html/assets/img/crucible-logo-dark.png
-      subPath: crucible-logo-dark.png
-    - name: fortress-branding-svg-vol
-      mountPath: /usr/share/nginx/html/assets/svg-icons/ic_crucible_alloy.svg
-      subPath: ic_crucible_alloy.svg
-
   env:
     ## basehref is path to the app
     APP_BASEHREF: "/alloy"
