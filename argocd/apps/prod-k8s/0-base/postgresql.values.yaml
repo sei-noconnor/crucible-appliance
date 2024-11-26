@@ -52,6 +52,8 @@ primary:
     scripts:
       init.sql: |
         CREATE EXTENSION "uuid-ossp";
+        CREATE DATABASE keycloak;
+        GRANT ALL PRIVILEGES ON DATABASE keycloak TO postgres;
       # my_init_script.sh: |
   
     
