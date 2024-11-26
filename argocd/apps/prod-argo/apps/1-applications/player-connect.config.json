@@ -2,11 +2,11 @@
     "app": {
         "project_name" : "player-connect",
         "project_branch" : "HEAD",
-	"namespace" : "default",
-	"manifest_type": "yaml",
+	    "namespace" : "default",
+	    "manifest_type": "yaml",
         "helm_chart" : "",
         "helm_chart_version" : "",
-	"repo_url": "",
+	    "repo_url": "",
         "values_file" : "player-connect.ingress.yaml",
         "helm_args" : ""
     }

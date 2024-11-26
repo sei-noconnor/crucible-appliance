@@ -7,7 +7,7 @@
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart" : "blueprint",
         "helm_chart_version" : "1.4.1",
-	"values_file" : "blueprint.values.yaml",
+        "values_file" : "blueprint.values.yaml",
         "helm_args" : ""
     }
 }
