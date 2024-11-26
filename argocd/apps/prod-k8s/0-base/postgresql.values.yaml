@@ -56,4 +56,4 @@ primary:
   
     
 metrics:
-  enabled: true
+  enabled: false
