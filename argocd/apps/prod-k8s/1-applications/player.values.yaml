@@ -62,7 +62,7 @@ player-api:
   storage:
     existing: ""
     size: "5G"
-    mode: "ReadWriteMany"
+    mode: "ReadWriteOnce"
     class: "nfs"
 
   # Config app settings with environment vars.

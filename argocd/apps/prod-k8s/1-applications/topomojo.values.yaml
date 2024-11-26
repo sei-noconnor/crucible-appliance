@@ -40,7 +40,7 @@ topomojo-api:
     # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
     size: 10G
-    mode: ReadWriteMany
+    mode: ReadWriteOnce
     class: "nfs"
 
   autoscaling:
