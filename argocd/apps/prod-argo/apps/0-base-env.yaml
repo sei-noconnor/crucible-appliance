@@ -31,7 +31,7 @@ spec:
             - name: CHART_VERSION
               value: '{{app.helm_chart_version}}'
             - name: HELM_REPO
-              value: '{{app.repo_repo}}'
+              value: '{{app.helm_repo}}'
             - name: HELM_CHART
               value: '{{app.helm_chart}}'
             - name: HELM_RELEASE_NAME

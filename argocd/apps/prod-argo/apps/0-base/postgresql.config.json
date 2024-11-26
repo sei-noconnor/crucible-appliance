@@ -1,12 +1,12 @@
 {
     "app": {
         "project_name" : "postgresql",
-        "project_branch": "main",
+        "project_branch": "HEAD",
         "namespace" : "default",
         "manifest_type": "helm-oci",
         "helm_chart" : "oci://registry-1.docker.io/bitnamicharts/postgresql",
         "helm_chart_version" : "15.3.3",
-        "repo_url": "",
+        "helm_repo": "",
         "values_file" : "postgresql.values.yaml",
         "helm_args" : ""
     }

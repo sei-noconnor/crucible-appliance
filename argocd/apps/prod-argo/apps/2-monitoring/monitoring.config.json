@@ -5,7 +5,7 @@
         "namespace" : "monitoring",
         "manifest_type": "helm",
         "helm_repo" : "https://prometheus-community.github.io/helm-charts",
-        "helm_chart_name" : "kube-prometheus-stack",
+        "helm_chart" : "kube-prometheus-stack",
         "helm_chart_version" : "56.3.0",
         "values_file" : "kube-prometheus-stack.values.yaml",
 	"helm_args" : ""
