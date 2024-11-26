@@ -2,7 +2,7 @@ caster-api:
   kind: "StatefulSet"
   image:
     repository: cmusei/caster-api
-    tag: "3.3.3"
+    tag: "3.2"
     pullPolicy: IfNotPresent
   ingress:
     enabled: true
