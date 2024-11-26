@@ -40,9 +40,6 @@ global:
 ##
 
 image:
-  registry: docker.io
-  repository: bitnami/postgresql
-  tag: 15.3.0-debian-11-r7
   pullPolicy: IfNotPresent
 
 architecture: standalone
