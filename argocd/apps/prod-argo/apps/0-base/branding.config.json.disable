@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "branding",
-        "project_branch" : "HEAD",
+        "project_branch" : "main",
 	"namespace" : "default",
 	"manifest_type": "yaml",
         "helm_chart" : "",

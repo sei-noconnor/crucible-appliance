@@ -9,7 +9,7 @@ spec:
   generators:
   - git:
       repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-argo.git
-      revision: HEAD
+      revision: main
       files:
       - path: "apps/0-base/*.json"
   template:
@@ -19,7 +19,7 @@ spec:
       project: default
       source:
         repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-k8s.git
-        targetRevision: '{{app.project_branch}}'
+        targetRevision: main
         path: "0-base"
         plugin:
           name: argocd-vault-plugin
