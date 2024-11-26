@@ -22,10 +22,10 @@ global:
     ## @param global.postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials (overrides `auth.existingSecret`)
     ##
     auth:
-      postgresPassword: "<path:fortress-prod/data/shared#crucible-admin-pass>"
-      username: "postgres"
-      password: "<path:fortress-prod/data/shared#crucible-admin-pass>"
-      database: "postgres"
+      postgresPassword: "crucible"
+      username: ""
+      password: ""
+      database: ""
       
     ## @param global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
     ##
