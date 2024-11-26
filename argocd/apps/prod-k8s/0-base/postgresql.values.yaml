@@ -61,7 +61,7 @@ primary:
   initdb:
     scripts:
       init.sql: |
-        CREATE EXTENSION uuid-ossp;
+        CREATE EXTENSION "uuid-ossp";
       # my_init_script.sh: |
   
     
