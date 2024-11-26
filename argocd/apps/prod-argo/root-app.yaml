@@ -13,7 +13,7 @@ spec:
   source:
     path: apps
     repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-argo.git
-    targetRevision: main
+    targetRevision: HEAD
     directory:
       recurse: false
   sources: []

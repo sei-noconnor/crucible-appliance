@@ -10,7 +10,7 @@ spec:
   generators:
   - git:
       repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-argo.git
-      revision: main
+      revision: HEAD
       files:
       - path: "apps/1-applications/*.json"
   template:

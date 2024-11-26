@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "osticket",
-        "project_branch" : "main",
+        "project_branch" : "HEAD",
         "namespace" : "default",
         "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",

@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "stackstorm",
-        "project_branch" : "main",
+        "project_branch" : "HEAD",
         "namespace" : "default",
         "manifest_type": "helm",
         "helm_repo" : "https://helm.stackstorm.com/",

@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "player-connect",
-        "project_branch" : "main",
+        "project_branch" : "HEAD",
 	"namespace" : "default",
 	"manifest_type": "yaml",
         "helm_chart" : "",
