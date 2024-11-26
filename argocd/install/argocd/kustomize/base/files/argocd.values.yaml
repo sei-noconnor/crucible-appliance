@@ -205,7 +205,7 @@ configs:
               elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "helm" ]]; then
                 helm template --version $ARGOCD_ENV_CHART_VERSION --repo $ARGOCD_ENV_HELM_REPO $ARGOCD_ENV_HELM_CHART --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE -f $ARGOCD_ENV_VALUES_FILE $ARGOCD_ENV_ADDITIONAL_ARGS | argocd-vault-plugin generate -
               elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "helm-oci" ]]; then
-                helm template $ARGOCD_ENV_HELM_CHART --version $ARGOCD_ENV_CHART_VERSION --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE ${ARGOCD_ENV_HELM_ARGS} | argocd-vault-plugin generate -
+                helm template $ARGOCD_ENV_HELM_CHART --version $ARGOCD_ENV_CHART_VERSION --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE --values $ARGOCD_ENV_VALUES_FILE ${ARGOCD_ENV_HELM_ARGS} | argocd-vault-plugin generate -
               elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "kustomize" ]]; then
                 kustomize build . | argocd-vault-plugin generate -
               fi
