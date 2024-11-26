@@ -7,13 +7,13 @@ replicaCount: 1
 # imagePullSecrets:
 
 image:
-  repository: gcr.io/k8s-staging-sig-storage/nfs-provisioner
-  tag: v3.0.0
+  repository: registry.k8s.io/sig-storage/nfs-provisioner
+  tag: v4.0.8
   # digest:
   pullPolicy: IfNotPresent
 
 # For a list of available arguments
-# Please see https://github.com/kubernetes-incubator/external-storage/blob/master/nfs/docs/deployment.md#arguments
+# Please see https://github.com/kubernetes-incubator/external-storage/blob/HEAD/nfs/docs/deployment.md#arguments
 extraArgs: {}
   # device-based-fsids: false
   # grace-period: 0
@@ -33,11 +33,20 @@ service:
   # rquotadNodePort:
   # rpcbindNodePort:
   # statdNodePort:
+  # clusterIP:
 
-  externalIPs: []
+  externalIPs: 
 
 persistence:
   enabled: true
+
+  ## Existing Persistent Volume Claim
+  ## This should be used with persistence.enabled=true
+  ## If defined, an existing volume claim will be used, instead
+  ## of creating a new one. i.e. volume definition:
+  ## persistentVolumeClaim:
+  ##   claimName: {{ tpl .Values.persistence.existingClaim . }}
+  # existingClaim: "my-existing-pvc"
 
   ## Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
@@ -46,10 +55,10 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  # storageClass: "-"
+  storageClass: "longhorn"
 
   accessMode: ReadWriteOnce
-  size: 1Gi
+  size: 30Gi
 
 ## For creating the StorageClass automatically:
 storageClass:
@@ -73,6 +82,8 @@ storageClass:
 
   mountOptions:
     - vers=3
+    - retrans=2
+    - timeo=30
 
   ## ReclaimPolicy field of the class, which can be either Delete or Retain
   reclaimPolicy: Delete
@@ -84,6 +95,23 @@ rbac:
   ## Ignored if rbac.create is true
   ##
   serviceAccountName: default
+
+securityContext:
+  capabilities:
+    add:
+      - DAC_READ_SEARCH
+      - SYS_RESOURCE
+
+## For creating the PriorityClass automatically:
+priorityClass:
+  ## Enable creation of a PriorityClass resource for this nfs-server-provisioner instance
+  create: false
+
+  ## Set a PriorityClass name to override the default name
+  name: ""
+
+  ## PriorityClass value. The higher the value, the higher the scheduling priority
+  value: 5
 
 resources: {}
   # limits:
@@ -98,3 +126,4 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
