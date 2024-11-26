@@ -46,13 +46,6 @@ architecture: standalone
   ## @param primary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
   ## Example:
 primary:
-  resources:
-    requests:
-      cpu: "2.0"
-      memory: 512Mi
-    limits:
-      cpu: "2.5"
-      memory: 1024Mi
   extendedConfiguration: |
     max_connections=150
   initdb:
@@ -64,4 +57,3 @@ primary:
     
 metrics:
   enabled: true
-  resourcesPreset: "micro"
