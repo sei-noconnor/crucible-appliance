@@ -53,7 +53,7 @@ init-gitea:
 	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f - || true
 	./packer/scripts/05-setup-gitea.sh
 	make download-packages
-	# make gitea-init-repos
+	make gitea-init-repos
 	# make gitea-replace-repos
 
 gitea-init-repos:

@@ -26,16 +26,16 @@ GITEA_DEST_ORG=${GITEA_DEST_ORG:-fortress-manifests}
 LOCAL_REPO_DIR=/home/$USER/repos
 
 # Check for source repo admin password.
-if [[ -z "${GITEA_SOURCE_PASSWORD}" || "${GITEA_SOURCE_PASSWORD}" == "null" ]]; then 
-    read -sp "Enter the password for ${GITEA_SOURCE_SERVER}:  " USER_INPUT
-    echo
-    if [ -z "$USER_INPUT" ]; then
-        echo "Password cannot be empty. Exiting."
-        exit 1
-    fi
-    # Set the environment variable
-    export GITEA_SOURCE_PASSWORD="$USER_INPUT"
-fi
+# if [[ -z "${GITEA_SOURCE_PASSWORD}" || "${GITEA_SOURCE_PASSWORD}" == "null" ]]; then 
+#     read -sp "Enter the password for ${GITEA_SOURCE_SERVER}:  " USER_INPUT
+#     echo
+#     if [ -z "$USER_INPUT" ]; then
+#         echo "Password cannot be empty. Exiting."
+#         exit 1
+#     fi
+#     # Set the environment variable
+#     export GITEA_SOURCE_PASSWORD="$USER_INPUT"
+# fi
 
 echo "Processing repos in ${LOCAL_REPO_DIR}"
 
@@ -72,21 +72,21 @@ function get_token() {
     #echo "Token generated successfully: $TOKEN_NAME from ${SERVER}"
     echo $TOKEN
 }
-GITEA_SOURCE_TOKEN=$(get_token "${GITEA_SOURCE_SERVER}" "${GITEA_SOURCE_USERNAME}" "${GITEA_SOURCE_PASSWORD}" "repo,write:org")
+#GITEA_SOURCE_TOKEN=$(get_token "${GITEA_SOURCE_SERVER}" "${GITEA_SOURCE_USERNAME}" "${GITEA_SOURCE_PASSWORD}" "repo,write:org")
 GITEA_DEST_TOKEN=$(get_token "${GITEA_DEST_SERVER}" "${GITEA_DEST_USERNAME}" "${GITEA_DEST_PASSWORD}" "write:organization,write:package,write:repository")
 
-# You could also specify arbitrary repos anywhere 
-GITEA_SOURCE_REPOS=(
-    "https://${GITEA_SOURCE_TOKEN}@${GITEA_SOURCE_SERVER}/${GITEA_SOURCE_ORG}/fortress-prod-argo.git"
-    "https://${GITEA_SOURCE_TOKEN}@${GITEA_SOURCE_SERVER}/${GITEA_SOURCE_ORG}/fortress-prod-k8s.git"
-)
-#Download the source repos
-for repo in "${GITEA_SOURCE_REPOS[@]}"; do
-    echo "Downloading repo $repo"
-    BASENAME=$(basename "$repo")
-    REPO_NAME=${BASENAME%.*}
-    git clone $repo --bare ${LOCAL_REPO_DIR}/${REPO_NAME}
-done
+# # You could also specify arbitrary repos anywhere 
+# GITEA_SOURCE_REPOS=(
+#     "https://${GITEA_SOURCE_TOKEN}@${GITEA_SOURCE_SERVER}/${GITEA_SOURCE_ORG}/fortress-prod-argo.git"
+#     "https://${GITEA_SOURCE_TOKEN}@${GITEA_SOURCE_SERVER}/${GITEA_SOURCE_ORG}/fortress-prod-k8s.git"
+# )
+# #Download the source repos
+# for repo in "${GITEA_SOURCE_REPOS[@]}"; do
+#     echo "Downloading repo $repo"
+#     BASENAME=$(basename "$repo")
+#     REPO_NAME=${BASENAME%.*}
+#     git clone $repo --bare ${LOCAL_REPO_DIR}/${REPO_NAME}
+# done
 
 # Iterate over each subdirectory in the base directory and load to appliance gitea server
 for DIR in "${LOCAL_REPO_DIR}"/*; do
@@ -127,8 +127,8 @@ for DIR in "${LOCAL_REPO_DIR}"/*; do
         cd "$DIR"
         
         # Set the remote and push
-        git config --local --bool core.bare false 
-        git reset HEAD -- .
+        # git config --local --bool core.bare false 
+        # git reset HEAD -- .
         REMOTE_URL="https://${GITEA_DEST_TOKEN}@${GITEA_DEST_SERVER}/${GITEA_DEST_ORG}/${REPO_NAME}.git"
         git remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
         git push -u appliance main

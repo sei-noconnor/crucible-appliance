@@ -42,7 +42,7 @@ rsync -avP $REPO_DIR/ $REPO_DEST/
 cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/topomojo/kustomize/base/files/topomojo.values.yaml
 
 # Add root-ca configmap to default namespace
-kubectl -n default create configmap root-ca --from-file=root-ca.crt=dist/ssl/server/tls/root-ca.pem
+kubectl -n default create configmap root-ca --from-file=root-ca.crt=$DIST_DIR/ssl/server/tls/root-ca.pem
 
 # Update argocd admin password in argocd values
 export ARGO_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ADMIN_PASS" | tr -d ':\n' | sed 's/$2y/$2a/')
