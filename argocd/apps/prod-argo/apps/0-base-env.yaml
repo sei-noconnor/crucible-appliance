@@ -36,8 +36,6 @@ spec:
               value: '{{app.helm_chart}}'
             - name: HELM_RELEASE_NAME
               value: '{{app.project_name}}'
-            - name: HTTP_PROXY
-              value: ''
             - name: NAMESPACE
               value: '{{app.namespace}}'
             - name: VALUES_FILE
