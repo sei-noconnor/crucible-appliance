@@ -58,6 +58,12 @@ primary:
       memory: 1024Mi
   extendedConfiguration: |
     max_connections=150
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE EXTENSION uuid-ossp;
+      # my_init_script.sh: |
+  
     
 metrics:
   enabled: true
