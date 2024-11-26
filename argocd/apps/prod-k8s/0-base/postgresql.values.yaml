@@ -26,24 +26,13 @@ global:
       username: "postgres"
       password: "<path:fortress-prod/data/shared#crucible-admin-pass>"
       database: "postgres"
-      existingSecret: "postgresql"
+      
     ## @param global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
     ##
     service:
       ports:
         postgresql: ""
 
-## @section Common parameters
-##
-
-## @param kubeVersion Override Kubernetes version
-##
-
-image:
-  registry: docker.io
-  repository: bitnami/postgresql
-  tag: 15.3.0-debian-11-r7
-  pullPolicy: IfNotPresent
 
 architecture: standalone
   ## @param primary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
