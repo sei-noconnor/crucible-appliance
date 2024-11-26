@@ -30,7 +30,7 @@ env:
 storage:
   storageClass: "nfs"
   size: 5Gi
-  mode: ReadWriteOnce
+  mode: "ReadWriteMany"
 
 plugins:
   enabled: false

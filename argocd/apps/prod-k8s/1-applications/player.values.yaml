@@ -60,10 +60,10 @@ player-api:
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   # this is used to store uploaded files
   storage:
-    existing: "player-files-nfs-pvc"
-    size: ""
-    mode: ""
-    class: ""
+    existing: ""
+    size: "5G"
+    mode: "ReadWriteMany"
+    class: "nfs"
 
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,
@@ -204,10 +204,10 @@ vm-api:
     
   # iso - an NFS volume mount for ISO uploads
   iso:
-    enabled: true
+    enabled: false
     size: ""
-    server: "nfs-svc.cwd.cert.org"
-    path: "/data/iso/player-player-api/isos"
+    server: ""
+    path: ""
 
   # Ingress configuration example for NGINX
   # TLS and Host URLs need configured
