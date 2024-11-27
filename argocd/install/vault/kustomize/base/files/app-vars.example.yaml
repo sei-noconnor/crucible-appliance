@@ -73,7 +73,7 @@ shared:
   oauth-admin-guid: d29518c4-f61c-4284-81c4-f2fbd79e6e9a
   oauth-authority-url: realms/crucible
   oauth-authorization-url: realms/crucible/protocol/openid-connect/auth
-  oauth-crucible-admin-guid: d29518c4-f61c-4284-81c4-f2fbd79e6e9a
+  oauth-crucible-admin-guid: 6a4feb54-e3b4-4d09-b09a-9b13aaaca466
   oauth-env: fortress
   oauth-gid: 00eb8904-5b88-4c68-ad67-cec0d2e07aa6
   oauth-provider: keycloak
