@@ -12,7 +12,7 @@ spec:
       repoURL: https://github.com/sei-noconnor/crucible-appliance.git
       revision: offline-reorg
       files:
-      - path: "argocd/apps/prod-argo/1-applications/*.json"
+      - path: "argocd/apps/prod-argo/apps/1-applications/*.json"
   template:
     metadata:
       name: '{{app.project_name}}'
