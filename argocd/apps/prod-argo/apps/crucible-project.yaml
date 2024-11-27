@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  name: project-crucible-fortress-prod
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  description: App bundle for crucible apps deployed to fortress-prod
+  destinations:
+    - namespace: default
+      server: '*'
+  sourceRepos:
+    - 'https://crucible.local/gitea/fortress-manifests/fortress-prod-k8s.git'

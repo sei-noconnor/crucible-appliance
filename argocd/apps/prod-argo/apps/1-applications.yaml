@@ -1,0 +1,50 @@
+#generate and deploy apps defined in the crucible folder
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  name: appset-0-applications
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-argo.git
+      revision: HEAD
+      files:
+      - path: "apps/1-applications/*.json"
+  template:
+    metadata:
+      name: '{{app.project_name}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-k8s.git
+        targetRevision: '{{app.project_branch}}'
+        path: "1-applications"
+        plugin:
+          name: argocd-vault-plugin
+          env:
+            - name: MANIFEST_TYPE
+              value : '{{app.manifest_type}}'
+            - name: ADDITIONAL_ARGS
+              value: '{{app.helm_args}}'
+            - name: CHART_VERSION
+              value: '{{app.helm_chart_version}}'
+            - name: HELM_REPO
+              value: '{{app.helm_repo}}'
+            - name: HELM_CHART
+              value: '{{app.helm_chart}}'
+            - name: HELM_RELEASE_NAME
+              value: '{{app.project_name}}'
+            - name: NAMESPACE
+              value: '{{app.namespace}}'
+            - name: VALUES_FILE
+              value: '{{app.values_file}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: false

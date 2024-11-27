@@ -1,0 +1,13 @@
+{
+    "app": {
+        "project_name" : "fortress-tls",
+        "project_branch" : "HEAD",
+        "namespace" : "default",
+        "manifest_type": "yaml",
+        "helm_chart" : "",
+        "helm_chart_version" : "",
+        "helm_repo": "",
+        "values_file" : "fortress-tls.secret.yaml",
+        "helm_args" : ""
+    }
+}
