@@ -7,20 +7,11 @@ ADMIN_PASS=${ADMIN_PASS:-crucible}
 # CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
 CURL_OPTS=( --user "administrator:${ADMIN_PASS}" --header "accept: application/json" --header "Content-Type: application/json" )
 echo "Waiting for gitea to become available"
-timeout 5m bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://crucible.local/gitea)" != "200" ]]; do sleep 5; done'
-sleep 5
-
+timeout 30s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://crucible.local/gitea)" != "200" ]]; do sleep 5; done'
 
 REPO_DIR=/home/crucible/crucible-appliance
 REPO_DEST=/tmp/crucible-appliance
 GITEA_ORG=fortress-manifests
-
-# Change to the current directory
-cd ${REPO_DEST}
-
-# Set git user vars
-git config user.name "Crucible Administrator"
-git config user.email "administrator@crucible.local"
 
 # Create Organization
 curl "${CURL_OPTS[@]}" \
@@ -52,10 +43,7 @@ curl "${CURL_OPTS[@]}" \
 }
 EOF
 
-
-cd /tmp/crucible-appliance
-
-GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
 
 # Replace Repo URL to cluster gitea
 find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.local\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;

@@ -32,11 +32,13 @@ init: sudo-deps add-coredns-entry
 	make snapshot
 	
 init-argo: add-coredns-entry
+	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault
 	make vault-argo-role
 	make vault-app-vars
 	make init-gitea
+	make repo-sync
 	./packer/scripts/03-init-argo.sh
 	
 unseal-vault:
