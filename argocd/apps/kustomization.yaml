@@ -1,8 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namespace: argocd
-resources: 
-- http-echo/Application.yaml
-- keycloak/Application.yaml
-- topomojo/Application.yaml
-- mkdocs/Application.yaml
