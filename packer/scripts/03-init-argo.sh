@@ -35,8 +35,6 @@ REPO_DEST="/tmp/crucible-appliance"
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "INSTALL_DIR: ${INSTALL_DIR}"
 echo "REPO_DIR: ${REPO_DIR}"
-rsync -avP $REPO_DIR/ $REPO_DEST/
-
 
 # Add certificate to topomojo, This is the only way it works. TODO: Update topomojo helm chart
 cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/topomojo/kustomize/base/files/topomojo.values.yaml
@@ -49,35 +47,39 @@ export ARGO_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ADMIN_PASS" | tr -d ':\n' | sed 
 
 # Need unwrapscalar to preserve formating of "|-" "|" "->"
 #yq -i --unwrapScalar=true '.configs.secret.argocdServerAdminPassword = env(ARGO_ADMIN_PASS)' ${INSTALL_DIR}/argocd/kustomize/base/files/argocd.values.yaml
+if [ -d $REPO_DEST ];then 
+  # Install ArgoCD
+  kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
 
-# Install ArgoCD
-kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl apply -f -
+  time=2
+  echo "Sleeping $time"
+  sleep $time
+  # Wait for ArgoCD
+  kubectl wait deployment \
+  --all \
+  --for=condition=Available \
+  --namespace=argocd \
+  --timeout=5m
 
-time=2
-echo "Sleeping $time"
-sleep $time
-# Wait for ArgoCD
-kubectl wait deployment \
---all \
---for=condition=Available \
---namespace=argocd \
---timeout=5m
+  kubectl config set-context --current --namespace=argocd
 
-kubectl config set-context --current --namespace=argocd
+  kubectl apply -f $REPO_DEST/argocd/patches/Application.yaml
+  kubectl apply -f $REPO_DEST/argocd/apps/prod-argo/root-app.yaml
 
-kubectl apply -f $REPO_DEST/argocd/patches/Application.yaml
-kubectl apply -f $REPO_DEST/argocd/apps/prod-argo/root-app.yaml
+  time=60
+  echo "Sleeping $time seconds to wait for apps to sync"
+  sleep $time
 
-time=60
-echo "Sleeping $time seconds to wait for apps to sync"
-sleep $time
+  #Wait for Deployments (most apps)
+  echo "Waiting for ALL deployments 'Status: Avaialble' This may cause a timeout."
+  kubectl wait deployment \
+  --all \
+  --for=condition=Available \
+  --all-namespaces=true \
+  --timeout=5m
 
-Wait for Deployments (most apps)
-echo "Waiting for ALL deployments 'Status: Avaialble' This may cause a timeout."
-kubectl wait deployment \
---all \
---for=condition=Available \
---all-namespaces=true \
---timeout=5m
-
-#rm -rf $REPO_DEST
+  #rm -rf $REPO_DEST
+else 
+  echo "Temporary Repo at $REPO_DEST does not exist! Install will fail"
+  exit 1 
+fi
