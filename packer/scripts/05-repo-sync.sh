@@ -45,6 +45,7 @@ git -C $REPO_DEST add "**/*.key"
 git -C $REPO_DEST add --all
 git -C $REPO_DEST user.name="admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
 git -C $REPO_DEST commit -m "update repo urls and add certificates"
+git -C $REPO_DEST remove origin
 REMOTE_URL="https://administrator:crucible@crucible.local/gitea/fortress-manifests/crucible-appliance.git"
 git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
 git -C $REPO_DEST push appliance $GIT_BRANCH -f

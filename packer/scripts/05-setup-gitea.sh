@@ -62,7 +62,7 @@ find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-rep
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/crucible.local\/gitea\/${GITEA_ORG}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: HEAD/targetRevision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BRANCH}/g" {} \;
-find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"project_branch\": \"${GIT_BRANCH}\"/g" {} \;
+find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
 
 # Modify app path slightly
 git -C $REPO_DEST add "**/*.pem"
@@ -70,6 +70,7 @@ git -C $REPO_DEST add "**/*.key"
 git -C $REPO_DEST add --all
 git -C $REPO_DEST commit -m "update repo urls and add certificates"
 git -C $REPO_DEST remote remove appliance
+git -C $REPO_DEST remote remove origin
 git -C $REPO_DEST remote add appliance https://administrator:${ADMIN_PASS}@crucible.local/gitea/${GITEA_ORG}/crucible-appliance.git
 git -C $REPO_DEST push -u appliance --mirror -f || true
 
