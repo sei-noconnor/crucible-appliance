@@ -1,0 +1,233 @@
+topomojo-api:
+  # Default values for topomojo-api.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+
+  replicaCount: 1
+
+  image:
+    repository: cmusei/topomojo-api
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "2.3.3"
+  serviceAccount:
+    create: true
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    enabled: true
+    annotations: 
+      nginx.ingress.kubernetes.io/proxy-body-size: 6g
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: ca-issuer
+    hosts:
+      - host: <path:fortress-prod/data/shared#domain>
+        paths:
+          - path: /topomojo/api
+            pathType: ImplementationSpecific
+          - path: /topomojo/hub
+            pathType: ImplementationSpecific
+          - path: /topomojo/docs
+            pathType: ImplementationSpecific
+    tls: 
+    - secretName: <path:fortress-prod/data/shared#domain>-tls
+      hosts:
+        - <path:fortress-prod/data/shared#domain>
+  
+    # storage - either an existing pvc, the size for a new pvc, or emptyDir
+  storage:
+    size: 10G
+    mode: ReadWriteOnce
+    class: "nfs"
+
+  autoscaling:
+    enabled: false
+    
+
+  ## customStart overrides the default start process.  Files are mounted in `/start`
+  # customStart: 
+  #   command: ['/bin/sh']
+  #   args: ['/start/start.sh']
+  #   binaryFiles: {}
+  #   files:
+  #     start.sh: |
+  #       #!/bin/sh
+  #       cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
+  #       cd /app && dotnet TopoMojo.Api.dll
+  #     cacert.crt: ""
+
+  ## existingSecret references a secret already in k8s. The values are saved as files in `/app/conf`.
+  existingSecret: ""
+
+  # Config app settings with environment vars.
+  # Those most likely needing values are listed. For others,
+  # see https://github.com/cmu-sei/TopoMojo/blob/master/src/TopoMojo.Api/appsettings.conf
+  env:
+    PathBase: "/topomojo"
+    Database__Provider: PostgreSQL
+    Database__ConnectionString: <path:fortress-prod/data/topomojo#topomojo-api-connection-string>
+    Database__SeedFile: seed-data.json
+    Database__AdminId: <path:fortress-prod/data/shared#oauth-admin-guid>
+    Database__AdminName: Administrator
+    # Cache__RedisUrl: ""
+    # Cache__Key: ""
+    # Cache__SharedFolder: ""
+    Oidc__Audience: topomojo-api
+    Oidc__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
+    OpenApi__Enabled: true
+    OpenApi__ApiName: TopoMojo
+    OpenApi__Client__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_topomojo-api
+    FileUpload__TopoRoot: tm
+    FileUpload__IsoRoot: tm/isos
+    FileUpload__DocRoot: tm/_docs
+    Pod__Url: ""
+    Pod__User: ""
+    Pod__Password: ""
+    Pod__PoolPath: ""
+    Pod__Uplink: vSwitch0
+    Pod__VmStore: ""
+    Pod__IsoStore: ""
+    Pod__DiskStore: ""
+    Pod__TicketUrlHandler: querystring
+    Pod__Vlan__Range: ""
+    Pod__KeepAliveMinutes: 10
+    Pod__DebugVerbose: false
+    Pod__IsNsxNetwork: false
+    Pod__Sddc__ApiUrl: ""
+    Pod__Sddc__MetadataUrl: ""
+    Pod__Sddc__SegmentApiPath: policy/api/v1/infra/tier-1s/cgw/segments
+    Pod__Sddc__ApiKey: ""
+    Pod__Sddc__AuthUrl: ""
+    Pod__Sddc__CertificatePath: ""
+    Pod__Sddc__CertificatePassword: ""
+    Logging__Console__DisableColors: false
+    Logging__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
+
+
+topomojo-ui:
+  # Default values for topomojo-ui.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+
+  replicaCount: 1
+
+  image:
+    repository: cmusei/topomojo-ui
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "2.3.2"
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: false
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    enabled: true
+    annotations: 
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      nginx.ingress.kubernetes.io/proxy-body-size: 6g
+      cert-manager.io/cluster-issuer: ca-issuer
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: <path:fortress-prod/data/shared#domain>
+        paths:
+          - path: /topomojo
+            pathType: ImplementationSpecific
+    tls: 
+     - secretName: <path:fortress-prod/data/shared#domain>-tls
+       hosts:
+         - <path:fortress-prod/data/shared#domain>
+    
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 20m
+    #   memory: 20Mi
+    # requests:
+    #   cpu: 10m
+    #   memory: 10Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  ## basehref is path to the app
+  basehref: "/topomojo"
+
+  ## openGraph is string of html head metadata (single line!)
+  # openGraph: >-
+  #   <!-- Open Graph info for link previews -->
+  #   <meta property="og:title" content="AppNmae" />
+  #   <meta property="og:type" content="website" />
+  #   <meta property="og:url" content="https://some.url" />
+  #   <meta property="og:image" content="https://some.url/logo.png" />
+  #   <meta property="og:description" content="description" />
+
+  ## faviconsUrl is a url to tgz of icon bundle. If bundle has favicon.html,
+  ## its contents will be merged into index.html head element.
+  # faviconsUrl: "https://some.url/favs.tgz"
+
+  ## settings is stringified json that gets included as assets/settings.json
+  settings: |
+    {
+      "appname": "TopoMojo",
+      "apphost": "",
+      "mkshost": "",
+      "oidc": {
+        "client_id": "fortress_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_topomojo-ui",
+        "authority": "https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible",
+        "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo/oidc",
+        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo/oidc-silent.html",
+        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo",
+        "response_type": "code",
+        "scope": "openid profile topomojo-api",
+        "automaticSilentRenew": true,
+        "useLocalStorage": true
+      },
+      "urls": {
+          "apiUrl": "",
+          "docUrl": ""
+      }
+    }
+

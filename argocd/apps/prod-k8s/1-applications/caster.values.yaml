@@ -1,0 +1,215 @@
+caster-api:
+  kind: "StatefulSet"
+  image:
+    repository: cmusei/caster-api
+    tag: "3.1"
+    pullPolicy: IfNotPresent
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
+    hosts:
+      - host: <path:fortress-prod/data/shared#domain>
+        paths:
+          - path: /caster/(api|swagger|hubs)
+            pathType: Prefix
+    tls:
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
+        hosts:
+          - <path:fortress-prod/data/shared#domain>
+
+    # Gets placed in /etc/gitconfig to allow immediate Gitlab access via access token
+    # Replace TOKEN with an access token created in Gitlab, and update the Gitlab URL
+    gitcredentials: ""
+
+  # Use a .terraformrc file to overwrite standard Terraform configuration
+  terraformrc:
+    enabled: true
+    value: |
+      plugin_cache_dir = "/terraform/plugin-cache"
+      plugin_cache_may_break_dependency_lock_file = true
+
+  certificateMap: "root-ca"
+
+  # storage - either an existing pvc, the size for a new pvc, or emptyDir
+  storage:
+    existing: ""
+    size: "2G"
+    mode: ReadWriteOnce
+
+    class: <path:fortress-prod/data/caster#caster-storage-class>
+
+  env:
+    PathBase: "/caster"
+    # This deployment comes built in with a script to install Terraform and the necessary
+    # plugins to run Caster properly.  Internet access is required for this script to run properly.
+    # It's recommended that this should remain false.  Please see the file "terraform-installation.tpl"
+    # for more information on the installation process.
+    http_proxy: <path:fortress-prod/data/shared#http_proxy>
+    https_proxy: <path:fortress-prod/data/shared#https_proxy>
+    HTTP_PROXY: <path:fortress-prod/data/shared#http_proxy>
+    HTTPS_PROXY: <path:fortress-prod/data/shared#https_proxy>
+    no_proxy: <path:fortress-prod/data/shared#no_proxy>,slag,gitlab-webservice-default
+    NO_PROXY: <path:fortress-prod/data/shared#no_proxy>,slag,gitlab-webservice-default
+    SKIP_TERRAFORM_INSTALLATION: false
+
+    VSPHERE_SERVER: "<path:fortress-prod/data/vsphere#vsphere-server>"
+    VSPHERE_USER: "<path:fortress-prod/data/vsphere#vsphere-user>"
+    VSPHERE_PASSWORD: "<path:fortress-prod/data/vsphere#vsphere-pass>"
+    VSPHERE_ALLOW_UNVERIFIED_SSL: true
+
+    SEI_CRUCIBLE_USERNAME: <path:fortress-prod/data/shared#crucible-admin-user>
+    SEI_CRUCIBLE_PASSWORD: <path:fortress-prod/data/shared#crucible-admin-pass>
+    SEI_CRUCIBLE_AUTH_URL: https://<path:fortress-prod/data/shared#domain>/identity/connect/authorize
+    SEI_CRUCIBLE_TOK_URL: https://<path:fortress-prod/data/shared#domain>/identity/connect/token
+    SEI_CRUCIBLE_CLIENT_ID: <path:fortress-prod/data/caster#caster-api-crucible-client-id>
+    SEI_CRUCIBLE_CLIENT_SECRET: <path:fortress-prod/data/caster#caster-api-crucible-client-secret>
+    SEI_CRUCIBLE_VM_API_URL: https://<path:fortress-prod/data/shared#domain>/vm/api/
+    SEI_CRUCIBLE_PLAYER_API_URL: https://<path:fortress-prod/data/shared#domain>/player/api/
+    SEI_CRUCIBLE_CASTER_API_URL: https://<path:fortress-prod/data/shared#domain>/caster/api/
+    SEI_IDENTITY_TOK_URL: https://<path:fortress-prod/data/shared#domain>/identity/connect/token
+    SEI_IDENTITY_CLIENT_ID: <path:fortress-prod/data/caster#caster-api-sei-id-client-id>
+    SEI_IDENTITY_CLIENT_SECRET: <path:fortress-prod/data/caster#caster-api-sei-id-client-secret>
+    SEI_IDENTITY_API_URL: https://<path:fortress-prod/data/shared#domain>/identity/api/
+
+    # See here for more information regarding AllowedHosts
+    # https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.hostfiltering.hostfilteringoptions.allowedhosts?view=aspnetcore-3.1
+    AllowedHosts: "*"
+    Logging__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__System: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__Microsoft: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__System: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__Microsoft: "<path:fortress-prod/data/shared#crucible-log-level>"
+    CorsPolicy__Origins__0: "https://<path:fortress-prod/data/shared#domain>"
+    # CorsPolicy__AllowAnyOrigin: true
+    CorsPolicy__AllowAnyMethod: true
+    CorsPolicy__AllowAnyHeader: true
+
+    ConnectionStrings__PostgreSQL: "<path:fortress-prod/data/caster#caster-api-db-connection-string>"
+
+    # OAuth2 Identity Client for Application
+    Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
+    Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
+    Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
+    Authorization__AuthorizationScope: "caster-api"
+    Authorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_caster-api
+
+    # OAuth2 Identity Client /w Password
+    Client__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
+    Client__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_caster-admin
+    Client__UserName: "<path:fortress-prod/data/shared#crucible-admin-user>"
+    Client__Password: "<path:fortress-prod/data/shared#crucible-admin-pass>"
+    Client__Scope: "player-api vm-api"
+
+    # Crucible Player URLs
+    Player__VmApiUrl: "https://<path:fortress-prod/data/shared#domain>/vm"
+    Player__VmConsoleUrl: "https://<path:fortress-prod/data/shared#domain>/console/vm/{id}/console"
+
+    # Terraform Information
+    # - DefaultVersion - The default version to be used.
+    # - GitlabApiUrl - URL to the deployed Gitlab instance
+    Terraform__BinaryPath: /terraform/binaries
+    Terraform__RootWorkingDirectory: /terraform/root
+    Terraform__PluginCache: /terraform/plugin-cache
+    Terraform__DefaultVersion: "0.14.10"
+    Terraform__GitlabApiUrl: "http://gitlab-webservice-default:8080/api/v4/"
+    Terraform__GitlabToken: "<path:fortress-prod/data/caster#caster-api-gitlab-token-terraform>"
+    Terraform__GitlabGroupId: "4"
+
+    # Configurable save lengths for Caster untagged versions
+    FileVersions__DaysToSaveAllUntaggedVersions: 7
+    FileVersions__DaysToSaveDailyUntaggedVersions: 31
+
+    # Basic seed data to jumpstart deployement
+    SeedData__Users__0__id: "<path:fortress-prod/data/shared#oauth-admin-guid>"
+    SeedData__Users__0__name: "administrator@<path:fortress-prod/data/shared#domain>"
+    SeedData__Users__1__id: "<path:fortress-prod/data/shared#oauth-crucible-admin-guid>"
+    SeedData__Users__1__name: "crucible-admin@<path:fortress-prod/data/shared#domain>"
+    SeedData__UserPermissions__0__UserId: "<path:fortress-prod/data/shared#oauth-admin-guid>"
+    SeedData__UserPermissions__0__PermissionId: "00000000-0000-0000-0000-000000000001"
+    SeedData__UserPermissions__1__UserId: "<path:fortress-prod/data/shared#oauth-crucible-admin-guid>"
+    SeedData__UserPermissions__1__PermissionId: "00000000-0000-0000-0000-000000000001"
+
+caster-ui:
+  image:
+    repository: cmusei/caster-ui
+    tag: "3.3.2"
+    pullPolicy: IfNotPresent
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
+    hosts:
+      - host: <path:fortress-prod/data/shared#domain>
+        paths:
+          - path: "/caster(/|$)(.*)"
+            pathType: Prefix
+    tls:
+      - secretName: <path:fortress-prod/data/shared#domain>-tls
+        hosts:
+          - <path:fortress-prod/data/shared#domain>
+
+  env:
+    ## basehref is path to the app
+    APP_BASEHREF: "/caster"
+
+  # Config app settings with a JSON file.
+  # These values correspond to an OpenID connect client
+  settings: |-
+    {
+      "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/caster",
+      "OIDCSettings": {
+        "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
+        "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_caster-ui",
+        "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/caster/auth-callback",
+        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/caster",
+        "response_type": "code",
+        "scope": "openid profile email caster-api",
+        "automaticSilentRenew": true,
+        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/caster/auth-callback-silent"
+      },
+      "UseLocalAuthStorage": true,
+      "AppTopBarHexColor": "#E9831C",
+      "AppTopBarHexTextColor": "#FFFFFF",
+      "AppTopBarText": "Caster",
+      "Hotkeys": {
+        "PROJECT_NEW": {
+          "keys": "meta.p",
+          "group": "",
+          "description": "New Project"
+        },
+        "ENTER": {
+          "keys": "enter",
+          "group": "Global",
+          "description": "Default 'confirm'",
+          "allowIn": ["INPUT"]
+        },
+        "ESCAPE": {
+          "keys": "escape",
+          "group": "Global",
+          "description": "Default 'cancel'",
+          "allowIn": ["INPUT", "TEXTAREA"]
+        },
+        "FILE_LOCK_TOGGLE": {
+          "keys": "control.l",
+          "group": "Editor",
+          "description": "Unlock / Lock a file",
+          "allowIn": ["INPUT", "TEXTAREA"]
+        },
+        "FILE_SAVE": {
+          "keys": "control.s",
+          "group": "Editor",
+          "description": "Save a file",
+          "allowIn": ["INPUT", "TEXTAREA"]
+        }
+      }
+    }
