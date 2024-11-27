@@ -30,16 +30,20 @@ rsync -avP $REPO_DIR/ $REPO_DEST/
 GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
 echo "REPO Destination: $REPO_DEST"
 cd $REPO_DEST
-find . -name "Application.yaml" -exec sed -i "s/main/${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.local\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/crucible.local\/gitea\/${GITEA_ORG}/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: HEAD/targetRevision: ${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\": \"HEAD\"/\"project_branch\": \"${GIT_BRANCH}\"/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> .gitignore
 # allow root-ca.key to be commited. This is bad, use a vault!
 echo "!**/*/root-ca.key" >> .gitignore
-git checkout $GIT_BRANCH
-git  add -u 
-git add "**/*.pem"
-git add "**/*.key"
-git -c user.name="admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
+git -C $REPO_DEST add "**/*.pem"
+git -C $REPO_DEST add "**/*.key"
+git -C $REPO_DEST add --all
+git -C $REPO_DEST user.name="admin" -c user.email="admin@crucible.local" commit -m "Appliance Init, it's your repo now!" 
+git -C $REPO_DEST commit -m "update repo urls and add certificates"
 REMOTE_URL="https://administrator:crucible@crucible.local/gitea/fortress-manifests/crucible-appliance.git"
-git remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
-git push appliance $GIT_BRANCH -f
+git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
+git -C $REPO_DEST push appliance $GIT_BRANCH -f
