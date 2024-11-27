@@ -16,8 +16,8 @@ spec:
     syncOptions:
     - CreateNamespace=true
   sources:
-  - path: argocd/apps/mkdocs/kustomize/overlays/appliance
-    repoURL: file:///crucible-repo/crucible-appliance
+  - path: argocd/prod-k8s/1-applications/mkdocs/kustomize/overlays/appliance
+    repoURL: https://github.com/sei-noconnor/crucible-appliance.git
     targetRevision: main
     
 
