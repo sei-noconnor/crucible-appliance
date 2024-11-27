@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # Copyright 2022 Carnegie Mellon University.
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
@@ -22,7 +22,7 @@ cd ${REPO_DEST}
 git config user.name "Crucible Administrator"
 git config user.email "administrator@crucible.local"
 
-# Create crucible organization
+# Create Organization
 curl "${CURL_OPTS[@]}" \
   --request POST "https://crucible.local/gitea/api/v1/orgs" \
   --data @- <<EOF
@@ -58,9 +58,13 @@ cd /tmp/crucible-appliance
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 # Replace Repo URL to cluster gitea
-find . -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.local\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
-# Modify app path slightly
+find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.local\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/crucible.local\/gitea\/${GITEA_ORG}/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: HEAD/targetRevision: ${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\": \"HEAD\"/\"project_branch\": \"${GIT_BRANCH}\"/g" {} \;
 
+# Modify app path slightly
 git -C $REPO_DEST add --all
 git -C $REPO_DEST add "**/*.pem"
 git -C $REPO_DEST add "**/*.key"
