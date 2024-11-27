@@ -9,19 +9,19 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-argo.git
-      revision: HEAD
+      repoURL: https://github.com/sei-noconnor/crucible-appliance.git
+      revision: offline-reorg
       files:
-      - path: "apps/1-applications/*.json"
+      - path: "argocd/apps/prod-argo/1-applications/*.json"
   template:
     metadata:
       name: '{{app.project_name}}'
     spec:
       project: default
       source:
-        repoURL: https://crucible.local/gitea/fortress-manifests/fortress-prod-k8s.git
+        repoURL: https://github.com/sei-noconnor/crucible-appliance.git
         targetRevision: '{{app.project_branch}}'
-        path: "1-applications"
+        path: "argocd/apps/prod-k8s/1-applications"
         plugin:
           name: argocd-vault-plugin
           env:
