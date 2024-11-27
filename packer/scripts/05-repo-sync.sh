@@ -35,7 +35,7 @@ find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-rep
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/crucible.local\/gitea\/${GITEA_ORG}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: HEAD/targetRevision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BRANCH}/g" {} \;
-find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\": \"HEAD\"/\"project_branch\": \"${GIT_BRANCH}\"/g" {} \;
+find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> .gitignore
 # allow root-ca.key to be commited. This is bad, use a vault!
