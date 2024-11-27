@@ -19,6 +19,7 @@ DIST_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../dist)"
 APPS_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../argocd/apps/)"
 REPO_DIR="$($readlink_cmd ${SCRIPTS_DIR}/../../)"
 REPO_DEST="/tmp/crucible-appliance"
+GITEA_ORG=fortress-manifests
 
 echo "CHARTS_DIR: ${CHARTS_DIR}"
 echo "INSTALL_DIR: ${INSTALL_DIR}"
