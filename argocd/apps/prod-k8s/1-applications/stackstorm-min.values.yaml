@@ -232,7 +232,7 @@ st2client:
   # Note that Helm templating is supported in this block!
   st2clientConfig: |
     [credentials]
-    username = st2admin
+    username = administrator
     password = <path:fortress-prod/data/shared#crucible-admin-pass>
 
 st2garbagecollector:
@@ -254,7 +254,7 @@ jobs:
   # Note that Helm templating is supported in this block!
   st2clientConfig: |
     [credentials]
-    username = st2admin
+    username = administrator
     password = <path:fortress-prod/data/shared#crucible-admin-pass>
 
 mongodb:
