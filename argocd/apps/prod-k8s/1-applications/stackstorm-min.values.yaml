@@ -21,16 +21,16 @@ serviceAccount:
 ##
 st2:
   username: administrator
-  password: $ADMIN_PASS
+  password: <path:fortress-prod/data/shared#crucible-admin-pass>
   config: |
     [api]
     allow_origin = 'https://<path:fortress-prod/data/shared#domain>'
     [database]
-    host = $STACKSTORM_MONGO_SERVER
+    host = <path:fortress-prod/data/stackstorm#stackstorm-mongo-server>
     port = 27017
     db_name = st2
-    username = $STACKSTORM_MONGO_USER
-    password = $STACKSTORM_MONGO_PASS
+    username = <path:fortress-prod/data/stackstorm#stackstorm-mongo-user>
+    password = <path:fortress-prod/data/stackstorm#stackstorm-mongo-pass>
   system_user:
     user: stanley
     # templating is allowed for this key
@@ -38,22 +38,22 @@ st2:
 
   packs:
     configs:
-      azure.yaml: |
-        ---
-        compute:
-          subscription_id: "$AZURE_COMPUTE_SUBSCRIPTION_ID"
-          cert_file: "$AZURE_COMPUTE_CERT_FILE"
-        storage:
-          name: "$AZURE_STORAGE_NAME"
-          access_key: "$AZURE_STORAGE_ACCESS_KEY"
-        resource_manager:
-          client_id: '$AZURE_RESOURCE_CLIENT_ID'
-          secret: '$AZURE_RESOURCE_SECRET'
-          tenant: '$AZURE_RESOURCE_TENANT'
-          default_resource_group: '$AZURE_RESOURCE_DEFAULT_GROUP'
-        user:
-          username: '$AZURE_USER'
-          password: '$AZURE_PASS'
+      # azure.yaml: |
+      #   ---
+      #   compute:
+      #     subscription_id: "$AZURE_COMPUTE_SUBSCRIPTION_ID"
+      #     cert_file: "$AZURE_COMPUTE_CERT_FILE"
+      #   storage:
+      #     name: "$AZURE_STORAGE_NAME"
+      #     access_key: "$AZURE_STORAGE_ACCESS_KEY"
+      #   resource_manager:
+      #     client_id: '$AZURE_RESOURCE_CLIENT_ID'
+      #     secret: '$AZURE_RESOURCE_SECRET'
+      #     tenant: '$AZURE_RESOURCE_TENANT'
+      #     default_resource_group: '$AZURE_RESOURCE_DEFAULT_GROUP'
+      #   user:
+      #     username: '$AZURE_USER'
+      #     password: '$AZURE_PASS'
       vsphere.yaml: |
         ---
         ssl_verify: false
@@ -232,8 +232,8 @@ st2client:
   # Note that Helm templating is supported in this block!
   st2clientConfig: |
     [credentials]
-    username = ${ST2_AUTH_USERNAME}
-    password = ${ST2_AUTH_PASSWORD}
+    username = st2admin
+    password = <path:fortress-prod/data/shared#crucible-admin-pass>
 
 st2garbagecollector:
   # Having 1 st2garbagecollector unique replica is enough for periodic task like st2 history garbage collection
@@ -254,8 +254,8 @@ jobs:
   # Note that Helm templating is supported in this block!
   st2clientConfig: |
     [credentials]
-    username = ${ST2_AUTH_USERNAME}
-    password = ${ST2_AUTH_PASSWORD}
+    username = st2admin
+    password = <path:fortress-prod/data/shared#crucible-admin-pass>
 
 mongodb:
   # Change to `false` to disable in-cluster mongodb deployment.
@@ -280,10 +280,10 @@ rabbitmq:
   auth:
     username: administrator
     # TODO: Use default random 10 character password, but need to fetch this string for use by downstream services
-    password: $ADMIN_PASS
+    password: <path:fortress-prod/data/shared#crucible-admin-pass>
     # Up to 255 character string, should be fixed so that re-deploying the chart does not fail (see: https://github.com/helm/charts/issues/12371)
     # NB! It's highly recommended to change the default insecure rabbitmqErlangCookie value!
-    erlangCookie: $STACKSTORM_RABBITMQ_COOKIE
+    erlangCookie: <path:fortress-prod/data/stackstorm#stackstorm-rabbitmq-cookie>
   # RabbitMQ Memory high watermark. See: http://www.rabbitmq.com/memory.html
   # Default values might not be enough for StackStorm deployment to work properly. We recommend to adjust these settings for you needs as well as enable Pod memory limits via "resources".
   #rabbitmqMemoryHighWatermark: 512MB

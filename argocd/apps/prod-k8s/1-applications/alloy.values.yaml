@@ -1,8 +1,8 @@
 alloy-api:
   image:
     repository: cmusei/alloy-api
-    tag: '3.4.3'
-    pullPolicy: Always
+    tag: 3.4.3
+    pullPolicy: IfNotPresent
   command: ["bash", "-c", "update-ca-certificates && dotnet Alloy.Api.dll"]
 
   ingress:
