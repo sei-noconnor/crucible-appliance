@@ -215,7 +215,7 @@ topomojo-ui:
       "apphost": "",
       "mkshost": "",
       "oidc": {
-        "client_id": "fortress_00eb8904-5b88-4c68-ad67-cec0d2e07aa6_topomojo-ui",
+        "client_id": "topomojo-ui",
         "authority": "https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible",
         "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo/oidc",
         "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo/oidc-silent.html",
