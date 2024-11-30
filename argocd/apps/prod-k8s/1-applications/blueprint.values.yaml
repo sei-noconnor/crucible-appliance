@@ -666,7 +666,7 @@ blueprint-ui:
       "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/blueprint",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible",
-        "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_blueprint-ui",
+        "client_id": "blueprint-ui",
         "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/blueprint/auth-callback",
         "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/blueprint",
         "response_type": "code",

@@ -99,7 +99,7 @@ alloy-ui:
       "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/alloy",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
-        "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_alloy-ui",
+        "client_id": "alloy-ui",
         "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/alloy/auth-callback",
         "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/alloy",
         "response_type": "code",

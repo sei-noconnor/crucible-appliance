@@ -104,7 +104,7 @@ player-api:
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
     Authorization__AuthorizationScope: "player-api"
-    Authorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_player-api
+    Authorization__ClientId: player-api
     Authorization__ClientName: "Player API"
 
     # Basic seed data to jumpstart deployement
@@ -152,7 +152,7 @@ player-ui:
       "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/player",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
-        "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_player-ui",
+        "client_id": "player-ui",
         "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/player/auth-callback",
         "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/player",
         "response_type": "code",
@@ -308,12 +308,12 @@ vm-api:
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
     Authorization__AuthorizationScope: "vm-api player-api"
-    Authorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_vm-api
+    Authorization__ClientId: vm-api
     Authorization__ClientName: "VM API"
 
     # OAuth2 Identity Client /w Password
     IdentityClient__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
-    IdentityClient__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_player-admin
+    IdentityClient__ClientId: player-admin
     IdentityClient__Scope: "player-api vm-api"
     IdentityClient__UserName: "<path:fortress-prod/data/shared#crucible-admin-user>"
     IdentityClient__Password: "<path:fortress-prod/data/shared#crucible-admin-pass>"
@@ -397,7 +397,7 @@ vm-ui:
        "UserFollowUrl": "https://<path:fortress-prod/data/shared#domain>/console/user/{userId}/view/{viewId}/console",
        "OIDCSettings": {
            "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
-           "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_vm-ui",
+           "client_id": "vm-ui",
            "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/vm/auth-callback",
            "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/vm",
            "response_type": "code",
@@ -447,7 +447,7 @@ console-ui:
       "ConsoleApiUrl": "https://<path:fortress-prod/data/shared#domain>/vm/api",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
-        "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_vm-console-ui",
+        "client_id": "vm-console-ui",
         "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/console/auth-callback",
         "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/console",
         "response_type": "code",

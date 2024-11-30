@@ -44,12 +44,12 @@ gallery-api:
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/auth
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/token
     Authorization__AuthorizationScope: "gallery-api"
-    Authorization__ClientId: "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_gallery-api"
+    Authorization__ClientId: "gallery-api"
     Authorization__ClientName: Gallery API
 
     # OAuth2 Identity Client /w Password
     ResourceOwnerAuthorization__Authority: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
-    ResourceOwnerAuthorization__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_gallery-admin"
+    ResourceOwnerAuthorization__ClientId: gallery-admin"
     ResourceOwnerAuthorization__UserName: <path:fortress-prod/data/shared#crucible-admin-user>
     ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass>
     ResourceOwnerAuthorization__Scope: "steamfitter-api player-api vm-api"
@@ -111,7 +111,7 @@ gallery-ui:
       "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/gallery",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible",
-        "client_id": "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_gallery-ui",
+        "client_id": "gallery-ui",
         "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/gallery/auth-callback",
         "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/gallery",
         "response_type": "code",
