@@ -1,0 +1,13 @@
+{
+    "app": {
+        "project_name" : "stackstorm",
+        "project_branch" : "HEAD",
+        "namespace" : "default",
+        "manifest_type": "helm",
+        "helm_repo" : "https://helm.stackstorm.com/",
+        "helm_chart" : "stackstorm-ha",
+        "helm_chart_version" : "0.110.0",
+        "values_file" : "stackstorm-min.values.yaml",
+	"helm_args" : ""
+    }
+}

@@ -8,6 +8,7 @@
         "helm_chart" : "",
         "helm_chart_version" : "",
         "values_file" : "",
-        "helm_args" : ""
+        "helm_args" : "",
+        "kustomize_dir" : "argocd/apps/prod-k8s/1-applications/keycloak/kustomize/overlays/appliance"
     }
 }

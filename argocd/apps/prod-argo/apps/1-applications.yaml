@@ -41,6 +41,8 @@ spec:
               value: '{{app.namespace}}'
             - name: VALUES_FILE
               value: '{{app.values_file}}'
+            - name: KUSTOMIZE_DIR
+              value: '{{app.kustomize_dir}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: default
