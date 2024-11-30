@@ -49,7 +49,7 @@ git -C $REPO_DEST user.name="admin" -c user.email="admin@${DOMAIN}" commit -m "$
 
 # Function to check if the server is up
 is_server_up() {
-    curl -s --head --request GET "$GITEA_SERVER" | grep "200 OK" > /dev/null
+    curl -s --head --request GET "$GITEA_SERVER" | grep "200" > /dev/null
 }
 
 # Wait for the server to be up
