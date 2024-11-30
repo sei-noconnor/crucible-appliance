@@ -8,6 +8,7 @@
         "helm_chart" : "blueprint",
         "helm_chart_version" : "1.4.1",
         "values_file" : "blueprint.values.yaml",
-        "helm_args" : ""
+        "helm_args" : "",
+        "kustomize_dir" : ""
     }
 }

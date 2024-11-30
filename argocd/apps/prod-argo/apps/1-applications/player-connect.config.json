@@ -8,6 +8,7 @@
         "helm_chart_version" : "",
 	    "repo_url": "",
         "values_file" : "player-connect.ingress.yaml",
-        "helm_args" : ""
+        "helm_args" : "",
+        "kustomize_dir" : ""
     }
 }

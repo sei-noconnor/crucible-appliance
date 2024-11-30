@@ -8,6 +8,7 @@
         "helm_chart" : "steamfitter",
         "helm_chart_version" : "1.4.2",
         "values_file" : "steamfitter.values.yaml",
-        "helm_args" : ""
+        "helm_args" : "",
+        "kustomize_dir" : ""
     }
 }

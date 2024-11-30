@@ -8,6 +8,7 @@
         "helm_chart" : "topomojo",
         "helm_chart_version" : "0.3.8",
         "values_file" : "topomojo.values.yaml",
-	    "helm_args" : ""
+	    "helm_args" : "",
+        "kustomize_dir" : ""
     }
 }

@@ -8,6 +8,7 @@
         "helm_chart" : "stackstorm-ha",
         "helm_chart_version" : "0.110.0",
         "values_file" : "stackstorm-min.values.yaml",
-	"helm_args" : ""
+	    "helm_args" : "",
+        "kustomize_dir" : ""
     }
 }
