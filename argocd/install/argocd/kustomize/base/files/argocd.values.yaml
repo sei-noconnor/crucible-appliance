@@ -207,7 +207,7 @@ configs:
               elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "helm-oci" ]]; then
                 helm template $ARGOCD_ENV_HELM_CHART --version $ARGOCD_ENV_CHART_VERSION --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE --values $ARGOCD_ENV_VALUES_FILE ${ARGOCD_ENV_HELM_ARGS} | argocd-vault-plugin generate -
               elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "kustomize" ]]; then
-                kustomize build $ARGOCD_ENV_KUSTOMIZE_DIR | argocd-vault-plugin generate -
+                kustomize build $ARGOCD_ENV_KUSTOMIZE_DIR --enable-helm | argocd-vault-plugin generate -
               fi
   # Argo CD sensitive data
   # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#sensitive-data-and-sso-client-secrets
