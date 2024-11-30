@@ -23,7 +23,7 @@ GITEA_DEST_PASSWORD=${GITEA_DEST_PASSWORD:-crucible}
 GITEA_DEST_ORG=${GITEA_DEST_ORG:-fortress-manifests}
 
 # Local vars
-LOCAL_REPO_DIR=/home/$USER/repos
+LOCAL_REPO_DIR=/home/crucible/repos
 
 # Check for source repo admin password.
 # if [[ -z "${GITEA_SOURCE_PASSWORD}" || "${GITEA_SOURCE_PASSWORD}" == "null" ]]; then 

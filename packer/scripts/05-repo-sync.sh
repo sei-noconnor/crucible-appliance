@@ -6,7 +6,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 # set all config dirs to absolute paths
-REPO_DIR="/home/$USER/crucible-appliance"
+REPO_DIR="/home/crucible/crucible-appliance"
 REPO_DEST="/tmp/crucible-appliance"
 GITEA_SERVER="${2:-https://$DOMAIN/gitea}"
 CMT_MSG=${1:-}
