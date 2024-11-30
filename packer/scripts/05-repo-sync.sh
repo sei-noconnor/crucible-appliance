@@ -38,14 +38,14 @@ find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BR
 find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
 
 # allow root-ca.pem to be commited.
-echo "!**/*/root-ca.pem" >> .gitignore
+echo "!**/*/root-ca.pem" >> $REPO_DEST/.gitignore
 # allow root-ca.key to be commited. This is bad, use a vault!
-echo "!**/*/root-ca.key" >> .gitignore
+echo "!**/*/root-ca.key" >> $REPO_DEST/.gitignore
 
 git -C $REPO_DEST add "**/*.pem"
 git -C $REPO_DEST add "**/*.key"
 git -C $REPO_DEST add --all
-git -C $REPO_DEST user.name="admin" -c user.email="admin@${DOMAIN}" commit -m "${CMT_MSG:-Generic repo-sync commit, see diff}"
+git -C $REPO_DEST -c "user.name=admin" -c "user.email=admin@${DOMAIN}" commit -m "${CMT_MSG:-Generic repo-sync commit, see diff}"
 
 # Function to check if the server is up
 is_server_up() {
