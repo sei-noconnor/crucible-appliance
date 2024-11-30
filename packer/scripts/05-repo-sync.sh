@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # Detect Mac and use greadlink
 readlink_cmd="readlink -m"
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -20,7 +20,12 @@ if [ ! -d $REPO_DEST ]; then
   mkdir -p $REPO_DEST
 fi
 echo "Copying repo from $REPO_DIR to $REPO_DEST"
-rsync -avP $REPO_DIR/ $REPO_DEST/
+rsync -avP \
+    --exclude dist/containers \
+    --exclude dist/tools \
+    --exclude dist/debian \
+    $REPO_DIR/ $REPO_DEST/
+
 GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
 echo "REPO Destination: $REPO_DEST"
 echo
