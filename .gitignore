@@ -53,3 +53,4 @@ appliance.yaml
 **/*/argo-role-id*
 **/*/argo-secret-id*
 **/*/app-vars.yaml
+!**/*/issuers-dod-certs.crt
