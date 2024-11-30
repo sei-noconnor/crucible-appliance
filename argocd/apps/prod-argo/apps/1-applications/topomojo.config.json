@@ -3,12 +3,12 @@
         "project_name" : "topomojo",
         "project_branch" : "HEAD",
         "namespace" : "default",
-        "manifest_type": "helm",
+        "manifest_type": "kustomize",
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart" : "topomojo",
         "helm_chart_version" : "0.3.8",
-        "values_file" : "topomojo.values.yaml",
+        "values_file" : "",
 	    "helm_args" : "",
-        "kustomize_dir" : ""
+        "kustomize_dir" : "topomojo/kustomize/overlays/appliance"
     }
 }
