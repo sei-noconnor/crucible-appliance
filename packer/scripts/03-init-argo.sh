@@ -37,10 +37,10 @@ echo "INSTALL_DIR: ${INSTALL_DIR}"
 echo "REPO_DIR: ${REPO_DIR}"
 
 # Add certificate to topomojo, This is the only way it works. TODO: Update topomojo helm chart
-cat $DIST_DIR/ssl/server/tls/root-ca.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/prod-k8s/1-applications/topomojo/kustomize/base/files/topomojo.values.yaml
+cat $DIST_DIR/ssl/server/tls/root-chain.pem | sed 's/^/        /' | sed -i -re 's/(cacert.crt:).*/\1 |-/' -e '/cacert.crt:/ r /dev/stdin' $APPS_DIR/prod-k8s/1-applications/topomojo/kustomize/base/files/topomojo.values.yaml
 
 # Add root-ca configmap to default namespace
-kubectl -n default create configmap root-ca --from-file=root-ca.crt=$DIST_DIR/ssl/server/tls/root-ca.pem
+kubectl -n default create configmap root-ca --from-file=root-ca.crt=$DIST_DIR/ssl/server/tls/root-chain.pem
 
 # Update argocd admin password in argocd values
 export ARGO_ADMIN_PASS=$(htpasswd -nbBC 10 "" "$ADMIN_PASS" | tr -d ':\n' | sed 's/$2y/$2a/')
