@@ -7,7 +7,7 @@ ADMIN_PASS=${ADMIN_PASS:-crucible}
 # CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
 CURL_OPTS=( --user "administrator:${ADMIN_PASS}" --header "accept: application/json" --header "Content-Type: application/json" )
 echo "Waiting for gitea to become available"
-timeout 30s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://crucible.local/gitea)" != "200" ]]; do sleep 5; done'
+timeout 60s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://crucible.local/gitea)" != "200" ]]; do sleep 5; done'
 
 REPO_DIR=/home/crucible/crucible-appliance
 REPO_DEST=/tmp/crucible-appliance
