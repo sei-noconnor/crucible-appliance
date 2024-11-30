@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # Detect Mac and use greadlink
 readlink_cmd="readlink -m"
 if [[ "$OSTYPE" == "darwin"* ]]; then
