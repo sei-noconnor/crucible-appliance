@@ -44,6 +44,7 @@ data:
     $IP keystore.$DOMAIN
     $IP cd.$DOMAIN
     $IP code.$DOMAIN
+    $IP help.$DOMAIN
 kind: ConfigMap
 metadata:
   name: coredns

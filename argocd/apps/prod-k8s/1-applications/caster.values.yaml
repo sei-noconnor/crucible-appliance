@@ -101,7 +101,7 @@ caster-api:
 
     # OAuth2 Identity Client /w Password
     Client__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
-    Client__ClientId: <path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_caster-admin
+    Client__ClientId: caster-admin
     Client__UserName: "<path:fortress-prod/data/shared#crucible-admin-user>"
     Client__Password: "<path:fortress-prod/data/shared#crucible-admin-pass>"
     Client__Scope: "player-api vm-api"

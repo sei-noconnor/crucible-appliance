@@ -47,7 +47,7 @@ blueprint-api:
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/auth
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/token
     Authorization__AuthorizationScope: "blueprint-api cite-api gallery-api player-api vm-api steamfitter-api"
-    Authorization__ClientId: "<path:fortress-prod/data/shared#oauth-env>_<path:fortress-prod/data/shared#oauth-gid>_blueprint-api"
+    Authorization__ClientId: "blueprint-api"
     Authorization__ClientName: "Blueprint API"
     
     ClientSettings__CiteApiUrl: "https://<path:fortress-prod/data/shared#domain>/cite"

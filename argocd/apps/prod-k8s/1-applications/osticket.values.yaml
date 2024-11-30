@@ -15,9 +15,9 @@ image:
 #   - "sleep 3600"
 
 env:
-  https_proxy: <path:fortress-prod/data/shared#https_proxy>
-  http_proxy: <path:fortress-prod/data/shared#http_proxy>
-  no_proxy: <path:fortress-prod/data/shared#no_proxy>
+  # https_proxy: <path:fortress-prod/data/shared#https_proxy>
+  # http_proxy: <path:fortress-prod/data/shared#http_proxy>
+  # no_proxy: <path:fortress-prod/data/shared#no_proxy>
   MYSQL_HOST: <path:fortress-prod/data/osticket#mysql_host>
   MYSQL_USER: <path:fortress-prod/data/osticket#mysql_user>
   MYSQL_PASSWORD: <path:fortress-prod/data/osticket#mysql_password>
@@ -28,9 +28,9 @@ env:
 
 # Plugins to add to osticket. Only NFS is supported at this time. 
 storage:
-  storageClass: "nfs"
+  storageClass: nfs
   size: 5Gi
-  mode: "ReadWriteMany"
+  mode: ReadWriteMany
 
 plugins:
   enabled: false
