@@ -161,15 +161,14 @@ CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
 DOMAIN=${DOMAIN:-crucible.local}
 
-if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
-    # Delete old entry
-    sudo sed -i "/$DOMAIN/d" /etc/hosts
-    msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"
-    # Append it to the hosts file
-    tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
-    sudo echo "$CURRENT_IP   $DOMAIN" >> /etc/hosts
-    msg="Entry update in host file: /etc/hosts '$CURRENT_IP   $DOMAIN'"
-fi
+# Delete old entry
+sudo sed -i "/$DOMAIN/d" /etc/hosts
+msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"
+# Append it to the hosts file
+tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
+sudo echo "$CURRENT_IP   $DOMAIN" >> /etc/hosts
+msg="Entry update in host file: /etc/hosts '$CURRENT_IP   $DOMAIN'"
+
 
 ################################
 ##### Install Dependencies #####
