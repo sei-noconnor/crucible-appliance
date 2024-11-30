@@ -76,7 +76,7 @@ if [ -d $REPO_DEST ];then
   --all \
   --for=condition=Available \
   --all-namespaces=true \
-  --timeout=5m
+  --timeout=10m
 
   #rm -rf $REPO_DEST
 else 
