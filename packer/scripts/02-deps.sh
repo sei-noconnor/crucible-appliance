@@ -237,6 +237,6 @@ vault --version
 echo "Sleeping for 20 seconds for snapshot"
 sleep 20
 k3s etcd-snapshot save --name base-cluster
-
+sudo chown -R $SSH_USERNAME:$SSH_USERNAME /home/$SSH_USERNAME
 # Delete Ubuntu machine ID for proper DHCP operation on deploy
 #echo -n > /etc/machine-id
