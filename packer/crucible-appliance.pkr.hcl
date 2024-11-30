@@ -81,8 +81,8 @@ source "vsphere-iso" "crucible-appliance" {
   vm_name       = "crucible-appliance-iso-${var.appliance_version}"
   guest_os_type = "ubuntu64Guest"
 
-  CPUs            = 6
-  RAM             = 6144
+  CPUs            = 8
+  RAM             = 12288
   RAM_reserve_all = true
 
   ssh_username = var.ssh_username
@@ -105,7 +105,7 @@ source "vsphere-iso" "crucible-appliance" {
   disk_controller_type = ["pvscsi"]
   datastore            = var.datastore
   storage {
-    disk_size             = 51200
+    disk_size             = 61440
     disk_thin_provisioned = true
   }
 
