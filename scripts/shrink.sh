@@ -17,8 +17,10 @@ rm -rf /swap.img
 # for f in ${files[@]}; do
 #     rm $f
 # done
-echo "removing unused container images"
+# echo "removing unused container images"
 # sudo k3s ctr images prune --all
+echo "Removing temporary git repo"
+sudo rm -rf /tmp/crucible-appliance
 echo "Zeroing Disk, This may take some time"
 sudo dd if=/dev/zero of=~/fill.dd bs=1M
 sudo rm -rf ~/fill.dd

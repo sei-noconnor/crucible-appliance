@@ -16,7 +16,9 @@ REQ=$(curl "${CURL_OPTS[@]}" \
   {
     "name": "write-package-${RANDOM_NAME}",
     "scopes": [
-      "write:package"
+      "write:organization",
+      "write:package",
+      "write:repository"
     ]
   }
 EOF
@@ -31,8 +33,8 @@ ACCESS_TOKEN=$(echo ${REQ} | jq -r '.sha1')
 #CURL_OPTS="${CURL_OPTS[@]} --header Authorization: token ${ACCESS_TOKEN}"
 # Function to process Helm packages
 process_helm() {
-  helm_output=${DIST_OUTPUT}/helm
-  mkdir -p ${DIST_OUTPUT}/helm
+  helm_output=${DIST_OUTPUT}/cahrts
+  mkdir -p ${helm_output}
   helm_count=$(yq eval ".helm | length" "$YAML_FILE")
   for i in $(seq 0 $(($helm_count - 1))); do
     repoName=$(yq eval ".helm[$i].name" "$YAML_FILE")
@@ -143,8 +145,8 @@ process_generic() {
 }
 
 # Main script
-# echo "Processing Helm charts..."
-# process_helm
+echo "Processing Helm charts..."
+process_helm
 
 # echo "Processing Debian packages..."
 # process_debian
