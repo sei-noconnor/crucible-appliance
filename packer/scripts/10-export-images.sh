@@ -4,9 +4,9 @@ ARCH=amd64
 DIST_DIR=dist/containers
 image_list_file='argocd/install/gitea/kustomize/base/files/image-list.txt'
 # sudo k3s ctr images prune --all
-sudo k3s ctr images ls | awk 'NR>1{print $1}' > $image_list_file
+sudo k3s ctr images ls -q | awk '!/^sha256/ {print}' > $image_list_file
 images=$(cat "${image_list_file}")
-xargs -n1 sudo k3s ctr -n=k8s.io images pull <<< "${images}"
+# xargs -n1 sudo k3s ctr -n=k8s.io images pull <<< "${images}"
 if [ ! -d $DIST_DIR ]; then
     mkdir -p $DIST_DIR
 fi
