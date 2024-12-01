@@ -205,8 +205,8 @@ sudo mv $DIST_DIR/generic/k3s /usr/local/bin/k3s && sudo chmod +x /usr/local/bin
 INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.local}" $DIST_DIR/generic/k3s-install.sh
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sed -i "s/default/\${DOMAIN}/g" ~/.kube/config
-sed -i "s/127.0.0.1/\${DOMAIN}/g" ~/.kube/config
+sed -i "s/default/${DOMAIN}/g" ~/.kube/config
+sed -i "s/127.0.0.1/${DOMAIN}/g" ~/.kube/config
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~/.kube
 chmod go-r ~/.kube/config
 
@@ -241,5 +241,11 @@ echo "Sleeping for 20 seconds for snapshot"
 sleep 20
 k3s etcd-snapshot save --name base-cluster
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME /home/$SSH_USERNAME
+
+# limit docker pulls if container images exist
+if [ -f $DIST_DIR/containers/images-amd64.tar.zst ]; then 
+    make gitea-import-images
+fi
+
 # Delete Ubuntu machine ID for proper DHCP operation on deploy
 #echo -n > /etc/machine-id
