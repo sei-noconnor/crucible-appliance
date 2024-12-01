@@ -33,7 +33,7 @@ jobs:
       env:
         GITHUB_PULL_REQUEST: ${{ github.event.number }}
       with:
-        timeout_minutes: 120
+        timeout_minutes: 240
         max_attempts: 3
         command: make build
     - name: Get build_name from OVF file
