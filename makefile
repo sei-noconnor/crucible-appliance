@@ -7,10 +7,12 @@ SSL_DIR ?= /home/crucible/crucible-appliance/dist/ssl
 APPS_DIR ?= argocd/apps
 APPLIANCE_ENVIRONMENT ?= DEV
 APPLIANCE_IP ?= $(ip route get 1 | awk '{print $(NF-2);exit}')
+
 export SSL_DIR
 export APPS_DIR
 export ADMIN_PASS
 export DOMAIN
+
 
 generate_certs:
 	./scripts/generate_root_ca.sh
@@ -68,8 +70,11 @@ gitea-reset:
 	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
 
-gitea-package-images:
-	./packer/scripts/05-package-images.sh
+gitea-export-images:
+	./packer/scripts/10-export-images.sh
+
+gitea-import-images:
+	./packer/scripts/10-import-images.sh
 
 repo-sync:
 	./packer/scripts/05-repo-sync.sh
