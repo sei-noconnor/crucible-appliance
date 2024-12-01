@@ -178,14 +178,6 @@ build {
   }
 
   provisioner "shell" {
-    execute_command   = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
-    environment_vars  = [
-      "DEBIAN_FRONTEND=noninteractive",
-      "SSH_USERNAME=${var.ssh_username}",
-    ]
-  }
-
-  provisioner "shell" {
     execute_command   = "echo ${var.ssh_password} | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     environment_vars  = [
       "DEBIAN_FRONTEND=noninteractive",
