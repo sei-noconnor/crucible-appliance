@@ -24,10 +24,14 @@ source /etc/profile.d/crucible-env.sh
 CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
 DOMAIN=${DOMAIN:-crucible.local}
+IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 
 # Expand Volume
 sudo /home/crucible/crucible-appliance/packer/scripts/01-expand-volume.sh
 #sudo /home/crucible/crucible-appliance/packer/scripts/01-add-volume.sh
+
+#Set if the appliance is on the internet
+sudo sed -i "/IS_ONLINE=/c\export IS_ONLINE=\\$IS_ONLINE" /etc/profile.d/crucible-env.sh
 
 if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
     sudo sed -i "/APPLIANCE_IP=/d" /etc/profile.d/crucible-env.sh
