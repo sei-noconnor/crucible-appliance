@@ -4,9 +4,9 @@
         "project_branch" : "offline-reorg",
         "namespace" : "default",
         "manifest_type": "kustomize",
-        "helm_repo" : "",
+        "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart" : "",
-        "helm_chart_version" : "",
+        "helm_chart_version" : "0.2.2",
         "values_file" : "",
         "helm_args" : "",
         "kustomize_dir" : ""

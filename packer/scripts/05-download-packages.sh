@@ -33,7 +33,7 @@ ACCESS_TOKEN=$(echo ${REQ} | jq -r '.sha1')
 #CURL_OPTS="${CURL_OPTS[@]} --header Authorization: token ${ACCESS_TOKEN}"
 # Function to process Helm packages
 process_helm() {
-  helm_output=${DIST_OUTPUT}/cahrts
+  helm_output=${DIST_OUTPUT}/charts
   mkdir -p ${helm_output}
   helm_count=$(yq eval ".helm | length" "$YAML_FILE")
   for i in $(seq 0 $(($helm_count - 1))); do
@@ -133,14 +133,40 @@ process_generic() {
       file_name=$(basename "$item")
       file_version="0.0.0"  # Example, adjust as needed
       if [ -f $generic_output/$file_name ]; then
-        echo "Checking file size"
+        echo "File $file_name already downloaded, skipping download."
       else
-        curl -L -o $generic_output/$file_name $item 
+        curl -L -o $generic_output/$file_name $item
       fi
+
       package_url=$(echo "$giteaUrl" | sed "s|\${FILE}|$file_name|g" | sed "s|\${FILE_VERSION}|$file_version|g" | sed "s|\${FILE_NAME}|$file_name|g")
-      echo "Uploading generic file $item to $package_url"
-      curl --location -X PUT --upload-file $generic_output/$file_name $package_url?access_token=${ACCESS_TOKEN}
+
+      # Check if the package already exists
+      echo "Checking if $file_name exists at $package_url"
+      if curl --head --silent --fail "$package_url?access_token=${ACCESS_TOKEN}" > /dev/null; then
+        echo "Package $file_name already exists at $package_url. Skipping upload."
+      else
+        echo "Uploading generic file $file_name to $package_url"
+        curl --location -X PUT --upload-file $generic_output/$file_name "$package_url?access_token=${ACCESS_TOKEN}"
+      fi
     done
+  done
+
+  # Upload all files in the generic_output directory
+  echo "Uploading all files in $generic_output directory"
+  for file in "$generic_output"/*; do
+    if [ -f "$file" ]; then
+      file_name=$(basename "$file")
+      package_url=$(echo "$giteaUrl" | sed "s|\${FILE}|$file_name|g" | sed "s|\${FILE_VERSION}|0.0.0|g" | sed "s|\${FILE_NAME}|$file_name|g")
+
+      # Check if the package already exists
+      echo "Checking if $file_name exists at $package_url"
+      if curl --head --silent --fail "$package_url?access_token=${ACCESS_TOKEN}" > /dev/null; then
+        echo "Package $file_name already exists at $package_url. Skipping upload."
+      else
+        echo "Uploading additional file $file_name to $package_url"
+        curl --location -X PUT --upload-file "$file" "$package_url?access_token=${ACCESS_TOKEN}"
+      fi
+    fi
   done
 }
 

@@ -29,7 +29,8 @@ IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo fal
 # Expand Volume
 sudo /home/crucible/crucible-appliance/packer/scripts/01-expand-volume.sh
 #sudo /home/crucible/crucible-appliance/packer/scripts/01-add-volume.sh
-
+# Add coredns entry
+sudo /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh
 #Set if the appliance is on the internet
 sudo sed -i "/IS_ONLINE=/c\export IS_ONLINE=\\$IS_ONLINE" /etc/profile.d/crucible-env.sh
 
@@ -58,13 +59,13 @@ if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
     fi
     filename="${files[0]}"
     
-    if [ -n "$filename" ]; then
-        echo "You selected: $filename"
-        sudo systemctl stop k3s
-        sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
-        sudo systemctl daemon-reload
-        sudo systemctl start k3s
-    fi
+    # if [ -n "$filename" ]; then
+    #     echo "You selected: $filename"
+    #     sudo systemctl stop k3s
+    #     sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
+    #     sudo systemctl daemon-reload
+    #     sudo systemctl start k3s
+    # fi
     
     echo "CLUSTER RESET!"
     time=15

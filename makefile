@@ -42,6 +42,7 @@ init-argo: add-coredns-entry
 	make init-gitea
 	make repo-sync
 	./packer/scripts/03-init-argo.sh
+	make gitea-export-images
 	
 unseal-vault:
 	./packer/scripts/09-unseal-vault.sh
