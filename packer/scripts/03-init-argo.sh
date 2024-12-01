@@ -82,8 +82,6 @@ if [ -d $REPO_DEST ];then
   kubectl delete pod --field-selector=status.phase=Succeeded --all-namespaces
   kubectl delete pod --field-selector=status.phase=Failed --all-namespaces
 
-  make snapshot
-
   #rm -rf $REPO_DEST
 else 
   echo "Temporary Repo at $REPO_DEST does not exist! Install will fail"
