@@ -196,6 +196,8 @@ if [ $IS_ONLINE ]; then
     curl -z $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip -Lo $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip"
     curl -z $DIST_DIR/generic/go1.22.5.linux-amd64.tar.gz -Lo $DIST_DIR/generic/go1.22.5.linux-amd64.tar.gz "https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz"
     curl -z $DIST_DIR/generic/helm-v3.16.3-linux-amd64.tar.gz -Lo $DIST_DIR/generic/helm-v3.16.3-linux-amd64.tar.gz https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz
+    curl -z $DIST_DIR/generic/govc_Linux_x86_64.tar.gz -Lo $DIST_DIR/generic/govc_Linux_x86_64.tar.gz https://github.com/vmware/govmomi/releases/download/v0.46.2/govc_Linux_x86_64.tar.gz
+    curl -z $DIST_DIR/generic/k3sup -Lo $DIST_DIR/generic/k3sup https://github.com/alexellis/k3sup/releases/download/0.13.6/k3sup
 fi  
 # Install yq
 sudo mv $DIST_DIR/generic/yq /usr/bin/yq && sudo chmod +x /usr/bin/yq
@@ -228,6 +230,16 @@ sudo install -m 555 $DIST_DIR/generic/argocd-linux-amd64 /usr/local/bin/argocd
 
 # Install go
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf $DIST_DIR/generic/go1.22.5.linux-amd64.tar.gz
+
+# Install govc
+sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/govc_Linux_x86_64.tar.gz
+sudo chown root:root /usr/local/bin/govc
+sudo chmod +x /usr/local/bin/govc
+
+# Install k3sup
+sudo cp $DIST_DIR/generic/govc_Linux_x86_64.tar.gz /usr/local/bin/k3sup
+sudo chown root:root /usr/local/bin/k3sup
+sudo chmod +x /usr/local/bin/k3sup
 
 # Install Vault
 unzip $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip -d /usr/local/bin/
