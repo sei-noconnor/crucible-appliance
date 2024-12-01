@@ -19,9 +19,6 @@ rm -rf /swap.img
 # done
 echo "removing unused container images"
 sudo k3s ctr images prune --all
-# Add initContainer image back 
-sudo k3s ctr images pull registry.access.redhat.com/ubi8
-
 echo "Zeroing Disk, This may take some time"
 sudo dd if=/dev/zero of=~/fill.dd bs=1M
 sudo rm -rf ~/fill.dd
