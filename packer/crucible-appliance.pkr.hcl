@@ -29,6 +29,7 @@ source "virtualbox-iso" "crucible-appliance" {
   output_directory     = "output-virtualbox"
   rtc_time_base        = "UTC"
   shutdown_command     = "${local.shutdown_command}"
+  shutdown_timeout     = "${local.shutdown_timeout}"
   ssh_password         = "${var.ssh_password}"
   ssh_timeout          = "60m"
   ssh_username         = "${var.ssh_username}"
@@ -77,14 +78,11 @@ source "vsphere-iso" "crucible-appliance" {
   cluster             = var.cluster
   host                = var.host
   insecure_connection = true
-
   vm_name       = "crucible-appliance-iso-${var.appliance_version}"
   guest_os_type = "ubuntu64Guest"
-
   CPUs            = 8
   RAM             = 12288
   RAM_reserve_all = true
-
   ssh_username = var.ssh_username
   ssh_password = var.ssh_password
   ssh_timeout  = "60m"
@@ -108,18 +106,15 @@ source "vsphere-iso" "crucible-appliance" {
     disk_size             = 61440
     disk_thin_provisioned = true
   }
-
   iso_paths = ["[ISO] ubuntu-22.04-live-server-amd64.iso"]
-
   network_adapters {
     network = var.network_name
   }
-
   cd_files = ["./packer/meta-data", "./packer/user-data"]
   cd_label = "cidata"
-  
   boot_command = ["<wait>e<down><down><down><end> autoinstall ds=nocloud;<F10>"]
-
+  shutdown_command     = "${local.shutdown_command}"
+  shutdown_timeout     = "${local.shutdown_timeout}"
   export {
     output_directory = "./dist/output"
     output_format = "ovf"
