@@ -83,7 +83,7 @@ ingress:
       paths:
         - path: "/stackstorm/(.*)"
           pathType: Prefix
-          serviceName: stackstorm-ha-st2web
+          serviceName: stackstorm-st2web
           servicePort: 80
   tls:
     - secretName: <path:fortress-prod/data/shared#domain>-tls
