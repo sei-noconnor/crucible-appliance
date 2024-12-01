@@ -184,6 +184,9 @@ ARGOCD_VERSION="2.13.1"
 
 if [ $IS_ONLINE ]; then
     echo "Downloading Binaries"
+    if [ ! -d $DIST_DIR/generic ]; then
+        mkdir -p $DIST_DIR/{generic,containers,charts,deb}
+    fi
     curl -z $DIST_DIR/generic/k3s -Lo $DIST_DIR/generic/k3s "https://github.com/k3s-io/k3s/releases/download/v1.29.1%2Bk3s1/k3s"
     curl -z $DIST_DIR/generic/k3s-install.sh -Lo $DIST_DIR/generic/k3s-install.sh "https://get.k3s.io/" && chmod +x "$DIST_DIR/generic/k3s-install.sh"
     curl -z $DIST_DIR/generic/yq -Lo $DIST_DIR/generic/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
