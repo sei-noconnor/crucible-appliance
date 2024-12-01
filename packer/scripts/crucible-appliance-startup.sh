@@ -82,9 +82,12 @@ else
     msg="Crucible Appliance IPs match starting normally"
     crucible_log "$msg"
 fi
-if [ ! $IS_ONLINE && -f $DIST_DIR/containers/images-amd64.tar.zst ]
-    /home/crucible/crucible-appliance/packer/10-import-images.sh
-fi
 # Unseal the vault on startup 
 crucible_log "Attempting to unseal the vault"
 /home/crucible/crucible-appliance/packer/scripts/09-unseal-vault.sh
+
+image_count=$(sudo k3s ctr images ls | awk 'END{print NR'})
+    if [ ! $IS_ONLINE && -f $DIST_DIR/containers/images-amd64.tar.zst ]; then
+        /home/crucible/crucible-appliance/packer/10-import-images.sh
+    fi
+

@@ -76,7 +76,13 @@ if [ -d $REPO_DEST ];then
   --all \
   --for=condition=Available \
   --all-namespaces=true \
-  --timeout=10m
+  --timeout=15m
+
+  # Remove all successful jobs
+  kubectl delete pod --field-selector=status.phase=Succeeded --all-namespaces
+  kubectl delete pod --field-selector=status.phase=Failed --all-namespaces
+
+  make snapshot
 
   #rm -rf $REPO_DEST
 else 

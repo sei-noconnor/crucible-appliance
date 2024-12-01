@@ -183,10 +183,6 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "SSH_USERNAME=${var.ssh_username}",
     ]
-    inline = [
-      "cd /home/$SSH_USERNAME/crucible-appliance",
-      "make snapshot"
-    ]
   }
 
   provisioner "shell" {
