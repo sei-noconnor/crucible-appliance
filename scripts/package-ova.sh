@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 if git rev-parse --git-dir > /dev/null 2>&1; then
     VERSION_TAG=$(git tag --points-at HEAD)

@@ -1,0 +1,94 @@
+alloy: 
+  alloy-api-connection-string: Server=postgresql;Port=5432;Database=alloy_db;Username=postgres;Password=${ADMIN_PASS};SSL Mode=Prefer;Trust Server Certificate=true;
+argocd: 
+  argo-password: ${ADMIN_PASS}
+  argo-user: admin
+blueprint:
+  blueprint-db-connection-string: Server=postgresql;Port=5432;Database=blueprint_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+caster:
+  caster-api-crucible-client-id: player.provider
+  caster-api-crucible-client-secret: ~
+  caster-api-crucible-id: caster-admin
+  caster-api-db-connection-string: Server=postgresql;Port=5432;Database=caster_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+  caster-api-git-credentials: ~
+  caster-api-gitlab-token-terraform: ~
+  caster-api-sei-id-client-id: terraform-identity-provider
+  caster-api-sei-id-client-secret: 37f0f2c5e0c24cffa7c099ffea3804e0
+  caster-storage-class: longhorn
+cite:
+  cite-db-connection-string: Server=postgresql;Port=5432;Database=cite_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+  cite-user-0-id: 6a4feb54-e3b4-4d09-b09a-9b13aaaca466
+  cite-user-0-name: crucible-admin
+gallery:
+  gallery-db-connection-string: Server=postgresql;Port=5432;Database=gallery_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+gitea:
+  argocd-password: ${ADMIN_PASS}
+  argocd-token: ~
+  argocd-user: argocd
+  gitea-admin: administrator
+  gitea-admin-password: ${ADMIN_PASS}
+grafana:
+  grafana-admin-pass: ${ADMIN_PASS}
+  grafana-admin-user: admin
+graylog:
+  graylog-admin-pass: ${ADMIN_PASS}
+  graylog-admin-user: admin
+  mongo-root-pass: ${ADMIN_PASS}
+  mongo-user: graylog-user
+  mongo-user-pass: ${ADMIN_PASS}
+player:
+  player-api-db-connection-string: Server=postgresql;Port=5432;Database=player_db;Username=postgres;Password=${ADMIN_PASS};
+  player-vm-api-db-connection-string: Server=postgresql;Port=5432;Database=vm_db;Username=postgres;Password=${ADMIN_PASS};
+  player-vm-api-logging-connection-string: Server=postgresql;Port=5432;Database=vm_logging_db;Username=postgres;Password=${ADMIN_PASS};
+  player-vm-api-vsphere-pass: ${ADMIN_PASS}
+  player-vm-api-vsphere-user: caster-svc@vsphere.local
+  proxmox-token: ${PROXMOX_TOKEN}
+postgresql:
+  default-admin-pass: ${ADMIN_PASS}
+stackstorm:
+  stackstorm-mongo-key: ${ADMIN_PASS}
+  stackstorm-mongo-pass: ${ADMIN_PASS}
+  stackstorm-mongo-server: mongodb
+  stackstorm-mongo-user: st2
+  stackstorm-rabbitmq-cookie: ${ADMIN_PASS}
+  stackstorm-rabbitmq-password: ${ADMIN_PASS}
+  stackstorm-rabbitmq-user: administrator
+steamfitter:
+  steamfitter-api-connection-string: Server=postgresql;Port=5432;Database=steamfitter_db;Username=postgres;Password=${ADMIN_PASS};SSL Mode=Prefer;Trust Server Certificate=true;
+  steamfitter-api-vm-task-api-pass: ${ADMIN_PASS}
+  steamfitter-api-vm-task-api-user: administrator
+shared:
+  crucible-admin-pass: "${ADMIN_PASS}"
+  crucible-admin-user: crucible-admin@${DOMAIN}
+  crucible-log-level: Information
+  domain: "${DOMAIN}"
+  fortress-tls-fullchain: "${TLS_ROOT_CA}"
+  fortress-tls-fullchain-b64: "${TLS_ROOT_CA_B64}"
+  fortress-tls-key: "${TLS_ROOT_KEY}"
+  fortress-tls-key-b64: "${TLS_ROOT_KEY_B64}"
+  http_proxy: ~
+  https_proxy: ~
+  ingress-class: nginx
+  no_proxy: ~
+  oauth-admin-guid: d29518c4-f61c-4284-81c4-f2fbd79e6e9a
+  oauth-authority-url: realms/crucible
+  oauth-authorization-url: realms/crucible/protocol/openid-connect/auth
+  oauth-crucible-admin-guid: 6a4feb54-e3b4-4d09-b09a-9b13aaaca466
+  oauth-env: fortress
+  oauth-gid: 00eb8904-5b88-4c68-ad67-cec0d2e07aa6
+  oauth-provider: keycloak
+  oauth-token-url: realms/crucible/protocol/openid-connect/token
+  oauth-userapi-url: realms/crucible/protocol/openid-connect/userinfo
+topomojo:
+  topomojo-api-connection-string: Server=postgresql;Port=5432;Database=topomojo_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+vsphere: 
+  vsphere-cluster: ${VSPHERE_CLUSTER}
+  vsphere-datacenter: ${VSPHERE_DATACENTER}
+  vsphere-datastore: ${VSPHERE_DATASTORE}
+  vsphere-default-port-group: ${VSPHERE_PORTGROUP}
+  vsphere-download-cert: "false"
+  vsphere-dv-switch: ${VSPHERE_SWITCH}
+  vsphere-iso-datastore: ${VSPHERE_ISO_DATASTORE}
+  vsphere-pass: ${VSPHERE_PASS}
+  vsphere-server: ${VSPHERE_SERVER}
+  vsphere-user: ${VSPHERE_USER}

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: patches
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+  source:
+    path: argocd/patches
+    repoURL: https://crucible.local/gitea/fortress-manifests/crucible-appliance.git
+    targetRevision: offline-reorg
+    directory:
+      recurse: true

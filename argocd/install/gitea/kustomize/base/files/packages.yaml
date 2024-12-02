@@ -1,0 +1,99 @@
+giteaServer: https://${DOMAIN}
+owner: crucible
+
+helm:
+- name: sei
+  repoUrl: https://helm.cmusei.dev/charts
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - topomojo:0.3.8
+  - player:1.4.5
+  - player1.4.4
+  - alloy:1.4.1
+  - steamfitter:1.4.2
+  - steamfitter:1.4.1
+  - caster:1.4.3
+  - blueprint:1.4.1
+  - cite:1.4.1
+  - gallery:1.4.1
+  - mkdocs:0.2.2
+  - osticket:1.17.5
+  - topomojo:0.3.8
+
+- name: gitea
+  repoUrl: https://dl.gitea.io/charts/
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - gitea:1.4.0
+  - gitea:10.6.0
+- name: bitnami
+  repoUrl: https://charts.bitnami.com/bitnami
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - keycloak:15.1.8
+  - postgresql:12.8.0
+- name: ingress-nginx
+  repoUrl: https://kubernetes.github.io/ingress-nginx
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - ingress-nginx:4.11.3
+  - ingress-nginx:4.11.1
+- name: argocd
+  repoUrl: https://argoproj.github.io/argo-helm
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - argocd:7.6.2
+- name: stackstorm
+  repoUrl: https://helm.stackstorm.com
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - stackstorm-ha:0.110.0
+- name: jetstack
+  repoUrl: https://charts.jetstack.io
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - cert-manager:1.16.1
+- name: longhorn
+  repoUrl: https://charts.longhorn.io
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - longhorn:1.6.0
+  - longhorn:1.5.4
+  - longhorn:1.5.5
+- name: kvaps
+  repoUrl: https://kvaps.github.io/charts
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - nfs-server-provisioner:1.8.0
+- name: hashicorp
+  repoUrl: https://helm.releases.hashicorp.com
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - vault:0.27.0
+  
+helm-oci:
+  giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
+  items:
+  - oci://registry-1.docker.io/bitnamicharts/postgresql:12.12.10
+  - oci://registry-1.docker.io/bitnamicharts/mongodb:14.8.0
+containers:
+  giteaUrl: http://${DOMAIN}/api/v1/packages/${OWNER}/container/${ITEM}/${VERSION}
+  items:
+  - oci://registry-1.docker.io/bitnamicharts/mongodb:14.8.0
+debian:
+- distro: jammy
+  os: ubuntu
+  version: 22.04
+  giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/debian/pool/${DISTRO}/main/upload
+  items:
+  - build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git vim
+  - open-vm-tools
+
+generic:
+- giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/generic/${FILE}/${FILE_VERSION}/${FILE_NAME}
+  items:
+  - https://releases.ubuntu.com/jammy/ubuntu-22.04.5-live-server-amd64.iso
+  - https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v1.17.0/argocd-vault-plugin_1.17.0_linux_amd64
+  
+git:
+- giteaUrl: http://${DOMAIN}/api/

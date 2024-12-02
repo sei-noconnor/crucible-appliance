@@ -1,0 +1,13 @@
+{
+    "app": {
+        "project_name" : "postgresql",
+        "project_branch": "offline-reorg",
+        "namespace" : "default",
+        "manifest_type": "helm-oci",
+        "helm_chart" : "oci://registry-1.docker.io/bitnamicharts/postgresql",
+        "helm_chart_version" : "12.12.10",
+        "helm_repo": "oci://registry-1.docker.io/bitnamicharts/postgresql",
+        "values_file" : "postgresql.values.yaml",
+        "helm_args" : ""
+    }
+}

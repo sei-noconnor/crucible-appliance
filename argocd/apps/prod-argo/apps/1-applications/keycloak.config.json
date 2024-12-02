@@ -1,0 +1,14 @@
+{
+    "app": {
+        "project_name" : "keycloak",
+        "project_branch" : "offline-reorg",
+        "namespace" : "default",
+        "manifest_type": "kustomize",
+        "helm_repo" : "",
+        "helm_chart" : "",
+        "helm_chart_version" : "",
+        "values_file" : "",
+        "helm_args" : "",
+        "kustomize_dir" : "keycloak/kustomize/overlays/appliance"
+    }
+}

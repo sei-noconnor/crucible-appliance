@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keycloak
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: keycloak
+    server: https://kubernetes.default.svc
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+    - CreateNamespace=true
+  source:
+    path: argocd/apps/keycloak/kustomize/overlays/appliance
+    repoURL: https://crucible.local/gitea/fortress-manifests/crucible-appliance.git
+    targetRevision: offline-reorg
+

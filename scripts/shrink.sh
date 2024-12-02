@@ -1,4 +1,4 @@
-#!/bin/bash -x 
+#!/bin/bash 
 sudo journalctl --vacuum-size=300M
 sudo logrotate /etc/logrotate.conf
 sudo apt-get -y autoremove 
@@ -17,6 +17,12 @@ rm -rf /swap.img
 # for f in ${files[@]}; do
 #     rm $f
 # done
+# echo "removing unused container images"
+# sudo k3s ctr images prune --all
+echo "Removing temporary git repo"
+sudo rm -rf /tmp/crucible-appliance
+echo "Removing dist directories that have been uploaded to gitea"
+sudo rm -rf /home/crucible/crucible-appliance/dist/{charts,deb,generic}
 echo "Zeroing Disk, This may take some time"
 sudo dd if=/dev/zero of=~/fill.dd bs=1M
 sudo rm -rf ~/fill.dd

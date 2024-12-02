@@ -4,6 +4,11 @@ if [ $EUID != 0 ]; then
     sudo "$0" "$@"
     exit $?
 fi
+kubectl scale deployment --all -n gitea --replicas=0
+kubectl scale deployment --all -n argocd --replicas=0
+kubectl scale statefulsets --all -n argocd --replicas=0
+kubectl scale statefulsets --all -n postgres --replicas=0
+kubectl scale statefulsets --all -n vault --replicas=0
 
 directory="/var/lib/rancher/k3s/server/db/snapshots"
 prefix=${1:-\*}
@@ -45,4 +50,6 @@ kubectl wait deployment \
 --all \
 --for=condition=Available \
 --all-namespaces=true \
---timeout=5m
+--timeout=30s
+rm ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-role-id
+rm ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-secret-id

@@ -66,8 +66,9 @@ locals {
   "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
   "<f10><wait>"
   ]
-  iso_url          = "https://releases.ubuntu.com/jammy/ubuntu-22.04.4-live-server-amd64.iso"
+  iso_url          = "https://releases.ubuntu.com/jammy/ubuntu-22.04.5-live-server-amd64.iso"
   iso_checksum     = "sha256:45f873de9f8cb637345d6e66a583762730bbea30277ef7b32c9c3bd6700a32b2"
-  shutdown_command = "echo '${var.ssh_password}'|sudo -S shutdown -P now"
+  shutdown_command = ""
+  shutdown_timeout = "15m"
   video_memory     = 32
 }

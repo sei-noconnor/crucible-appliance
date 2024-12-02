@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Set the namespace and configmap name for CoreDNS
 NAMESPACE="kube-system"
@@ -41,6 +41,10 @@ data:
     import /etc/coredns/custom/*.server
   NodeHosts: |
     $IP $DOMAIN
+    $IP keystore.$DOMAIN
+    $IP cd.$DOMAIN
+    $IP code.$DOMAIN
+    $IP help.$DOMAIN
 kind: ConfigMap
 metadata:
   name: coredns

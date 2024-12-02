@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  name: appset-0-base
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/sei-noconnor/crucible-appliance.git
+      revision: HEAD
+      files:
+      - path: "argocd/apps/prod-argo/apps/0-base/*.json"
+  template:
+    metadata:
+      name: '{{app.project_name}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/sei-noconnor/crucible-appliance.git
+        targetRevision: HEAD
+        path: "argocd/apps/prod-k8s/0-base"
+        plugin:
+          name: argocd-vault-plugin
+          env:
+            - name: MANIFEST_TYPE
+              value : '{{app.manifest_type}}'
+            - name: ADDITIONAL_ARGS
+              value: '{{app.helm_args}}'
+            - name: CHART_VERSION
+              value: '{{app.helm_chart_version}}'
+            - name: HELM_REPO
+              value: '{{app.helm_repo}}'
+            - name: HELM_CHART
+              value: '{{app.helm_chart}}'
+            - name: HELM_RELEASE_NAME
+              value: '{{app.project_name}}'
+            - name: NAMESPACE
+              value: '{{app.namespace}}'
+            - name: VALUES_FILE
+              value: '{{app.values_file}}'
+            - name: KUSTOMIZE_DIR
+              value: '{{app.kustomize_dir}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: false

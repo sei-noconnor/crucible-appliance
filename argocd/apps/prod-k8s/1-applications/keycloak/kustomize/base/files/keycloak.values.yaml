@@ -1,0 +1,135 @@
+image:
+  registry: docker.io
+  repository: bitnami/keycloak
+  tag: 21.0.2-debian-11-r0
+  pullPolicy: IfNotPresent
+  debug: true
+## Keycloak authentication parameters
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/keycloak#admin-credentials
+##
+auth:
+  ## @param auth.adminUser Keycloak administrator user
+  ##
+  adminUser: admin
+  ## @param auth.adminPassword Keycloak administrator password for the new user
+  ##
+  adminPassword: "crucible"
+# spi:
+#   existingSecret: "keycloak-truststore"
+#   truststorePassword: "password"
+#   truststoreFilename: "truststore.jks"
+#   hostnameVerificationPolicy: "ANY"
+production: true
+proxy: edge
+httpRelativePath: "/keycloak/"
+extraStartupArgs: >
+  --log-level=INFO
+  --import-realm
+extraEnvVars:
+  # - name: KEYCLOAK_ADMIN
+  #   value: "admin"
+  # - name: KEYCLOAK_ADMIN_PASSWORD
+  #   value: "${ADMIN_PASS}"
+  # - name: KC_HTTP_RELATIVE_PATH
+  #   value: "/keycloak/"
+  # - name: KC_DB
+  #   value: "postgres"
+  # - name: KC_DB_USERNAME
+  #   value: "postgres"
+  # - name: KC_DB_PASSWORD
+  #   value: "${POSTGRES_PASS}"
+  # - name: KC_DB_URL_HOST
+  #   value: "${POSTGRES_SERVER}"
+  # - name: KC_DB__URL_PORT
+  #   value: "5432"
+  # - name: KC_DB_URL_DATABASE
+  #   value: "keycloak"
+  - name: KC_HOSTNAME
+    value: crucible.local
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KC_HOSTNAME_STRICT_HTTPS
+    value: "false"
+  - name: KC_HTTPS_CLIENT_AUTH
+    value: "request"
+  # - name: CUSTOM_REGISTRATION_CONFIG
+  #   value: /opt/bitnami/keycloak/conf/customreg.yaml
+  - name: PROXY_ADDRESS_FORWARDING
+    value: "true"
+  # - name: JAVA_OPTS_APPEND
+  #   value: "-Dcom.redhat.fips=false"
+  # - name: KC_LOG_LEVEL
+  #   value: "org.keycloak.events:DEBUG,org.infinispan:INFO,org.jgroups:INFO"
+  # - name: KC_CACHE
+  #   value: ispn
+  # - name: KC_CACHE_STACK
+  #   value: kubernetes
+  # - name: KC_METRICS_ENABLED
+  #   value: "true"
+  - name: DOMAIN
+    value: "crucible.local"
+  # - name: KC_HTTPS_TRUST_STORE_FILE
+  #   value: /opt/bitnami/keycloak/spi-certs/truststore.jks
+  # - name: KC_HTTPS_TRUST_STORE_PASSWORD
+  #   value: "password"
+
+extraVolumes: |-
+  - name: realm
+    configMap:
+      name: keycloak-import
+      items:
+      - key: realm.json
+        path: realm.json
+extraVolumeMounts: |-
+  - name: realm
+    mountPath: /opt/bitnami/keycloak/data/import/realm.json
+    subPath: realm.json
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  pathType: Prefix
+  hostname: crucible.local
+  path: "/(keycloak)(/|$)(.*)"
+  servicePort: http
+  annotations: 
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1$2$3
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: "optional"
+    nginx.ingress.kubernetes.io/auth-tls-verify-depth: "2"
+    kubernetes.io/class.name: nginx
+    cert-manager.io/cluster-issuer: ca-issuer
+    ###### NGINX    #######
+    # nginx.ingress.kubernetes.io/configuration-snippet: |
+    #   proxy_set_header ssl-client-cert $ssl_client_escaped_cert;
+    ###### F5       #######
+    # nginx.ingress.kubernetes.io/configuration-snippet: |
+    #   access_by_lua_block { 
+    #     ngx.log(ngx.INFO, "STARTING SSL LUA PROCESSING")
+    #     if (ngx.var.http_XSSLCERT) then 
+    #       ngx.log(ngx.INFO, "XSSLCERT IS DEFINED SETTING HEADER 'ssl-client-cert'")
+    #       local h = ngx.escape_uri(ngx.decode_base64(ngx.var.http_XSSLCERT))
+    #       ngx.req.set_header("ssl-client-cert", h)
+    #     elseif (ngx.var.ssl_client_escaped_cert) then
+    #       ngx.log(ngx.INFO, "SSL_CLIENT_ESCAPED_CERT IS DEFINED SETTING HEADER 'ssl-client-cert'")
+    #       ngx.log(ngx.INFO, ngx.var.ssl_client_escaped_cert)
+    #       ngx.req.set_header("ssl-client-cert", ngx.var.ssl_client_escaped_cert)
+    #     else
+    #       ngx.log(ngx.INFO, "NO CLIENT CERTIFICATE PRESENTED")
+    #     end
+    #   }
+  tls: true
+postgresql:
+  enabled: false
+externalDatabase:
+  host: "postgresql.default.svc.cluster.local"
+  port: 5432
+  user: "postgres"
+  database: keycloak
+  password: "crucible"
+  existingSecret: ""
+  existingSecretPasswordKey: ""
+logging:
+  output: default
+  level: ERROR
+

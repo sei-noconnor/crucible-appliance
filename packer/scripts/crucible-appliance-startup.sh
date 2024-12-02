@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Logs a message to /var/log/syslog with tag crucible-appliance
 # #find crucible related logs
@@ -17,18 +17,26 @@ function crucible_log {
 #   It does not re-create the appliance root CA certificates all 
 #   CAs and Intermediate CAs will remain the same
 # 
+
 msg="Crucible appliance startup script for version: $APPLIANCE_VERSION"
 crucible_log "$msg"
+source /etc/profile.d/crucible-env.sh
 CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
 DOMAIN=${DOMAIN:-crucible.local}
+IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 
 # Expand Volume
 sudo /home/crucible/crucible-appliance/packer/scripts/01-expand-volume.sh
+#sudo /home/crucible/crucible-appliance/packer/scripts/01-add-volume.sh
+# Add coredns entry
+sudo /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh
+#Set if the appliance is on the internet
+sudo sed -i "/IS_ONLINE=/c\export IS_ONLINE=\\$IS_ONLINE" /etc/profile.d/crucible-env.sh
 
-if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
-    sudo sed -i "/APPLIANCE_IP=/d" /etc/environment
-    echo "APPLIANCE_IP=$CURRENT_IP" >> /etc/environment
+if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
+    sudo sed -i "/APPLIANCE_IP=/d" /etc/profile.d/crucible-env.sh
+    echo "export APPLIANCE_IP=$CURRENT_IP" >> /etc/profile.d/crucible-env.sh
     # Delete old entry
     sudo sed -i "/$DOMAIN/d" /etc/hosts
     msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"
@@ -51,13 +59,13 @@ if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
     fi
     filename="${files[0]}"
     
-    if [ -n "$filename" ]; then
-        echo "You selected: $filename"
-        sudo systemctl stop k3s
-        sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
-        sudo systemctl daemon-reload
-        sudo systemctl start k3s
-    fi
+    # if [ -n "$filename" ]; then
+    #     echo "You selected: $filename"
+    #     sudo systemctl stop k3s
+    #     sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
+    #     sudo systemctl daemon-reload
+    #     sudo systemctl start k3s
+    # fi
     
     echo "CLUSTER RESET!"
     time=15
@@ -68,12 +76,19 @@ if [[ $APPLIANCE_IP != $CURRENT_IP ]]; then
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
     k3s kubectl wait deployment \
     --all \
-    --for=condition=Available \
+    --for=condition=available \
     --all-namespaces=true \
-    --timeout=5m
+    --timeout=1m
 else 
     msg="Crucible Appliance IPs match starting normally"
     crucible_log "$msg"
 fi
+# Unseal the vault on startup 
+crucible_log "Attempting to unseal the vault"
+/home/crucible/crucible-appliance/packer/scripts/09-unseal-vault.sh
 
+image_count=$(sudo k3s ctr images ls | awk 'END{print NR'})
+if [ ! $IS_ONLINE && -f $DIST_DIR/containers/images-amd64.tar.zst ]; then
+    sudo /home/crucible/crucible-appliance/packer/10-import-images.sh
+fi
 
