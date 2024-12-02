@@ -5,6 +5,8 @@ on:
     branches:
       - github-runner
       - main
+    tags:
+      - '*'
   release:
     types: [published]
 
