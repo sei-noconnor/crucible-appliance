@@ -10,6 +10,6 @@ images=$(cat "${image_list_file}")
 if [ ! -d $DIST_DIR ]; then
     mkdir -p $DIST_DIR
 fi
-sudo k3s ctr -n=k8s.io images export --platform=linux/amd64 $DIST_DIR/images-${ARCH}.tar.zst ${images}
+sudo k3s ctr -n=k8s.io images export --platform=linux/amd64 $DIST_DIR/images-${ARCH}.tar.zst ${images} || true
 #zstd --no-progress -T0 -16 -f --long=25 $DIST_DIR/images-${ARCH}.tar -o $DIST_DIR/images-${ARCH}.tar.zst
 
