@@ -187,17 +187,17 @@ if [ $IS_ONLINE ]; then
     if [ ! -d $DIST_DIR/generic ]; then
         mkdir -p $DIST_DIR/{generic,containers,charts,deb}
     fi
-    curl -z $DIST_DIR/generic/k3s -Lo $DIST_DIR/generic/k3s "https://github.com/k3s-io/k3s/releases/download/v1.29.1%2Bk3s1/k3s"
-    curl -z $DIST_DIR/generic/k3s-install.sh -Lo $DIST_DIR/generic/k3s-install.sh "https://get.k3s.io/" && chmod +x "$DIST_DIR/generic/k3s-install.sh"
-    curl -z $DIST_DIR/generic/yq -Lo $DIST_DIR/generic/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
-    curl -z $DIST_DIR/generic/kubectl -Lo  "https://dl.k8s.io/release/v1.31.3/bin/linux/amd64/kubectl"
-    curl -z $DIST_DIR/generic/k9s_linux_amd64.tar.gz -Lo $DIST_DIR/generic/k9s_linux_amd64.tar.gz "https://github.com/derailed/k9s/releases/download/v0.32.7/k9s_Linux_amd64.tar.gz"
-    curl -z $DIST_DIR/generic/argocd-linux-amd64 -Lo $DIST_DIR/generic/argocd-linux-amd64 "https://github.com/argoproj/argo-cd/releases/download/v$ARGOCD_VERSION/argocd-linux-amd64"
-    curl -z $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip -Lo $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip"
-    curl -z $DIST_DIR/generic/go1.22.5.linux-amd64.tar.gz -Lo $DIST_DIR/generic/go1.22.5.linux-amd64.tar.gz "https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz"
-    curl -z $DIST_DIR/generic/helm-v3.16.3-linux-amd64.tar.gz -Lo $DIST_DIR/generic/helm-v3.16.3-linux-amd64.tar.gz https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz
-    curl -z $DIST_DIR/generic/govc_Linux_x86_64.tar.gz -Lo $DIST_DIR/generic/govc_Linux_x86_64.tar.gz https://github.com/vmware/govmomi/releases/download/v0.46.2/govc_Linux_x86_64.tar.gz
-    curl -z $DIST_DIR/generic/k3sup -Lo $DIST_DIR/generic/k3sup https://github.com/alexellis/k3sup/releases/download/0.13.6/k3sup
+    curl -Lo $DIST_DIR/generic/k3s "https://github.com/k3s-io/k3s/releases/download/v1.29.1%2Bk3s1/k3s"
+    curl -Lo $DIST_DIR/generic/k3s-install.sh "https://get.k3s.io/" && chmod +x "$DIST_DIR/generic/k3s-install.sh"
+    curl -Lo $DIST_DIR/generic/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
+    curl -Lo $DIST_DIR/generic/kubectl "https://dl.k8s.io/release/v1.31.3/bin/linux/amd64/kubectl"
+    curl -Lo $DIST_DIR/generic/k9s_linux_amd64.tar.gz "https://github.com/derailed/k9s/releases/download/v0.32.7/k9s_Linux_amd64.tar.gz"
+    curl -Lo $DIST_DIR/generic/argocd-linux-amd64 "https://github.com/argoproj/argo-cd/releases/download/v$ARGOCD_VERSION/argocd-linux-amd64"
+    curl -Lo $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip"
+    curl -Lo $DIST_DIR/generic/go1.22.5.linux-amd64.tar.gz "https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz"
+    curl -Lo $DIST_DIR/generic/helm-v3.16.3-linux-amd64.tar.gz https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz
+    curl -Lo $DIST_DIR/generic/govc_Linux_x86_64.tar.gz https://github.com/vmware/govmomi/releases/download/v0.46.2/govc_Linux_x86_64.tar.gz
+    curl -Lo $DIST_DIR/generic/k3sup https://github.com/alexellis/k3sup/releases/download/0.13.6/k3sup
 fi  
 # Install yq
 sudo mv $DIST_DIR/generic/yq /usr/bin/yq && sudo chmod +x /usr/bin/yq

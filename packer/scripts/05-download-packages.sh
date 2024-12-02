@@ -139,15 +139,8 @@ process_generic() {
       fi
 
       package_url=$(echo "$giteaUrl" | sed "s|\${FILE}|$file_name|g" | sed "s|\${FILE_VERSION}|$file_version|g" | sed "s|\${FILE_NAME}|$file_name|g")
-
-      # Check if the package already exists
-      echo "Checking if $file_name exists at $package_url"
-      if curl --head --silent --fail "$package_url?access_token=${ACCESS_TOKEN}" > /dev/null; then
-        echo "Package $file_name already exists at $package_url. Skipping upload."
-      else
-        echo "Uploading generic file $file_name to $package_url"
-        curl --location -X PUT --upload-file $generic_output/$file_name "$package_url?access_token=${ACCESS_TOKEN}"
-      fi
+      echo "Uploading generic file $file_name to $package_url"
+      curl --location -X PUT --upload-file $generic_output/$file_name "$package_url?access_token=${ACCESS_TOKEN}"
     done
   done
 

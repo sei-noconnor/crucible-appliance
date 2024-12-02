@@ -93,6 +93,7 @@ generic:
 - giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/generic/${FILE}/${FILE_VERSION}/${FILE_NAME}
   items:
   - https://releases.ubuntu.com/jammy/ubuntu-22.04.5-live-server-amd64.iso
+  - https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v1.17.0/argocd-vault-plugin_1.17.0_linux_amd64
   
 git:
 - giteaUrl: http://${DOMAIN}/api/
