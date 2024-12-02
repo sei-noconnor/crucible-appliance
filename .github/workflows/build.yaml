@@ -5,7 +5,8 @@ on:
     branches:
       - github-runner
       - main
-  pull_request:
+    tags:
+      - '*'
   release:
     types: [published]
 
