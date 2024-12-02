@@ -88,7 +88,7 @@ crucible_log "Attempting to unseal the vault"
 /home/crucible/crucible-appliance/packer/scripts/09-unseal-vault.sh
 
 image_count=$(sudo k3s ctr images ls | awk 'END{print NR'})
-    if [ ! $IS_ONLINE && -f $DIST_DIR/containers/images-amd64.tar.zst ]; then
-        /home/crucible/crucible-appliance/packer/10-import-images.sh
-    fi
+if [ ! $IS_ONLINE && -f $DIST_DIR/containers/images-amd64.tar.zst ]; then
+    sudo /home/crucible/crucible-appliance/packer/10-import-images.sh
+fi
 

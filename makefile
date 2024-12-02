@@ -72,10 +72,10 @@ gitea-reset:
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
 
 gitea-export-images:
-	./packer/scripts/10-export-images.sh
+	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-export-images.sh
 
 gitea-import-images:
-	./packer/scripts/10-import-images.sh
+	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-import-images.sh
 
 repo-sync:
 	./packer/scripts/05-repo-sync.sh
