@@ -10,7 +10,7 @@ spec:
   generators:
   - git:
       repoURL: https://github.com/sei-noconnor/crucible-appliance.git
-      revision: offline-reorg
+      revision: main
       files:
       - path: "argocd/apps/prod-argo/apps/1-applications/*.json"
   template:

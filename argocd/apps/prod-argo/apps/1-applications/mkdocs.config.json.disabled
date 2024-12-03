@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "mkdocs",
-        "project_branch" : "offline-reorg",
+        "project_branch" : "main",
         "namespace" : "default",
         "manifest_type": "kustomize",
         "helm_repo" : "https://helm.cmusei.dev/charts",
