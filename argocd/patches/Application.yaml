@@ -15,6 +15,6 @@ spec:
   source:
     path: argocd/patches
     repoURL: https://crucible.local/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: offline-reorg
+    targetRevision: main
     directory:
       recurse: true

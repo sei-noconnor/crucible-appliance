@@ -19,7 +19,7 @@ spec:
       project: default
       source:
         repoURL: https://github.com/sei-noconnor/crucible-appliance.git
-        targetRevision: HEAD
+        targetRevision: main
         path: "argocd/apps/prod-k8s/0-base"
         plugin:
           name: argocd-vault-plugin

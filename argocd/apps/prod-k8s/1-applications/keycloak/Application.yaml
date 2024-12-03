@@ -18,5 +18,5 @@ spec:
   source:
     path: argocd/apps/keycloak/kustomize/overlays/appliance
     repoURL: https://crucible.local/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: offline-reorg
+    targetRevision: main
 

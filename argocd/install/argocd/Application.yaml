@@ -13,7 +13,7 @@ spec:
   source:
     path: argocd/apps/prod-argo
     repoURL: https://github.com/sei-noconnor/crucible-appliance.git
-    targetRevision: offline-reorg
+    targetRevision: main
     directory:
       recurse: false
   sources: []
