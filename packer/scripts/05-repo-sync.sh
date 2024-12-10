@@ -27,6 +27,15 @@ rsync -avP \
     $REPO_DIR/ $REPO_DEST/
 
 GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
+
+echo "pulling changes from appliance before modifications"
+git -C $REPO_DEST remote remove origin || true
+REMOTE_URL="https://administrator:crucible@${DOMAIN}/gitea/${GITEA_ORG}/crucible-appliance.git"
+git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
+git -C $REPO_DEST config user.name "Administrator"
+git -C $REPO_DEST config user.email "Administrator@$DOMAIN"
+git -C $REPO_DEST config pull.rebase false
+git -C $REPO_DEST pull appliance "$GIT_BRANCH"
 echo "REPO Destination: $REPO_DEST"
 echo
 echo "Making replacements in $REPO_DEST on Branch: $GIT_BRANCH"
@@ -45,7 +54,7 @@ echo "!**/*/root-ca.key" >> $REPO_DEST/.gitignore
 git -C $REPO_DEST add "**/*.pem"
 git -C $REPO_DEST add "**/*.key"
 git -C $REPO_DEST add --all
-git -C $REPO_DEST -c "user.name=admin" -c "user.email=admin@${DOMAIN}" commit -m "${CMT_MSG:-Generic repo-sync commit, see diff}"
+git -C $REPO_DEST commit -m "${CMT_MSG:-Generic repo-sync commit, see diff}"
 
 # Function to check if the server is up
 is_server_up() {
@@ -73,10 +82,7 @@ if wait_for_server; then
     echo "Running commands that depend on the Gitea server..."
     # Add commands here that require the Gitea server
     echo "Pushing to Git server..."
-    git -C $REPO_DEST remote remove origin
-    REMOTE_URL="https://administrator:crucible@${DOMAIN}/gitea/${GITEA_ORG}/crucible-appliance.git"
-    git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
-    git -C $REPO_DEST push appliance $GIT_BRANCH -f
+    git -C $REPO_DEST push appliance $GIT_BRANCH
 else
     echo "Gitea server not up, not pushing changes, yet"
     exit 0
