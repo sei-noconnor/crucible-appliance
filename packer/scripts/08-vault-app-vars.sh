@@ -37,9 +37,9 @@ trap '{
 }' EXIT
 
 
-export TLS_ROOT_CA=$(awk '{printf "%s\\n", $0}' "${REPO_DIR}/dist/ssl/server/tls/root-ca.pem")
+export TLS_ROOT_CA=$(awk '{printf "%s\\n", $0}' "${REPO_DIR}/dist/ssl/server/tls/root-chain.pem")
 export TLS_ROOT_CA_B64=$(echo "${TLS_ROOT_CA}" | base64 )
-export TLS_ROOT_KEY=$(awk '{printf "%s\\n", $0}' "${REPO_DIR}/dist/ssl/server/tls/root-ca.key")
+export TLS_ROOT_KEY=$(awk '{printf "%s\\n", $0}' "${REPO_DIR}/dist/ssl/server/tls/intermediate-ca.key")
 export TLS_ROOT_KEY_B64=$(echo "${TLS_ROOT_KEY}" | base64)
 
 echo "logging into vault"

@@ -80,7 +80,7 @@ shared:
   oauth-token-url: realms/crucible/protocol/openid-connect/token
   oauth-userapi-url: realms/crucible/protocol/openid-connect/userinfo
 topomojo:
-  topomojo-api-connection-string: Server=postgresql;Port=5432;Database=topomojo_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+  topomojo-api-connection-string: Server=postgresql.default.svc.cluster.local;Port=5432;Database=topomojo_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
 vsphere: 
   vsphere-cluster: ${VSPHERE_CLUSTER}
   vsphere-datacenter: ${VSPHERE_DATACENTER}

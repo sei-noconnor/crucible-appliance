@@ -100,9 +100,9 @@ topomojo-api:
     Pod__IsoStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/iso"
     Pod__DiskStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/diskstore"
     Pod__TicketUrlHandler: "none"
-    Pod__Vlan__Range: "[100-399]"
-    Pod__Vlan__Reservations__0__Id: 
-    Pod__Vlan__Reservations__0__Name: 
+    Pod__Vlan__Range: [100-399]
+    # Pod__Vlan__Reservations__0__Id: 
+    # Pod__Vlan__Reservations__0__Name: 
     Pod__KeepAliveMinutes: 30
     # Pod__ExcludeNetworkMask: topomojo
     Logging__Console__DisableColors: false
