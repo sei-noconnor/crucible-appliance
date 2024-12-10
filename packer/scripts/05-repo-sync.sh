@@ -34,8 +34,7 @@ REMOTE_URL="https://administrator:crucible@${DOMAIN}/gitea/${GITEA_ORG}/crucible
 git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
 git -C $REPO_DEST config user.name "Administrator"
 git -C $REPO_DEST config user.email "Administrator@$DOMAIN"
-git -C $REPO_DEST config pull.rebase false
-git -C $REPO_DEST pull appliance "$GIT_BRANCH"
+git -C $REPO_DEST pull --rebase -X thiers appliance "$GIT_BRANCH"
 echo "REPO Destination: $REPO_DEST"
 echo
 echo "Making replacements in $REPO_DEST on Branch: $GIT_BRANCH"
@@ -82,7 +81,7 @@ if wait_for_server; then
     echo "Running commands that depend on the Gitea server..."
     # Add commands here that require the Gitea server
     echo "Pushing to Git server..."
-    git -C $REPO_DEST push appliance $GIT_BRANCH
+    git -C $REPO_DEST push appliance $GIT_BRANCH 
 else
     echo "Gitea server not up, not pushing changes, yet"
     exit 0
