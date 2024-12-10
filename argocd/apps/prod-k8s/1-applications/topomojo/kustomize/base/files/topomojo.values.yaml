@@ -96,9 +96,9 @@ topomojo-api:
     Pod__Password: <path:fortress-prod/data/vsphere#vsphere-password>
     Pod__PoolPath: <path:fortress-prod/data/vsphere#vsphere-datacenter>/<path:fortress-prod/data/vsphere#vsphere-cluster>
     Pod__Uplink: <path:fortress-prod/data/vsphere#vsphere-dv-switch>
-    Pod__VmStore: [<path:fortress-prod/data/vsphere#datastore>] topomojo/vmstore
-    Pod__IsoStore: [<path:fortress-prod/data/vsphere#datastore>] topomojo/iso
-    Pod__DiskStore: [<path:fortress-prod/data/vsphere#datastore>] topomojo/diskstore
+    Pod__VmStore: "[<path:fortress-prod/data/vsphere#datastore>] topomojo/vmstore"
+    Pod__IsoStore: "[<path:fortress-prod/data/vsphere#datastore>] topomojo/iso"
+    Pod__DiskStore: "[<path:fortress-prod/data/vsphere#datastore>] topomojo/diskstore"
     Pod__TicketUrlHandler: "none"
     Pod__Vlan__Reservations__0__Id: 
     Pod__Vlan__Reservations__0__Name: 
