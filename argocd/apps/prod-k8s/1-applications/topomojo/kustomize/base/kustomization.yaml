@@ -8,12 +8,12 @@ helmCharts:
   version: 0.3.8
   repo: https://helm.cmusei.dev/charts
   releaseName: appliance
-  valuesFile: files/topomojo.values.yaml
+  valuesFile: files/topomojo-0-4-3.values.yaml
 resources: 
 - namespace.yaml
 - console-ingress.yaml
-- topomojo-pv.yaml
-- topomojo-pvc.yaml
+# - topomojo-pv.yaml
+# - topomojo-pvc.yaml
 
 # replacements:
 # - source:
