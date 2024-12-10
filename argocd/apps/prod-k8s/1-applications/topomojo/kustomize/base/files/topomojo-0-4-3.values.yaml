@@ -129,7 +129,7 @@ topomojo-api:
       start.sh: |
         #!/bin/sh
         cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
-        cd /app && dotnet TopoMojo.Api.dll
+        cd /home/app && dotnet TopoMojo.Api.dll
       cacert.crt: |-
         <path:fortress-prod/data/shared#fortress-tls-fullchain>
 
