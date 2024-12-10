@@ -74,7 +74,7 @@ topomojo-api:
     PathBase: "/topomojo"
     Database__Provider: PostgreSQL
     Database__ConnectionString: <path:fortress-prod/data/topomojo#topomojo-api-connection-string>
-    Database__AdminId: <path:fortress-prod/data/shared#oauth-admin--guid>
+    Database__AdminId: <path:fortress-prod/data/shared#oauth-admin-guid>
     Database__AdminName: Administrator
     Cache__SharedFolder: ""
     FileUpload__IsoRoot: /mnt/tm/iso
@@ -93,18 +93,16 @@ topomojo-api:
     Core__ConsoleHost: https://<path:fortress-prod/data/shared#domain>/console
     Pod__Url: https://<path:fortress-prod/data/vsphere#vsphere-server>
     Pod__User: <path:fortress-prod/data/vsphere#vsphere-user>
-    Pod__Password: <path:fortress-prod/data/vsphere#vsphere-password>
+    Pod__Password: <path:fortress-prod/data/vsphere#vsphere-pass>
     Pod__PoolPath: <path:fortress-prod/data/vsphere#vsphere-datacenter>/<path:fortress-prod/data/vsphere#vsphere-cluster>
     Pod__Uplink: <path:fortress-prod/data/vsphere#vsphere-dv-switch>
-    Pod__VmStore: "[<path:fortress-prod/data/vsphere#datastore>] topomojo/vmstore"
-    Pod__IsoStore: "[<path:fortress-prod/data/vsphere#datastore>] topomojo/iso"
-    Pod__DiskStore: "[<path:fortress-prod/data/vsphere#datastore>] topomojo/diskstore"
+    Pod__VmStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/vmstore"
+    Pod__IsoStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/iso"
+    Pod__DiskStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/diskstore"
     Pod__TicketUrlHandler: "none"
+    Pod__Vlan__Range: "[100-399]"
     Pod__Vlan__Reservations__0__Id: 
     Pod__Vlan__Reservations__0__Name: 
-    
-
-    Pod__Vlan__Range: [100-399]
     Pod__KeepAliveMinutes: 30
     # Pod__ExcludeNetworkMask: topomojo
     Logging__Console__DisableColors: false
