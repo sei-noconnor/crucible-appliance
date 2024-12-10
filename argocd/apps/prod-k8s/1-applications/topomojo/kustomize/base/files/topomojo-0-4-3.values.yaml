@@ -41,17 +41,17 @@ topomojo-api:
   podSecurityContext: {}
     # fsGroup: 2000
 
-  securityContext: {}
+  securityContext:
     # capabilities:
     #   drop:
     #   - ALL
-    # readOnlyRootFilesystem: true
-    # runAsNonRoot: true
-    # runAsUser: 1000
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    runAsUser: 0
 
-  service: {}
-    # type: ClusterIP
-    # port: 80
+  service: 
+    type: ClusterIP
+    port: 80
 
   ingress:
     enabled: true
