@@ -47,9 +47,9 @@ vault login ${ROOT_TOKEN}
 
 echo "Creating appliance key value store"
 vault secrets enable -path="${VAULT_KV_PATH}" -version=2 kv
-
-cat ${VARS_TEMPLATE} | envsubst > ${VARS_FILE}
-
+if [ ! -f ${VARS_FILE} ]; then 
+    cat ${VARS_TEMPLATE} | envsubst > ${VARS_FILE}
+fi
 for key in $(yq 'keys | .[]' "${VARS_FILE}"); do
     echo "Parsing top-level key $key"
     payload=$(yq eval "... |= select(. == null) |= \"\" | .\"$key\"" -o=json "$VARS_FILE")
