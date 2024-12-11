@@ -41,6 +41,7 @@ init-argo: add-coredns-entry
 	make vault-app-vars
 	make init-gitea
 	make repo-sync
+	make add-coredns-entry
 	./packer/scripts/03-init-argo.sh
 	
 	
