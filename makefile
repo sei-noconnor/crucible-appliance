@@ -28,12 +28,12 @@ add-coredns-entry:
 %:
 	@true
 	
-init: sudo-deps add-coredns-entry
+init: sudo-deps
 	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
 	make init-argo
 	make snapshot
 	
-init-argo: add-coredns-entry
+init-argo: 
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault
@@ -41,7 +41,6 @@ init-argo: add-coredns-entry
 	make vault-app-vars
 	make init-gitea
 	make repo-sync
-	make add-coredns-entry
 	./packer/scripts/03-init-argo.sh
 	
 	
