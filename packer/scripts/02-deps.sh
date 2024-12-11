@@ -187,8 +187,8 @@ if [ $IS_ONLINE ]; then
     if [ ! -d $DIST_DIR/generic ]; then
         mkdir -p $DIST_DIR/{generic,containers,charts,deb}
     fi
-    curl -Lo $DIST_DIR/generic/k3s "https://github.com/k3s-io/k3s/releases/download/v1.29.1%2Bk3s1/k3s"
-    curl -Lo $DIST_DIR/generic/k3s-install.sh "https://get.k3s.io/" && chmod +x "$DIST_DIR/generic/k3s-install.sh"
+    curl -Lo $DIST_DIR/generic/k3s "https://github.com/k3s-io/k3s/releases/download/v1.31.3%2Bk3s1/k3s"
+    curl -Lo $DIST_DIR/generic/k3s-install.sh "https://get.k3s.io" && chmod +x "$DIST_DIR/generic/k3s-install.sh"
     curl -Lo $DIST_DIR/generic/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
     curl -Lo $DIST_DIR/generic/kubectl "https://dl.k8s.io/release/v1.31.3/bin/linux/amd64/kubectl"
     curl -Lo $DIST_DIR/generic/k9s_linux_amd64.tar.gz "https://github.com/derailed/k9s/releases/download/v0.32.7/k9s_Linux_amd64.tar.gz"
@@ -207,7 +207,7 @@ sudo mkdir -p /etc/rancher/k3s
 mkdir -p ~/.kube
 sudo echo "$MIRRORS" > /etc/rancher/k3s/registries.yaml
 sudo mv $DIST_DIR/generic/k3s /usr/local/bin/k3s && sudo chmod +x /usr/local/bin/k3s
-INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_VERSION="v1.29.1+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.local}" $DIST_DIR/generic/k3s-install.sh
+INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.local}" $DIST_DIR/generic/k3s-install.sh
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i "s/default/crucible-appliance/g" ~/.kube/config
