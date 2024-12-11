@@ -18,7 +18,7 @@ metadata:
       }
 spec:
   rules:
-  - host: crucible.local
+  - host: crucible.io
     http:
       paths:
       - path: /console
@@ -31,5 +31,5 @@ spec:
   tls:
   - secretName: topomojo-tls
     hosts:
-      - crucible.local
+      - crucible.io
     

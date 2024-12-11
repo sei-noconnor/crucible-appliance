@@ -3,7 +3,7 @@
 # Set the namespace and configmap name for CoreDNS
 NAMESPACE="kube-system"
 CONFIGMAP_NAME="coredns"
-DOMAIN=${2:-crucible.local}
+DOMAIN=${2:-crucible.io}
 IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 
 
