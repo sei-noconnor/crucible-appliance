@@ -86,7 +86,7 @@ fi
 ######################
 if $IS_ONLINE; then
     sudo apt-get update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt-get autoremove -y
-    sudo NONINTERACTIVE=1 apt-get install -y build-essential avahi-daemon jq nfs-common sshpass postgresql-client make logrotate git unzip apache2-utils
+    sudo NONINTERACTIVE=1 apt-get install -y build-essential jq nfs-common sshpass postgresql-client make logrotate git unzip apache2-utils
 fi
 ########################
 ##### Configure OS #####
@@ -115,7 +115,7 @@ EOF
 sudo systemctl restart multipathd
 
 # Restart mDNS daemon to avoid conflict with other hosts
-sudo systemctl restart avahi-daemon
+# sudo systemctl restart avahi-daemon
 
 # Customize MOTD and other text for the appliance
 chmod -x /etc/update-motd.d/00-header
