@@ -58,7 +58,7 @@ The Crucible appliance is tested on vSphere 8, ensuring seamless compatibility a
 1.  **Copy the Variable File:**
 
     ```bash
-      `cp appliance.yaml.example appliance.yaml`
+      `cp appliance.example.yaml appliance.yaml`
     ```
 
 
