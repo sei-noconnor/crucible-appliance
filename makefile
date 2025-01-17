@@ -34,6 +34,7 @@ init: sudo-deps
 	make snapshot
 	
 init-argo: 
+	make add-coredns-entry
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault

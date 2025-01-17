@@ -2,7 +2,7 @@
 
 # Set the namespace and configmap name for CoreDNS
 NAMESPACE="kube-system"
-CONFIGMAP_NAME="coredns"
+CONFIGMAP_NAME="coredns-custom"
 DOMAIN=${2:-crucible.io}
 IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 
@@ -12,42 +12,21 @@ if [ -z "$IP" ] || [ -z "$DOMAIN" ]; then
   exit 1
 fi
 # Backup the current configmap to a file
-BACKUP_FILE="coredns-backup-$(date +%Y%m%d%H%M%S).yaml"
+BACKUP_FILE="$CONFIGMAP_NAME-backup-$(date +%Y%m%d%H%M%S).yaml"
 cat >$BACKUP_FILE <<EOF
 apiVersion: v1
 data:
-  Corefile: |
-    .:53 {
-        errors
-        health
-        ready
-        kubernetes cluster.local in-addr.arpa ip6.arpa {
-          pods insecure
-          fallthrough in-addr.arpa ip6.arpa
-        }
-        hosts /etc/coredns/NodeHosts {
-          ttl 60
-          reload 15s
-          fallthrough
-        }
-        prometheus :9153
-        forward . /etc/resolv.conf
-        cache 30
-        loop
-        reload
-        loadbalance
-        import /etc/coredns/custom/*.override
+  crucible.server: |
+    crucible.io:53 {
+      log
+      errors
+      hosts {
+        $IP $DOMAIN
+      }
     }
-    import /etc/coredns/custom/*.server
-  NodeHosts: |
-    $IP $DOMAIN
-    $IP keystore.$DOMAIN
-    $IP cd.$DOMAIN
-    $IP code.$DOMAIN
-    $IP help.$DOMAIN
 kind: ConfigMap
 metadata:
-  name: coredns
+  name: $CONFIGMAP_NAME
 EOF
 
 # Apply the modified configmap
