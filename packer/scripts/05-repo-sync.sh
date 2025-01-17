@@ -35,24 +35,23 @@ REMOTE_URL="https://administrator:crucible@${DOMAIN}/gitea/${GITEA_ORG}/crucible
 git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
 git -C $REPO_DEST config user.name "Administrator"
 git -C $REPO_DEST config user.email "Administrator@$DOMAIN"
-git -C $REPO_DEST pull -X thiers appliance "$GIT_BRANCH"
 echo "REPO Destination: $REPO_DEST"
 echo
 echo "Making replacements in $REPO_DEST on Branch: $GIT_BRANCH"
 
 find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.io\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/crucible.io\/gitea\/${GITEA_ORG}/g" {} \;
-# find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: HEAD/targetRevision: ${GIT_BRANCH}/g" {} \;
-#find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BRANCH}/g" {} \;
-#find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: HEAD/targetRevision: ${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
 
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: main/targetRevision: ${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: main/revision: ${GIT_BRANCH}/g" {} \;
+find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"main\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> $REPO_DEST/.gitignore
 # allow root-ca.key to be commited. This is bad, use a vault!
 echo "!**/*/root-ca.key" >> $REPO_DEST/.gitignore
-
-git -C $REPO_DEST add "**/*.pem"
-git -C $REPO_DEST add "**/*.key"
 git -C $REPO_DEST add --all
 git -C $REPO_DEST commit -m "${CMT_MSG:-Generic repo-sync commit, see diff}"
 
@@ -82,7 +81,7 @@ if wait_for_server; then
     echo "Running commands that depend on the Gitea server..."
     # Add commands here that require the Gitea server
     echo "Pushing to Git server..."
-    git -C $REPO_DEST push appliance $GIT_BRANCH 
+    git -C $REPO_DEST push appliance $GIT_BRANCH -f
 else
     echo "Gitea server not up, not pushing changes, yet"
     exit 0

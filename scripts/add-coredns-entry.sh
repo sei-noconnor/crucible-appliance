@@ -17,11 +17,15 @@ cat >$BACKUP_FILE <<EOF
 apiVersion: v1
 data:
   crucible.server: |
-    crucible.io:53 {
+    $DOMAIN:53 {
       log
       errors
       hosts {
         $IP $DOMAIN
+        $IP keystore.$DOMAIN
+        $IP code.$DOMAIN
+        $IP help.$DOMAIN
+        $IP id.$DOMAIN
       }
     }
 kind: ConfigMap
