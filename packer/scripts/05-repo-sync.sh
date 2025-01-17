@@ -8,6 +8,7 @@ fi
 # set all config dirs to absolute paths
 REPO_DIR="/home/crucible/crucible-appliance"
 REPO_DEST="/tmp/crucible-appliance"
+DOMAIN=${DOMAIN:-crucible.io}
 GITEA_SERVER="${2:-https://$DOMAIN/gitea}"
 CMT_MSG=${1:-}
 GITEA_ORG=fortress-manifests
@@ -34,7 +35,7 @@ REMOTE_URL="https://administrator:crucible@${DOMAIN}/gitea/${GITEA_ORG}/crucible
 git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
 git -C $REPO_DEST config user.name "Administrator"
 git -C $REPO_DEST config user.email "Administrator@$DOMAIN"
-git -C $REPO_DEST pull --rebase -X thiers appliance "$GIT_BRANCH"
+git -C $REPO_DEST pull -X thiers appliance "$GIT_BRANCH"
 echo "REPO Destination: $REPO_DEST"
 echo
 echo "Making replacements in $REPO_DEST on Branch: $GIT_BRANCH"
