@@ -51,9 +51,9 @@ gitea:
       ISSUE_INDEXER_TYPE: bleve
       REPO_INDEXER_ENABLED: true
     cache:
-      enabled: false
-      adapter: memory
-
+      ADAPTER: memory
+    actions:
+      ENABLED: true
     security:
       PASSWORD_COMPLEXITY: "off"
     repository:
