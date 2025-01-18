@@ -30,6 +30,22 @@ ingress:
 persistence:
   enabled: true
 
+actions:
+  enabled: true
+  statefulset:
+    actRunner:
+      config: |
+        log: 
+          level: debug
+        cache: 
+          enabled: false
+        runner:
+          labels:
+            - "crucible-appliance"
+
+provisioning:
+  enabled: true
+
 gitea:
   admin:
     username: administrator
