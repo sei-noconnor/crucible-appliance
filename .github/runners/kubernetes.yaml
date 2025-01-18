@@ -17,7 +17,7 @@ spec:
       containers:
       - name: github-runner
         imagePullPolicy: Never #use local kind image
-        image: github-runner:latest
+        image: github-runner:crucible-appliance
         env:
         - name: GITHUB_OWNER
           valueFrom:
