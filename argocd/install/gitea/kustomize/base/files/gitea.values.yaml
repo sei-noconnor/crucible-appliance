@@ -12,16 +12,34 @@ ingress:
   apiVersion: networking.k8s.io/v1
   className: nginx
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
     cert-manager.io/cluster-issuer: ca-issuer
     nginx.ingress.kubernetes.io/proxy-body-size: 6g
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~ ^/(gitea|v2)($|/) {
+        client_max_body_size 6g;
+        # make nginx use unescaped URI, keep "%2F" as-is, remove the "/gitea" sub-path prefix, pass "/v2" as-is.
+        rewrite ^ $request_uri;
+        rewrite ^/(gitea($|/))?(.*) /$3 break;
+        proxy_pass http://appliance-gitea-http.gitea.svc.cluster.local:3000$uri;
+
+        # other common HTTP headers, see the "Nginx" config section above
+        proxy_set_header Connection $http_connection;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      }
     
     # kubernetes.io/tls-acme: "true"
   hosts:
     - host: crucible.io
       paths:
-        - path: "/gitea(/|$)(.*)"
-          pathType: Prefix
+        - path: /(gitea|v2)(/|$)
+          pathType: ImplementationSpecific
+        
   tls:
     - secretName: gitea-tls
       hosts:
@@ -41,10 +59,10 @@ actions:
           enabled: false
         runner:
           labels:
-            - "crucible-appliance"
+            - "crucible:docker://crucible.io/fortress-manifests/node:20-bookworm-slim"
 
-provisioning:
-  enabled: true
+  provisioning:
+    enabled: true
 
 gitea:
   admin:
@@ -54,8 +72,8 @@ gitea:
   config:
     APP_NAME: Crucible Gitea
     server:
-      DOMAIN: https://crucible.io/gitea/
-      ROOT_URL: https://crucible.io/gitea/
+      DOMAIN: crucible.io
+      ROOT_URL: https://crucible.io/gitea
     database:
       DB_TYPE: postgres
       HOST: appliance-postgresql.postgres.svc.cluster.local:5432
