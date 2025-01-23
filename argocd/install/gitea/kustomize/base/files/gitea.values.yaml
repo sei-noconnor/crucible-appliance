@@ -6,6 +6,9 @@ postgresql:
   enabled: false
 postgresql-ha:
   enabled: false
+image:
+  repository: gitea/gitea
+  tag: "1.23.1"
 
 ingress:
   enabled: true
@@ -60,6 +63,8 @@ actions:
         runner:
           labels:
             - "crucible:docker://crucible.io/fortress-manifests/node:20-bookworm-slim"
+            - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
+            - "builder:host"
         container:
           force_pull: false
           force_rebuild: false
