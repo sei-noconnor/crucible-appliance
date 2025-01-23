@@ -21,7 +21,7 @@ patches:
               secretName: gitea-tls
               items:
               - key: ca.crt
-                path: crucible-ca.pem
+                path: crucible-ca.crt
           containers:
             - name: dind
               command: 
@@ -31,8 +31,8 @@ patches:
                 update-ca-certificates && dockerd-entrypoint.sh
               volumeMounts:
                 - name: crucible-ssl-vol
-                  mountPath: /usr/local/share/ca-certificates/crucible-ca.pem
-                  subPath: crucible-ca.pem
+                  mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+                  subPath: crucible-ca.crt
 
       
   

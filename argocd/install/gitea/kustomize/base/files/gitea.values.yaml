@@ -66,6 +66,9 @@ actions:
             - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
             - "builder:host"
         container:
+          options: "-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt"
+          valid_volumes: 
+            - "/etc/ssl/certs/ca-certificates.crt"
           force_pull: false
           force_rebuild: false
 
