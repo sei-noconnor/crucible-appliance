@@ -60,6 +60,9 @@ actions:
         runner:
           labels:
             - "crucible:docker://crucible.io/fortress-manifests/node:20-bookworm-slim"
+        container:
+          force_pull: false
+          force_rebuild: false
 
   provisioning:
     enabled: true

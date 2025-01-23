@@ -4,6 +4,37 @@ namespace: gitea
 resources:
 - ../../base
 
+patches:
+# Patch provides custom crucible-ca.pem root certificate so that 
+# containers and files can be pulled from the gitea server
+- patch: |-
+    apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: appliance-gitea-act-runner
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: crucible-ssl-vol
+            secret:
+              secretName: gitea-tls
+              items:
+              - key: ca.crt
+                path: crucible-ca.pem
+          containers:
+            - name: dind
+              command: 
+              - sh
+              - -c
+              - > 
+                update-ca-certificates && dockerd-entrypoint.sh
+              volumeMounts:
+                - name: crucible-ssl-vol
+                  mountPath: /usr/local/share/ca-certificates/crucible-ca.pem
+                  subPath: crucible-ca.pem
+
+      
   
 
 
