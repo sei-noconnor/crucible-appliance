@@ -75,6 +75,14 @@ gitea-reset:
 	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f - || true
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
 
+gitea-build-local-runner:
+	./.github/runners/gitea/build.sh
+
+gitea-start-local-runner:
+	./.github/runners/gitea/run.sh $(filter-out $@,$(MAKECMDGOALS))
+%:
+	@:
+
 gitea-export-images:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-export-images.sh
 
@@ -177,6 +185,6 @@ tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
 	
 
-.PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
+.PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova gitea-start-local-runner
 
 all: init

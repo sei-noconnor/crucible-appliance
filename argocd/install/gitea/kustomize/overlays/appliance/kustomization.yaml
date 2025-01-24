@@ -7,47 +7,88 @@ resources:
 patches:
 # Patch provides custom crucible-ca.pem root certificate so that 
 # containers and files can be pulled from the gitea server
-- patch: |-
-    apiVersion: apps/v1
-    kind: StatefulSet
-    metadata:
-      name: appliance-gitea-act-runner
-    spec:
-      template:
-        spec:
-          volumes:
-          - name: crucible-ssl-vol
-            secret:
-              secretName: gitea-tls
-              items:
-              - key: ca.crt
-                path: crucible-ca.crt
-          containers:
-            - name: act-runner
-              command: 
-              - /sbin/tini
-              - --
-              - /opt/act/run.sh
-              args:
-              - update-ca-certificates  
-              volumeMounts:
-                - name: crucible-ssl-vol
-                  mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
-                  subPath: crucible-ca.crt
-            
-            - name: dind
-              command: 
-              - sh
-              - -c
-              - > 
-                update-ca-certificates && dockerd-entrypoint.sh
-              volumeMounts:
-                - name: crucible-ssl-vol
-                  mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
-                  subPath: crucible-ca.crt
+  - patch: |-
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: appliance-gitea-act-runner
+      spec:
+        template:
+          spec:
+            volumes:
+            - name: crucible-ssl-vol
+              secret:
+                secretName: gitea-tls
+                items:
+                - key: ca.crt
+                  path: crucible-ca.crt
+            containers:
+              - name: act-runner
+                command: 
+                - sh
+                - -c
+                - apk add nodejs docker; update-ca-certificates; /sbin/tini -- /opt/act/run.sh
+                volumeMounts:
+                  - name: crucible-ssl-vol
+                    mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+                    subPath: crucible-ca.crt
+              
+              - name: dind
+                command: 
+                - sh
+                - -c
+                - > 
+                  update-ca-certificates && dockerd-entrypoint.sh
+                volumeMounts:
+                  - name: crucible-ssl-vol
+                    mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+                    subPath: crucible-ca.crt
 
-      
-  
+# Patch provides init container to build ssl certificates in an emptyvol
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: appliance-gitea
+        namespace: gitea
+      spec:
+        template:
+          metadata:
+            labels: 
+              author: noconnor
+          spec:
+            volumes:
+              - name: crucible-trusted-vol
+                emptyDir: {}
+              - name: crucible-ssl-vol
+                secret:
+                  secretName: gitea-tls
+                  items:
+                    - key: ca.crt
+                      path: crucible-ca.crt
+            containers:
+              - name: gitea
+                volumeMounts:
+                  - name: crucible-trusted-vol
+                    mountPath: /etc/ssl/certs
+            initContainers:
+              - name: trust-crucible-cert
+                image: alpine:3.21.2
+                command: 
+                  - bin/sh
+                  - -c 
+                  - |
+                    apk add ca-certificates && \
+                    /usr/sbin/update-ca-certificates && \
+                    cp /etc/ssl/certs/* /certs/ 
+                volumeMounts:
+                  - name: crucible-trusted-vol
+                    mountPath: /certs
+                  - name: crucible-ssl-vol
+                    mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+                    subPath: crucible-ca.crt
+
+
 
 
 

@@ -9,7 +9,7 @@ postgresql-ha:
 image:
   repository: gitea/gitea
   tag: "1.23.1"
-  rootless: false
+  rootless: true
 
 ingress:
   enabled: true
@@ -95,27 +95,29 @@ persistence:
 
 initPreScript: |
   # sudo update-ca-certificates
-  
-  
 actions:
   enabled: true
   statefulset:
     actRunner:
       config: |
         log: 
-          level: debug
+          level: trace
         cache: 
           enabled: false
         runner:
+          capacity: 10
           labels:
-            - "crucible:docker://crucible.io/fortress-manifests/node:20-bookworm-slim"
+            - "crucible:docker://crucible.io/fortress-manifests/gitea-runner:crucible"
             - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
+            - "node:docker://node:20-bookworm-slim"
             - "builder:host"
+          insecure: true
         container:
-          options: "-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt"
+          privileged: true
+          options: "--mount type=bind,src=/etc/ssl/certs/ca-certificates.crt,dst=/etc/ssl/certs/ca-certificates.crt"
           valid_volumes: 
             - "/etc/ssl/certs/ca-certificates.crt"
-          force_pull: false
+          force_pull: true
           force_rebuild: false
 
   provisioning:
@@ -145,6 +147,7 @@ gitea:
       ADAPTER: memory
     actions:
       ENABLED: true
+      DEFAULT_ACTIONS_URL: self
     security:
       PASSWORD_COMPLEXITY: "off"
     repository:
