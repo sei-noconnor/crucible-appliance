@@ -23,6 +23,18 @@ patches:
               - key: ca.crt
                 path: crucible-ca.crt
           containers:
+            - name: act-runner
+              command: 
+              - /sbin/tini
+              - --
+              - /opt/act/run.sh
+              args:
+              - update-ca-certificates  
+              volumeMounts:
+                - name: crucible-ssl-vol
+                  mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+                  subPath: crucible-ca.crt
+            
             - name: dind
               command: 
               - sh

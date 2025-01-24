@@ -9,6 +9,7 @@ postgresql-ha:
 image:
   repository: gitea/gitea
   tag: "1.23.1"
+  rootless: false
 
 ingress:
   enabled: true
@@ -51,6 +52,51 @@ ingress:
 persistence:
   enabled: true
 
+# extraContainers: 
+#   - name: sidecar-bob
+#     image: alpine:3.21.2
+#     command: 
+#       - bin/sh
+#       - -c 
+#       - |
+#         apk add ca-certificates && \
+#         /usr/sbin/update-ca-certificates && \
+#         cp /etc/ssl/certs/* /certs/ && \
+#         sleep 3600
+#     # command: [/bin/sh, -c, 'echo "Hello world"; sleep 86400']
+#     volumeMounts:
+#       - name: gitea-trusted-certs
+#         mountPath: /certs
+#       - name: crucible-ssl-vol
+#         readOnly: true
+#         mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+#         subPath: crucible-ca.crt
+
+# extraVolumes:
+#   - name: gitea-trusted-certs
+#     emptyDir: {}
+#   - name: crucible-ssl-vol
+#     secret:
+#       secretName: gitea-tls
+#       items:
+#         - key: ca.crt
+#           path: crucible-ca.crt
+
+# extraVolumeMounts:
+#   - name: gitea-trusted-certs
+#     mountPath: /etc/ssl/certs
+#   - name: crucible-ssl-vol
+#     readOnly: true
+#     mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+#     subPath: crucible-ca.crt
+
+## @section Init
+## @param initPreScript Bash shell script copied verbatim to the start of the init-container.
+
+initPreScript: |
+  # sudo update-ca-certificates
+  
+  
 actions:
   enabled: true
   statefulset:

@@ -58,10 +58,12 @@ gitea-init:
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'create database gitea;'" || true 
 	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f - || true
 	echo "sleep 10"; sleep 10
+	kubectl -n gitea scale --replicas=0 deployment/appliance-gitea && echo "sleep 5"; sleep 5 && kubectl -n gitea scale --replicas=1 deployment/appliance-gitea
 	./packer/scripts/05-setup-gitea.sh
 	# make download-packages
 	# make gitea-init-repos
 	# make gitea-replace-repos
+	
 
 gitea-init-repos:
 	./packer/scripts/05-init-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
