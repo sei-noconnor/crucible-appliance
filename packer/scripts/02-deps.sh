@@ -17,6 +17,9 @@ rm -rf /swap.img
 APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 MIRRORS=$(cat <<EOF
 mirrors:
+  docker.io:
+    endpoint:
+      - https://mirror.gcr.io
   "*":
 EOF
 )
