@@ -60,7 +60,7 @@ gitea-init:
 	echo "sleep 10"; sleep 10
 	kubectl -n gitea scale --replicas=0 deployment/appliance-gitea && echo "sleep 5"; sleep 5 && kubectl -n gitea scale --replicas=1 deployment/appliance-gitea
 	./packer/scripts/05-setup-gitea.sh
-	# make download-packages
+	make download-packages
 	# make gitea-init-repos
 	# make gitea-replace-repos
 	
