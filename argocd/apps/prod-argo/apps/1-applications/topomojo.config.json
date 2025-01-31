@@ -7,7 +7,7 @@
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart" : "topomojo",
         "helm_chart_version" : "0.4.3",
-        "values_file" : "",
+        "values_file" : "topomojo.values.yaml",
 	    "helm_args" : "",
         "kustomize_dir" : "topomojo/kustomize/overlays/appliance"
     }
