@@ -56,17 +56,14 @@ topomojo-api:
   ingress:
     enabled: true
     annotations: 
-      ert-manager.io/cluster-issuer: ca-issuer
+      nginx.ingress.kubernetes.io/rewrite-target: /topomojo/$1$2$3
+      cert-manager.io/cluster-issuer: ca-issuer
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
       kubernetes.io/ingress.class: nginx
     hosts:
       - host: <path:fortress-prod/data/shared#domain>
         paths:
-          - path: /api
-            pathType: ImplementationSpecific
-          - path: /hub
-            pathType: ImplementationSpecific
-          - path: /docs
+          - path: /topomojo/(api|hub|docs)(/|$)(.*)
             pathType: ImplementationSpecific
     tls: 
      - secretName: <path:fortress-prod/data/shared#domain>-tls
