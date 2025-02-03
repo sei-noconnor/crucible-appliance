@@ -185,7 +185,7 @@ DIST_DIR=/home/crucible/crucible-appliance/dist
 VAULT_VERSION="1.15.2"
 ARGOCD_VERSION="2.13.1"
 
-if [ $IS_ONLINE ]; then
+if $IS_ONLINE; then
     echo "Downloading Binaries"
     if [ ! -d $DIST_DIR/generic ]; then
         mkdir -p $DIST_DIR/{generic,containers,charts,deb}
@@ -201,6 +201,8 @@ if [ $IS_ONLINE ]; then
     curl -Lo $DIST_DIR/generic/helm-v3.16.3-linux-amd64.tar.gz https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz
     curl -Lo $DIST_DIR/generic/govc_Linux_x86_64.tar.gz https://github.com/vmware/govmomi/releases/download/v0.46.2/govc_Linux_x86_64.tar.gz
     curl -Lo $DIST_DIR/generic/k3sup https://github.com/alexellis/k3sup/releases/download/0.13.6/k3sup
+    curl -Lo $DIST_DIR/generic/nerdctl-2.0.3-linux-amd64.tar.gz https://github.com/containerd/nerdctl/releases/download/v2.0.3/nerdctl-2.0.3-linux-amd64.tar.gz
+    curl -Lo $DIST_DIR/generic/hauler_1.2.0-dev.2_linux_amd64.tar.gz https://github.com/hauler-dev/hauler/releases/download/v1.2.0-dev.2/hauler_1.2.0-dev.2_linux_amd64.tar.gz
 fi  
 # Install yq
 sudo mv $DIST_DIR/generic/yq /usr/bin/yq && sudo chmod +x /usr/bin/yq
@@ -209,8 +211,8 @@ sudo mv $DIST_DIR/generic/yq /usr/bin/yq && sudo chmod +x /usr/bin/yq
 sudo mkdir -p /etc/rancher/k3s
 mkdir -p ~/.kube
 sudo echo "$MIRRORS" > /etc/rancher/k3s/registries.yaml
-sudo mv $DIST_DIR/generic/k3s /usr/local/bin/k3s && sudo chmod +x /usr/local/bin/k3s
-INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.io}" $DIST_DIR/generic/k3s-install.sh
+sudo cp $DIST_DIR/generic/k3s /usr/local/bin/k3s && sudo chmod +x /usr/local/bin/k3s
+INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.io}" $DIST_DIR/generic/k3s-install.sh
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i "s/default/crucible-appliance/g" ~/.kube/config
@@ -248,6 +250,16 @@ sudo chmod +x /usr/local/bin/k3sup
 unzip $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip -d /usr/local/bin/
 vault --version
 
+# Install Nerdctl
+sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/nerdctl-2.0.3-linux-amd64.tar.gz
+sudo chown root:root /usr/local/bin/nerdctl
+sudo chmod +x /usr/local/bin/nerdctl
+
+# Install Hauler
+sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/hauler_1.2.0-dev.2_linux_amd64.tar.gz
+sudo chown root:root /usr/local/bin/hauler
+sudo chmod +x /usr/local/bin/hauler
+
 # Install Brew
 # NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/ubuntu/.baschrc
@@ -257,7 +269,7 @@ vault --version
 # Take base cluster snapshot
 echo "Sleeping for 20 seconds for snapshot"
 sleep 20
-k3s etcd-snapshot save --name base-cluster
+k3s etcd-snapshot save --snapshot-compress --name base-cluster
 sudo chown -R $SSH_USERNAME:$SSH_USERNAME /home/$SSH_USERNAME
 
 # limit docker pulls if container images exist

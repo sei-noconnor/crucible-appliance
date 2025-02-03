@@ -37,7 +37,6 @@ helm:
   giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
   items:
   - ingress-nginx:4.11.3
-  - ingress-nginx:4.11.1
 - name: argocd
   repoUrl: https://argoproj.github.io/argo-helm
   giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
@@ -58,8 +57,6 @@ helm:
   giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
   items:
   - longhorn:1.6.0
-  - longhorn:1.5.4
-  - longhorn:1.5.5
 - name: kvaps
   repoUrl: https://kvaps.github.io/charts
   giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
@@ -92,8 +89,7 @@ debian:
 generic:
 - giteaUrl: http://${DOMAIN}/api/packages/${OWNER}/generic/${FILE}/${FILE_VERSION}/${FILE_NAME}
   items:
-  - https://releases.ubuntu.com/jammy/ubuntu-22.04.5-live-server-amd64.iso
-  - https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v1.17.0/argocd-vault-plugin_1.17.0_linux_amd64
+  
   
 git:
 - giteaUrl: http://${DOMAIN}/api/

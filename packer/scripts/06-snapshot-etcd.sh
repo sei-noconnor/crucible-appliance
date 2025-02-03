@@ -6,4 +6,4 @@ if [ $EUID != 0 ]; then
 fi
 prefix="${1:-crucible-appliance}"
 
-sudo k3s etcd-snapshot save -name $prefix
+sudo k3s etcd-snapshot save --snapshot-compress -name $prefix

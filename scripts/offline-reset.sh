@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x 
 
 if [ $EUID != 0 ]; then
     sudo "$0" "$@"
@@ -19,21 +19,30 @@ if [ ${#files[@]} -eq 0 ]; then
     echo "No file found with the prefix '$prefix' in '$directory'."
     exit 1
 fi
-declare -i i
+
+i=1
+formatted_files=()
+actual_files=()
+
 for f in "${files[@]}"; do
     #get epoch 
-    i+=1
-    epoch=${f##*\-}
-    f="$i) $f ($(TZ=America/New_York date -d @$epoch))"
+    epoch=${f##*-}
+    epoch=${epoch%.zip}
+    str_date=$(TZ=America/New_York date -d @$epoch)
+    formatted_files+=(" $(basename "$f") ($str_date)")
+    actual_files+=("$f")
+    ((i++))
 done
 
 echo "Matching files:"
-select filename in "${files[@]}"
+select filename in "${formatted_files[@]}"
 do
     if [ -n "$filename" ]; then
-        echo "You selected: $filename"
+        index=$((REPLY - 1))
+        selected_file="${actual_files[$index]}"
+        echo "You selected: $selected_file"
         sudo systemctl stop k3s
-        sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
+        sudo k3s server --cluster-reset --cluster-reset-restore-path=$selected_file
         sudo systemctl daemon-reload
         sudo systemctl start k3s
         break;

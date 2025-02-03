@@ -22,9 +22,13 @@ if [ ! -d $REPO_DEST ]; then
 fi
 echo "Copying repo from $REPO_DIR to $REPO_DEST"
 rsync -avP \
+    --exclude dist/generic \
     --exclude dist/containers \
     --exclude dist/tools \
-    --exclude dist/debian \
+    --exclude dist/deb \
+    --exclude dist/charts \
+    --exclude dist/store \
+    --exclude store \
     $REPO_DIR/ $REPO_DEST/
 
 GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)

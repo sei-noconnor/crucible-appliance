@@ -76,7 +76,7 @@ gitea-reset:
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
 
 gitea-export-images:
-	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-export-images.sh
+	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/package-export-images.sh
 
 gitea-import-images:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-import-images.sh
@@ -99,6 +99,7 @@ build:
 	@true
 
 shrink:
+	# make gitea-export-images
 	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/shrink.sh
 
 package-ova:
@@ -175,7 +176,9 @@ update-startup-script:
 
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
-	
+
+template:
+	./packer/scripts/template.sh $(filter-out $@,$(MAKECMDGOALS))
 
 .PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
 
