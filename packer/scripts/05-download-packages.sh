@@ -144,23 +144,23 @@ process_generic() {
     done
   done
 
-  # Upload all files in the generic_output directory
-  echo "Uploading all files in $generic_output directory"
-  for file in "$generic_output"/*; do
-    if [ -f "$file" ]; then
-      file_name=$(basename "$file")
-      package_url=$(echo "$giteaUrl" | sed "s|\${FILE}|$file_name|g" | sed "s|\${FILE_VERSION}|0.0.0|g" | sed "s|\${FILE_NAME}|$file_name|g")
+  # # Upload all files in the generic_output directory
+  # echo "Uploading all files in $generic_output directory"
+  # for file in "$generic_output"/*; do
+  #   if [ -f "$file" ]; then
+  #     file_name=$(basename "$file")
+  #     package_url=$(echo "$giteaUrl" | sed "s|\${FILE}|$file_name|g" | sed "s|\${FILE_VERSION}|0.0.0|g" | sed "s|\${FILE_NAME}|$file_name|g")
 
-      # Check if the package already exists
-      echo "Checking if $file_name exists at $package_url"
-      if curl --head --silent --fail "$package_url?access_token=${ACCESS_TOKEN}" > /dev/null; then
-        echo "Package $file_name already exists at $package_url. Skipping upload."
-      else
-        echo "Uploading additional file $file_name to $package_url"
-        curl --location -X PUT --upload-file "$file" "$package_url?access_token=${ACCESS_TOKEN}"
-      fi
-    fi
-  done
+  #     # Check if the package already exists
+  #     echo "Checking if $file_name exists at $package_url"
+  #     if curl --head --silent --fail "$package_url?access_token=${ACCESS_TOKEN}" > /dev/null; then
+  #       echo "Package $file_name already exists at $package_url. Skipping upload."
+  #     else
+  #       echo "Uploading additional file $file_name to $package_url"
+  #       curl --location -X PUT --upload-file "$file" "$package_url?access_token=${ACCESS_TOKEN}"
+  #     fi
+  #   fi
+  # done
 }
 
 # Main script
