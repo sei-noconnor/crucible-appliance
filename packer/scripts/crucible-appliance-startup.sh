@@ -27,7 +27,7 @@ DOMAIN=${DOMAIN:-crucible.io}
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 
 # Expand Volume
-sudo /home/crucible/crucible-appliance/packer/scripts/01-expand-volume.sh
+sudo /home/crucible/crucible-appliance/packer/scripts/01-build-expand-volume.sh
 #sudo /home/crucible/crucible-appliance/packer/scripts/01-add-volume.sh
 # Add coredns entry
 sudo /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh

@@ -20,7 +20,7 @@ generate_certs:
 	./scripts/distribute_certs.sh $(SSL_DIR)
 	
 sudo-deps: generate_certs 
-	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
+	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-build-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-deps.sh
 
 add-coredns-entry:
@@ -93,8 +93,8 @@ build:
 	rm -rf ./packer/output && \
 	rm -rf ./output && \
 	rm -rf ./dist/output
-	./packer/scripts/00-update-vars.sh ./appliance.yaml
-	./packer/scripts/00-build-appliance.sh $(filter-out $@,$(MAKECMDGOALS)) -on-error=abort -force
+	./packer/scripts/01-build-update-vars.sh ./appliance.yaml
+	./packer/scripts/01-build-appliance.sh $(filter-out $@,$(MAKECMDGOALS)) -on-error=abort -force
 %:
 	@true
 
