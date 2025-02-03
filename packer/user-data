@@ -1,4 +1,6 @@
 #cloud-config
+package_update: false
+package_upgrade: false
 autoinstall:
   version: 1
   identity:
@@ -10,14 +12,13 @@ autoinstall:
     allow-pw: true
   packages:
     - open-vm-tools
-  autoinstall:
-    updates: security
-    apt:
-      preferences:
-        - package: "*"
-          pin: "release a=jammy-security"
-          pin-priority: 200
-    late-commands:
-      - |
-        rm /target/etc/apt/preferences.d/90curtin.pref
-        true
+  apt:
+    fallback: offline-install
+    preferences:
+      - package: "*"
+        pin: "release a=jammy-security"
+        pin-priority: 200
+  late-commands:
+    - | 
+      rm /target/etc/apt/preferences.d/90curtin.pref
+      true
