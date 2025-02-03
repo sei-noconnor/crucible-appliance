@@ -99,7 +99,7 @@ build:
 	@true
 
 shrink:
-	# make gitea-export-images
+	make gitea-export-images
 	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/shrink.sh
 
 package-ova:
