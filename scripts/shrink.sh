@@ -12,8 +12,8 @@ done
 # Remove swap
 rm -rf /swap.img
 
-echo "removing all container images"
-sudo k3s ctr images ls -q | xargs sudo k3s ctr image rm 
+# echo "removing all container images"
+# sudo k3s ctr images ls -q | xargs sudo k3s ctr image rm 
 
 echo "Removing temporary git repo"
 sudo rm -rf /tmp/crucible-appliance
