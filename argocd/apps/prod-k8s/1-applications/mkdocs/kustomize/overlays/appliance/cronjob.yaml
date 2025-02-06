@@ -1,0 +1,6 @@
+- op: replace
+  path: /spec/jobTemplate/spec/template/spec/volumes/0
+  value:
+    name: appliance-mkdocs-material-entry
+    configMap:
+      name: appliance-mkdocs-material-entry

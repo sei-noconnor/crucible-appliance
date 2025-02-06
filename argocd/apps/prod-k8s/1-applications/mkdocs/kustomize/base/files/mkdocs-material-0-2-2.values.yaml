@@ -36,17 +36,17 @@ storage:
   existing: ""
   size: "1Gi"
   mode: ReadWriteOnce
-  class: default
+  class: longhorn
 
 ##################
 # Git deployment #
 ##################
 
 ## giturl is the url of an MkDocs git repository
-giturl: ""
+giturl: "https://crucible.io/gitea/fortress-manifests/crucible-appliance/src/branch/main/argocd/apps/prod-k8s/1-applications/mkdocs/kustomize/base/files/repo"
 
 ## gitbranch sets which repo branch to publish
-gitbranch: ""
+gitbranch: "upgrades"
 
 ## Secret that stores the values of a git credential store helper file
 ## See https://git-scm.com/docs/git-credential-store
