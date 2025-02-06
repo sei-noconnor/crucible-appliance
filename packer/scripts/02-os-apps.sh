@@ -5,6 +5,9 @@
 # project root or contact permission@sei.cmu.edu for full terms.
 #
 
+# Get vars from appliamce.yaml
+source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 echo "IS_ONLINE: $IS_ONLINE"
 
@@ -86,7 +89,9 @@ sudo chmod +x /usr/local/bin/k3sup
 
 # Install Vault
 unzip $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip -d /usr/local/bin/
-vault --version
+sudo chown root:root /usr/local/bin/vault
+sudo chmod +x /usr/local/bin/vault
+vault version
 
 # Install Nerdctl
 sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/nerdctl-2.0.3-linux-amd64.tar.gz

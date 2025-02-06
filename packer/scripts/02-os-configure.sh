@@ -5,6 +5,9 @@
 # project root or contact permission@sei.cmu.edu for full terms.
 #
 
+# Get vars from appliamce.yaml
+source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 echo "IS_ONLINE: $IS_ONLINE"
 

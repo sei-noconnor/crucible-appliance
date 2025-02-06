@@ -6,6 +6,9 @@
 #
 # Crucible Appliance 02-os-vars.sh
 
+# Get vars from appliamce.yaml
+source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+
 ###############
 #### VARS #####
 ###############
