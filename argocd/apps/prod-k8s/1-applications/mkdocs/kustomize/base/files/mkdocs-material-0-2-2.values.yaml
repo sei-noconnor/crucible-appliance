@@ -43,8 +43,8 @@ storage:
 ##################
 
 ## giturl is the url of an MkDocs git repository
-giturl: "https://crucible.io/gitea/fortress-manifests/crucible-appliance/src/branch/main/argocd/apps/prod-k8s/1-applications/mkdocs/kustomize/base/files/repo"
-
+#giturl: "https://crucible.io/gitea/fortress-manifests/crucible-appliance/src/branch/main/argocd/apps/prod-k8s/1-applications/mkdocs/kustomize/base/files/repo"
+giturl: ""
 ## gitbranch sets which repo branch to publish
 gitbranch: "upgrades"
 
@@ -78,18 +78,18 @@ pollInterval: 5
 ##   site_url: The value provided here will override the value in the git repo
 ##   site_dir: The value provided here will be used to set the mapping in the nginx container to this path
 ##             instead of the default value of "site". You should set this to the value that is in your mkdocs.yml file
-mkdocs: {}
-  # site_name: My Site
-  # theme:
-  #   name: material
+mkdocs: 
+  site_name: My Site
+  theme:
+    name: material
 
 ## files populates text files inside /docs
-files: {}
-  # index.md: |
-  #   Welcome to My Site
-  #
-  # page2.md: |
-  #   More content goes here.
+files: 
+  index.md: |
+    Welcome to My Site
+  
+  page2.md: |
+    More content goes here.
 
 # binaryFiles populates binary files inside /docs
 binaryFiles: {}
