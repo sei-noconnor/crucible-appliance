@@ -3,6 +3,15 @@ kind: Kustomization
 namespace: mkdocs
 resources:
   - namespace.yaml
+
+secretGenerator:
+- name: crucible-certs
+  files:
+  - crucible-ca.crt=files/root-ca.crt
+
+generatorOptions:
+  disableNameSuffixHash: true
+
 helmCharts:
   - name: mkdocs-material
     includeCRDs: true

@@ -12,3 +12,7 @@ patches:
       kind: Deployment
       name: appliance-mkdocs-material
     path: deployment.yaml
+  - target:
+      kind: ConfigMap
+      name: appliance-mkdocs-material-entry
+    path: configmap-entry.yaml

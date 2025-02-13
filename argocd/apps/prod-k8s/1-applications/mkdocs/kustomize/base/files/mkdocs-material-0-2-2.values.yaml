@@ -43,8 +43,8 @@ storage:
 ##################
 
 ## giturl is the url of an MkDocs git repository
-#giturl: "https://crucible.io/gitea/fortress-manifests/crucible-appliance/src/branch/main/argocd/apps/prod-k8s/1-applications/mkdocs/kustomize/base/files/repo"
-giturl: ""
+giturl: "https://crucible.io/gitea/fortress-manifests/crucible-appliance"
+# giturl: ""
 ## gitbranch sets which repo branch to publish
 gitbranch: "upgrades"
 
@@ -57,7 +57,7 @@ gitCredentialsSecret: ""
 gitCredentialsSecretKey: ""
 
 ## pollInterval sets minutes between git pull
-pollInterval: 5
+pollInterval: 20
 
 # cacert - add custom CA certificate
 # cacert: |-
@@ -79,17 +79,18 @@ pollInterval: 5
 ##   site_dir: The value provided here will be used to set the mapping in the nginx container to this path
 ##             instead of the default value of "site". You should set this to the value that is in your mkdocs.yml file
 mkdocs: 
-  site_name: My Site
+  site_name: Crucible 
   theme:
     name: material
 
 ## files populates text files inside /docs
 files: 
   index.md: |
-    Welcome to My Site
+    Crucible Documentation
   
   page2.md: |
-    More content goes here.
+    Apps
+    - crucible
 
 # binaryFiles populates binary files inside /docs
 binaryFiles: {}

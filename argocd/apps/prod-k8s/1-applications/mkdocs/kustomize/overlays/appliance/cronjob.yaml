@@ -4,3 +4,19 @@
     name: appliance-mkdocs-material-entry
     configMap:
       name: appliance-mkdocs-material-entry
+      defaultMode: 0775 
+
+- op: add
+  path: /spec/jobTemplate/spec/template/spec/volumes/-
+  value:
+    name: crucible-certs
+    secret:
+      secretName: crucible-certs
+
+- op: add 
+  path: /spec/jobTemplate/spec/template/spec/initContainers/0/volumeMounts/-
+  value:
+    name: crucible-certs
+    mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+    subPath: crucible-ca.crt
+      
