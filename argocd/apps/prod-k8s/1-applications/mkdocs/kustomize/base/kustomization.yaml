@@ -1,13 +1,25 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: mkdocs
+resources:
+  - namespace.yaml
+
+secretGenerator:
+- name: crucible-certs
+  files:
+  - crucible-ca.crt=files/root-ca.crt
+
+generatorOptions:
+  disableNameSuffixHash: true
+
 helmCharts:
   - name: mkdocs-material
     includeCRDs: true
-    version: 0.1.0
+    version: 0.2.2
     repo: https://helm.cmusei.dev/charts
     releaseName: appliance
-    valuesFile: files/mkdocs-material.values.yaml
+    namespace: mkdocs
+    valuesFile: files/mkdocs-material-0-2-2.values.yaml
 
 
 

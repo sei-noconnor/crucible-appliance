@@ -993,9 +993,9 @@ grafana:
 
   grafana.ini :
     server:
-      domain: crucible.local
+      domain: crucible.io
         #root_url: '%(protocol)s://%(domain)s:%(http_port)s/monitoring/'
-      root_url: https://crucible.local/monitoring
+      root_url: https://crucible.io/monitoring
       serve_from_sub_path: true
 
     smtp:
@@ -1053,7 +1053,7 @@ grafana:
     # hosts:
     #   - grafana.domain.com
     hosts:
-      - crucible.local
+      - crucible.io
 
     ## Path for grafana ingress
     path: /monitoring
@@ -1066,7 +1066,7 @@ grafana:
     tls:
       - secretName: appliance-cert
         hosts:
-          - crucible.local
+          - crucible.io
 
     # - secretName: grafana-general-tls
     #   hosts:

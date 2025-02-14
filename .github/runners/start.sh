@@ -70,7 +70,7 @@ if [[ "$GH_RUNNER_DELETE" = true ]]; then
 fi
 
 echo "building the github runner image"
-docker buildx build --no-cache --progress=plain --platform=linux/amd64 ./.github/runners/. -t github-runner:latest
+docker buildx build --no-cache --progress=plain --platform=linux/amd64 ./.github/runners/. -t github-runner:crucible-appliance
 
 # Check to see if the cluster name is in our current config, use existing cluster
 clusters=$(kubectl config get-contexts --no-headers | awk '{print $2}')

@@ -6,40 +6,131 @@ postgresql:
   enabled: false
 postgresql-ha:
   enabled: false
+image:
+  repository: gitea/gitea
+  tag: "1.23.1"
+  rootless: false
 
 ingress:
   enabled: true
   apiVersion: networking.k8s.io/v1
   className: nginx
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
     cert-manager.io/cluster-issuer: ca-issuer
     nginx.ingress.kubernetes.io/proxy-body-size: 6g
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~ ^/(gitea|v2)($|/) {
+        client_max_body_size 6g;
+        # make nginx use unescaped URI, keep "%2F" as-is, remove the "/gitea" sub-path prefix, pass "/v2" as-is.
+        rewrite ^ $request_uri;
+        rewrite ^/(gitea($|/))?(.*) /$3 break;
+        proxy_pass http://appliance-gitea-http.gitea.svc.cluster.local:3000$uri;
+
+        # other common HTTP headers, see the "Nginx" config section above
+        proxy_set_header Connection $http_connection;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      }
     
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: crucible.local
+    - host: crucible.io
       paths:
-        - path: "/gitea(/|$)(.*)"
-          pathType: Prefix
+        - path: /(gitea|v2)(/|$)
+          pathType: ImplementationSpecific
+        
   tls:
     - secretName: gitea-tls
       hosts:
-        - crucible.local
+        - crucible.io
 
 persistence:
   enabled: true
+
+# extraContainers: 
+#   - name: sidecar-bob
+#     image: alpine:3.21.2
+#     command: 
+#       - bin/sh
+#       - -c 
+#       - |
+#         apk add ca-certificates && \
+#         /usr/sbin/update-ca-certificates && \
+#         cp /etc/ssl/certs/* /certs/ && \
+#         sleep 3600
+#     # command: [/bin/sh, -c, 'echo "Hello world"; sleep 86400']
+#     volumeMounts:
+#       - name: gitea-trusted-certs
+#         mountPath: /certs
+#       - name: crucible-ssl-vol
+#         readOnly: true
+#         mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+#         subPath: crucible-ca.crt
+
+# extraVolumes:
+#   - name: gitea-trusted-certs
+#     emptyDir: {}
+#   - name: crucible-ssl-vol
+#     secret:
+#       secretName: gitea-tls
+#       items:
+#         - key: ca.crt
+#           path: crucible-ca.crt
+
+# extraVolumeMounts:
+#   - name: gitea-trusted-certs
+#     mountPath: /etc/ssl/certs
+#   - name: crucible-ssl-vol
+#     readOnly: true
+#     mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+#     subPath: crucible-ca.crt
+
+## @section Init
+## @param initPreScript Bash shell script copied verbatim to the start of the init-container.
+
+initPreScript: |
+  # sudo update-ca-certificates
+  
+  
+actions:
+  enabled: true
+  statefulset:
+    actRunner:
+      config: |
+        log: 
+          level: debug
+        cache: 
+          enabled: false
+        runner:
+          labels:
+            - "crucible:docker://crucible.io/fortress-manifests/node:20-bookworm-slim"
+            - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
+            - "builder:host"
+        container:
+          options: "-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt"
+          valid_volumes: 
+            - "/etc/ssl/certs/ca-certificates.crt"
+          force_pull: false
+          force_rebuild: false
+
+  provisioning:
+    enabled: true
 
 gitea:
   admin:
     username: administrator
     password: crucible
-    email: "administrator@crucible.local"
+    email: "administrator@crucible.io"
   config:
     APP_NAME: Crucible Gitea
     server:
-      DOMAIN: https://crucible.local/gitea/
-      ROOT_URL: https://crucible.local/gitea/
+      DOMAIN: crucible.io
+      ROOT_URL: https://crucible.io/gitea
     database:
       DB_TYPE: postgres
       HOST: appliance-postgresql.postgres.svc.cluster.local:5432
@@ -51,10 +142,13 @@ gitea:
       ISSUE_INDEXER_TYPE: bleve
       REPO_INDEXER_ENABLED: true
     cache:
-      enabled: false
-      adapter: memory
-
+      ADAPTER: memory
+    actions:
+      ENABLED: true
     security:
       PASSWORD_COMPLEXITY: "off"
     repository:
       DEFAULT_BRANCH: main
+      DEFAULT_PUSH_CREATE_PRIVATE: false
+      ENABLE_PUSH_CREATE_USER: true
+      ENABLE_PUSH_CREATE_ORG: true

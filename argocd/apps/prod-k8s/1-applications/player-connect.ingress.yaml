@@ -37,7 +37,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: crucible.local
+  - host: crucible.io
     http:
       paths:
       - backend:

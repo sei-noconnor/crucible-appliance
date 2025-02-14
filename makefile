@@ -1,6 +1,6 @@
 # VARS
 SHELL := /bin/bash
-DOMAIN ?= crucible.local
+DOMAIN ?= crucible.io
 SSH_USERNAME ?= crucible
 ADMIN_PASS ?= crucible
 SSL_DIR ?= /home/crucible/crucible-appliance/dist/ssl
@@ -20,26 +20,31 @@ generate_certs:
 	./scripts/distribute_certs.sh $(SSL_DIR)
 	
 sudo-deps: generate_certs 
-	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-expand-volume.sh && \
-	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-deps.sh
+	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-build-expand-volume.sh && \
+	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-vars.sh
+	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
+	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
+	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-snapshot.sh
+	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-import-images.sh
 
 add-coredns-entry:
 	./scripts/add-coredns-entry.sh "${APPLIANCE_IP}" "${DOMAIN}" $(filter-out $@,$(MAKECMDGOALS))
 %:
 	@true
 	
-init: sudo-deps add-coredns-entry
+init: sudo-deps
 	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
 	make init-argo
 	make snapshot
 	
-init-argo: add-coredns-entry
+init-argo: 
+	make add-coredns-entry
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault
 	make vault-argo-role
 	make vault-app-vars
-	make init-gitea
+	make gitea-init
 	make repo-sync
 	./packer/scripts/03-init-argo.sh
 	
@@ -53,13 +58,16 @@ vault-app-vars:
 vault-argo-role:
 	./packer/scripts/08-vault-argo-args.sh
 	
-init-gitea:
+gitea-init:
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'create database gitea;'" || true 
 	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f - || true
+	echo "sleep 10"; sleep 10
+	kubectl -n gitea scale --replicas=0 deployment/appliance-gitea && echo "sleep 5"; sleep 5 && kubectl -n gitea scale --replicas=1 deployment/appliance-gitea
 	./packer/scripts/05-setup-gitea.sh
 	make download-packages
 	# make gitea-init-repos
 	# make gitea-replace-repos
+	
 
 gitea-init-repos:
 	./packer/scripts/05-init-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
@@ -68,11 +76,11 @@ gitea-replace-repos:
 	./packer/scripts/05-replace-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
 
 gitea-reset:
-	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f - || true
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
 
 gitea-export-images:
-	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-export-images.sh
+	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/package-export-images.sh
 
 gitea-import-images:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-import-images.sh
@@ -89,12 +97,13 @@ build:
 	rm -rf ./packer/output && \
 	rm -rf ./output && \
 	rm -rf ./dist/output
-	./packer/scripts/00-update-vars.sh ./appliance.yaml
-	./packer/scripts/00-build-appliance.sh $(filter-out $@,$(MAKECMDGOALS)) -on-error=abort -force
+	./packer/scripts/01-build-update-vars.sh ./appliance.yaml
+	./packer/scripts/01-build-appliance.sh $(filter-out $@,$(MAKECMDGOALS)) -on-error=abort -force
 %:
 	@true
 
 shrink:
+	# make gitea-export-images
 	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/shrink.sh
 
 package-ova:
@@ -171,7 +180,9 @@ update-startup-script:
 
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
-	
+
+template:
+	./packer/scripts/template.sh $(filter-out $@,$(MAKECMDGOALS))
 
 .PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
 

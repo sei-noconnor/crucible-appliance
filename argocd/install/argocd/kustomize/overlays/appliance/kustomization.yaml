@@ -88,7 +88,7 @@ secretGenerator:
   literals:
   - AVP_TYPE=vault
   - AVP_AUTH_TYPE=approle
-  - VAULT_ADDR=https://keystore.crucible.local
+  - VAULT_ADDR=https://keystore.crucible.io
   files:
   - AVP_ROLE_ID=files/argo-role-id
   - AVP_SECRET_ID=files/argo-secret-id

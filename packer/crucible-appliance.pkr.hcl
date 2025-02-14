@@ -47,7 +47,7 @@ source "vsphere-clone" "crucible-appliance" {
   linked_clone        = true
   network             = var.network_name
   cluster             = var.cluster
-  host                = ""
+  host                = var.host
   datastore           = var.datastore
   insecure_connection = true
   password            = var.vsphere_password
@@ -59,7 +59,6 @@ source "vsphere-clone" "crucible-appliance" {
   customize {
     linux_options {
       host_name = "crucible"
-      domain = "local"
     }
     network_interface {}
   }

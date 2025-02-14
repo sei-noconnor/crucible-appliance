@@ -1,0 +1,96 @@
+# Default values for mkdocs-material.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: squidfunk/mkdocs-material
+  pullPolicy: IfNotPresent
+  
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: 
+    nginx.ingress.kubernetes.io/app-root: /start
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/start)$ $1/ redirect;
+    cert-manager.io/cluster-issuer: ca-issuer
+  hosts:
+    - host: crucible.io
+      paths:
+        - path: /start(/|$)(.*)
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: mkdocs-material-tls
+      hosts:
+        - crucible.io
+
+# storage - either an existing pvc, the size for a new pvc, or emptyDir (git requires a pvc)
+storage:
+  existing: ""
+  size: "1Gi"
+  mode: ReadWriteOnce
+  class: longhorn
+
+##################
+# Git deployment #
+##################
+
+## giturl is the url of an MkDocs git repository
+giturl: "https://crucible.io/gitea/fortress-manifests/crucible-appliance"
+# giturl: ""
+## gitbranch sets which repo branch to publish
+gitbranch: "upgrades"
+
+## Secret that stores the values of a git credential store helper file
+## See https://git-scm.com/docs/git-credential-store
+gitCredentialsSecret: ""
+
+## Key in the gitCredentialsSecret with the credentials file: 
+## The default value is ".git-credentials"
+gitCredentialsSecretKey: ""
+
+## pollInterval sets minutes between git pull
+pollInterval: 20
+
+# cacert - add custom CA certificate
+# cacert: |-
+#   -----BEGIN CERTIFICATE-----
+#   MIIDGDCCAgCgAwIBAgIUPO57TE7AQJRsMEtzii2SYwZ9TRIwDQYJKoZIhvcNAQEL
+#   BQAwJDEiMCAGA1UEAxMZRm91bmRyeSBBcHBsaWFuY2UgUm9vdCBDQTAeFw0yMTAz
+#   …
+#   -----END CERTIFICATE-----
+
+######################
+# Non-Git deployment #
+######################
+
+## mkdocs YAML configuration
+## This can be used to create an mkdocs.yml file if no giturl is provided
+## It can also be used to modify the effect of the following fields when a giturl
+## is provided and an mkdocs.yml file is included in the git repo
+##   site_url: The value provided here will override the value in the git repo
+##   site_dir: The value provided here will be used to set the mapping in the nginx container to this path
+##             instead of the default value of "site". You should set this to the value that is in your mkdocs.yml file
+mkdocs: 
+  site_name: Crucible 
+  theme:
+    name: material
+
+## files populates text files inside /docs
+files: 
+  index.md: |
+    Crucible Documentation
+  
+  page2.md: |
+    Apps
+    - crucible
+
+# binaryFiles populates binary files inside /docs
+binaryFiles: {}

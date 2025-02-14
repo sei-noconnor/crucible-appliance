@@ -1,3 +1,0 @@
-- op: replace
-  path: /helmCharts/name['mkdocs-material']/repo
-  value: file:///crucible-repo/crucible-appliance/argocd/apps/mkdocs/kustomize/base/charts/mkdocs-material-0.1.0/mkdocs-material

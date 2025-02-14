@@ -12,7 +12,7 @@ function crucible_log {
 
 # Check if the IP has changed, if the IP has changed the cluster needs the following: 
 # - Add host entry for curcible.local with new IP 
-# - Add NodeHost entry for crucible.local in cluster coredns 
+# - Add NodeHost entry for crucible.io in cluster coredns 
 # - Reset cluster from snapshot, this recreates the k3s certificates. 
 #   It does not re-create the appliance root CA certificates all 
 #   CAs and Intermediate CAs will remain the same
@@ -23,12 +23,12 @@ crucible_log "$msg"
 source /etc/profile.d/crucible-env.sh
 CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
-DOMAIN=${DOMAIN:-crucible.local}
+DOMAIN=${DOMAIN:-crucible.io}
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 
 # Expand Volume
-sudo /home/crucible/crucible-appliance/packer/scripts/01-expand-volume.sh
-#sudo /home/crucible/crucible-appliance/packer/scripts/01-add-volume.sh
+sudo /home/crucible/crucible-appliance/packer/scripts/01-build-expand-volume.sh
+#sudo /home/crucible/crucible-appliance/packer/scripts/01-build-add-volume.sh
 # Add coredns entry
 sudo /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh
 #Set if the appliance is on the internet

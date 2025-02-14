@@ -5,7 +5,7 @@
 global:
   # -- Common labels for the all resources
   additionalLabels: {}
-  domain: cd.crucible.local
+  domain: cd.crucible.io
   # app: argo-cd
   # -- Number of old deployment ReplicaSets to retain. The rest will be
   # garbage collected.
@@ -100,7 +100,7 @@ configs:
     controller.repo.server.timeout.seconds: 60
 
       ## Server properties -- Run server without TLS
-    server.insecure: false
+    server.insecure: true
       # -- Value for base href in index.html. Used if
       # Argo CD is running behind reverse proxy under
       # subpath different from /
@@ -364,32 +364,31 @@ controller:
 server:
   # -- Argo CD server name
   name: server
+  
   ingress:
     # -- Enable an ingress resource for the Argo CD server
     enabled: true
+  
     # -- Additional ingress annotations
     #
     annotations:
-      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       cert-manager.io/cluster-issuer: ca-issuer
-    # -- Additional ingress labels
-    labels: {}
     # -- Defines which ingress controller will implement the resource
     ingressClassName: "nginx"
+    hostname: cd.crucible.io
 
     # -- List of ingress hosts
     ## Argo Ingress.
     ## Hostnames must be provided if Ingress is enabled.
     ## Secrets must be manually created in the namespace
     hosts: 
-      - cd.crucible.local
+      - cd.crucible.io
     # - argocd.example.com
     # -- List of ingress paths
     paths:
     - backend:
         service:
-          name: argo-cd-argocd-server
+          name: appliance-argocd-server
           port:
             number: 443
     # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
@@ -408,7 +407,7 @@ server:
     tls: 
       - secretName: argocd-tls
         hosts:
-          - cd.crucible.local
+          - cd.crucible.io
     # -- Uses `server.service.servicePortHttps` instead `server.service.servicePortHttp`
     https: false
   volumeMounts:
@@ -482,7 +481,7 @@ repoServer:
       args:
         - >-
           /usr/sbin/update-ca-certificates &&
-          curl -L https://crucible.local/gitea/api/packages/fortress-manifests/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
+          curl -L https://crucible.io/gitea/api/packages/fortress-manifests/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
           chmod +x argocd-vault-plugin &&
           mv argocd-vault-plugin /custom-tools/
       volumeMounts:

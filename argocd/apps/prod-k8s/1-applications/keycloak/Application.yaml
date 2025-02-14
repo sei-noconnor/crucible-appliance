@@ -17,6 +17,6 @@ spec:
     - CreateNamespace=true
   source:
     path: argocd/apps/keycloak/kustomize/overlays/appliance
-    repoURL: https://crucible.local/gitea/fortress-manifests/crucible-appliance.git
+    repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
     targetRevision: main
 

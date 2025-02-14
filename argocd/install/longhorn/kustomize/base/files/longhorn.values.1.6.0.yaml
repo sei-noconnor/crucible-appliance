@@ -406,7 +406,7 @@ ingress:
   ingressClassName: nginx
 
   # -- Hostname of the Layer 7 load balancer.
-  host: crucible.local
+  host: crucible.io
 
   # -- Setting that allows you to enable TLS on ingress records.
   tls: true

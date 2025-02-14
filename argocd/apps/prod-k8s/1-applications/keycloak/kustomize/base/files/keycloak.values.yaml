@@ -45,7 +45,7 @@ extraEnvVars:
   # - name: KC_DB_URL_DATABASE
   #   value: "keycloak"
   - name: KC_HOSTNAME
-    value: crucible.local
+    value: crucible.io
   - name: KC_HOSTNAME_STRICT
     value: "false"
   - name: KC_HOSTNAME_STRICT_HTTPS
@@ -67,7 +67,7 @@ extraEnvVars:
   # - name: KC_METRICS_ENABLED
   #   value: "true"
   - name: DOMAIN
-    value: "crucible.local"
+    value: "crucible.io"
   # - name: KC_HTTPS_TRUST_STORE_FILE
   #   value: /opt/bitnami/keycloak/spi-certs/truststore.jks
   # - name: KC_HTTPS_TRUST_STORE_PASSWORD
@@ -88,7 +88,7 @@ ingress:
   enabled: true
   ingressClassName: "nginx"
   pathType: Prefix
-  hostname: crucible.local
+  hostname: crucible.io
   path: "/(keycloak)(/|$)(.*)"
   servicePort: http
   annotations: 

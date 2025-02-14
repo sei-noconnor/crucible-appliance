@@ -1,0 +1,31 @@
+vars:
+  domain:
+  vsphere_server:
+  vsphere_user:
+  vsphere_password:
+  vsphere_template:
+  datacenter:
+  cluster:
+  host:
+  datastore:
+  network_name:
+  ssh_username:
+  ssh_password:
+apps:
+features:
+  # Allows the appliance to work in an air-gapped environment by downloading 
+  # containers, charts, binary packages and and OS packages required 
+  # values: [true, false]
+  airgap_mode:
+
+  # Enables a set of gitea actions to create packer images, and cluster,
+  # dependancies to extend the default single node appliance to a full 
+  # k3s cluster.
+  # values : [true, false]
+  cluster_builder:
+
+  # Allows the appliance to use a private registry or registry mirror that 
+  # already exists on your network. This helps with docker pull limits. 
+  # value: https://<registry_url>:<registry_port>
+  private_registry:
+
