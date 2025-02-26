@@ -55,9 +55,6 @@ blacklist {
 EOF
 sudo systemctl restart multipathd
 
-# Restart mDNS daemon to avoid conflict with other hosts
-# sudo systemctl restart avahi-daemon
-
 # Customize MOTD and other text for the appliance
 chmod -x /etc/update-motd.d/00-header
 chmod -x /etc/update-motd.d/10-help-text

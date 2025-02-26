@@ -59,20 +59,20 @@ if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
     fi
     filename="${files[0]}"
     
-    # if [ -n "$filename" ]; then
-    #     echo "You selected: $filename"
-    #     sudo systemctl stop k3s
-    #     sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
-    #     sudo systemctl daemon-reload
-    #     sudo systemctl start k3s
-    # fi
+    if [ -n "$filename" ]; then
+        echo "You selected: $filename"
+        sudo systemctl stop k3s
+        sudo k3s server --cluster-reset --cluster-reset-restore-path=$filename
+        sudo systemctl daemon-reload
+        sudo systemctl start k3s
+    fi
     
     echo "CLUSTER RESET!"
     time=15
     echo "Sleeping for $time"
     sleep $time
     # Add NodeHosts entry to coredns
-    /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh $CURRENT_IP $DOMAIN
+    /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh $DOMAIN
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
     k3s kubectl wait deployment \
     --all \
@@ -88,7 +88,7 @@ crucible_log "Attempting to unseal the vault"
 /home/crucible/crucible-appliance/packer/scripts/09-unseal-vault.sh
 
 image_count=$(sudo k3s ctr images ls | awk 'END{print NR'})
-if [ ! $IS_ONLINE && -f $DIST_DIR/containers/images-amd64.tar.zst ]; then
+if [[ ! "$IS_ONLINE" && -f "$DIST_DIR/containers/images-amd64.tar.zst" ]]; then
     sudo /home/crucible/crucible-appliance/packer/10-import-images.sh
 fi
 

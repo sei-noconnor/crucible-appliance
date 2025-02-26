@@ -4,6 +4,10 @@ readlink_cmd="readlink -m"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   readlink_cmd="greadlink -m"  
 fi
+# Get vars from appliamce.yaml
+# if [ -f ./appliance.yaml ]; then
+#   source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+# fi
 
 # set all config dirs to absolute paths
 REPO_DIR="/home/crucible/crucible-appliance"
@@ -52,6 +56,8 @@ find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"p
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: main/targetRevision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: main/revision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"main\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
+
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/crucible.io/https:\/\/${DOMAIN}DOMA/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> $REPO_DEST/.gitignore
 # allow root-ca.key to be commited. This is bad, use a vault!
@@ -74,7 +80,7 @@ wait_for_server() {
             echo "Timeout reached. Gitea server is not up."
             return 1
         fi
-        echo "Waiting for Gitea server to be up..."
+        echo "Waiting for Gitea server ($GITEA_SERVER) to be up..."
         sleep $INTERVAL
     done
     echo "Gitea server is up."
