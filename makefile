@@ -169,14 +169,17 @@ uninstall:
 	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-secret-id
 	
 startup-logs:
-	sudo cat /var/log/syslog | grep crucible-appliance
+	journalctl --unit crucible-appliance-startup
 
-tail-startup-logs:
-	sudo tail -f /var/log/syslog | grep crucible-appliance
-
-update-startup-script:
+startup-tail-logs:
+	journalctl --follow --unit crucible-appliance-startup
+	
+startup-update-script:
 	sudo cp ./packer/scripts/crucible-appliance-startup.sh /usr/local/bin/crucible-appliance-startup.sh
 	sudo chmod +x /usr/local/bin/crucible-appliance-startup.sh
+
+startup-restart:
+	echo "${ADMIN_PASS}" | sudo -E -S systemctl restart crucible-appliance-startup
 
 tmp:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
