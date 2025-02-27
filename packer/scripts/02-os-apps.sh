@@ -7,6 +7,14 @@
 
 # Get vars from appliamce.yaml
 source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+MIRRORS=$(cat <<EOF
+mirrors:
+  docker.io:
+    endpoint:
+      - https://mirror.gcr.io
+  "*":
+EOF
+)
 
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 echo "IS_ONLINE: $IS_ONLINE"
@@ -55,7 +63,7 @@ sudo mkdir -p /etc/rancher/k3s
 mkdir -p ~/.kube
 sudo echo "$MIRRORS" > /etc/rancher/k3s/registries.yaml
 sudo cp $DIST_DIR/generic/k3s /usr/local/bin/k3s && sudo chmod +x /usr/local/bin/k3s
-INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --cluster-init --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.io}" $DIST_DIR/generic/k3s-install.sh
+INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --node-name crucible-ctrl-01 --tls-san ${DOMAIN:-crucible.io} --cluster-init" $DIST_DIR/generic/k3s-install.sh
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i "s/default/crucible-appliance/g" ~/.kube/config
@@ -95,10 +103,10 @@ sudo chown root:root /usr/local/bin/vault
 sudo chmod +x /usr/local/bin/vault
 vault version
 
-# # Install Nerdctl
-# sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/nerdctl-2.0.3-linux-amd64.tar.gz
-# sudo chown root:root /usr/local/bin/nerdctl
-# sudo chmod +x /usr/local/bin/nerdctl
+# Install Nerdctl
+sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/nerdctl-2.0.3-linux-amd64.tar.gz
+sudo chown root:root /usr/local/bin/nerdctl
+sudo chmod +x /usr/local/bin/nerdctl
 
 # Install Podman
 sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/podman-linux-amd64.tar.gz

@@ -61,6 +61,10 @@ unseal-vault:
 vault-app-vars:
 	./packer/scripts/08-vault-app-vars.sh
 
+vault-reset-app-vars:
+	rm -rf ./argocd/install/vault/kustomize/base/files/app-vars.yaml
+	./packer/scripts/08-vault-app-vars.sh
+
 vault-argo-role:
 	./packer/scripts/08-vault-argo-args.sh
 	

@@ -4,10 +4,10 @@ readlink_cmd="readlink -m"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   readlink_cmd="greadlink -m"  
 fi
-# Get vars from appliamce.yaml
-if [ -f ./appliance.yaml ]; then
-  source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
-fi
+# # Get vars from appliamce.yaml
+# if [ -f ./appliance.yaml ]; then
+#   source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+# fi
 
 # set all config dirs to absolute paths
 REPO_DIR="/home/crucible/crucible-appliance"
