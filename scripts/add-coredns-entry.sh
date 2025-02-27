@@ -3,12 +3,12 @@
 # Set the namespace and configmap name for CoreDNS
 NAMESPACE="kube-system"
 CONFIGMAP_NAME="coredns-custom"
-DOMAIN=${2:-crucible.io}
+DOMAIN=${1:-crucible.io}
 IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 
 
 if [ -z "$IP" ] || [ -z "$DOMAIN" ]; then
-  echo "Usage: $0 <ip> <domain>"
+  echo "Usage: $0 <domain>"
   exit 1
 fi
 # Backup the current configmap to a file
