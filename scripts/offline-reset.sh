@@ -1,4 +1,4 @@
-#!/bin/bash -x 
+#!/bin/bash 
 
 if [ $EUID != 0 ]; then
     sudo "$0" "$@"
@@ -14,6 +14,7 @@ directory="/var/lib/rancher/k3s/server/db/snapshots"
 prefix=${1:-\*}
 
 files=($(find "$directory" -type f -name "*$prefix*" -print))
+echo "Files $files"
 
 if [ ${#files[@]} -eq 0 ]; then
     echo "No file found with the prefix '$prefix' in '$directory'."

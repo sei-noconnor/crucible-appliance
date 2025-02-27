@@ -22,16 +22,22 @@ generate_certs:
 sudo-deps: generate_certs 
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-build-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-vars.sh
+	make add-hosts-entry ${DOMAIN}
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-snapshot.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-import-images.sh
 
 add-coredns-entry:
-	./scripts/add-coredns-entry.sh "${APPLIANCE_IP}" "${DOMAIN}" $(filter-out $@,$(MAKECMDGOALS))
+	./scripts/add-coredns-entry.sh "${DOMAIN}" $(filter-out $@,$(MAKECMDGOALS))
 %:
 	@true
-	
+
+add-hosts-entry:
+	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/add-hosts-entry.sh $(filter-out $@,$(MAKECMDGOALS))
+%:
+	@true
+
 init: sudo-deps
 	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
 	make init-argo

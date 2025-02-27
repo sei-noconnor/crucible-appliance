@@ -11,8 +11,6 @@ function crucible_log {
 }
 
 # Check if the IP has changed, if the IP has changed the cluster needs the following: 
-# - Add host entry for curcible.local with new IP 
-# - Add NodeHost entry for crucible.io in cluster coredns 
 # - Reset cluster from snapshot, this recreates the k3s certificates. 
 #   It does not re-create the appliance root CA certificates all 
 #   CAs and Intermediate CAs will remain the same
@@ -27,25 +25,17 @@ DOMAIN=${DOMAIN:-crucible.io}
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 
 # Expand Volume
-sudo /home/crucible/crucible-appliance/packer/scripts/01-build-expand-volume.sh
-#sudo /home/crucible/crucible-appliance/packer/scripts/01-build-add-volume.sh
+sudo /home/${SSH_USERNAME}/crucible-appliance/packer/scripts/01-build-expand-volume.sh
+#sudo /home/${SSH_USERNAME}/crucible-appliance/crucible-appliance/packer/scripts/01-build-add-volume.sh
 # Add coredns entry
-sudo /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh
+sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/add-coredns-entry.sh
 #Set if the appliance is on the internet
 sudo sed -i "/IS_ONLINE=/c\export IS_ONLINE=\\$IS_ONLINE" /etc/profile.d/crucible-env.sh
 
 if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
-    sudo sed -i "/APPLIANCE_IP=/d" /etc/profile.d/crucible-env.sh
-    echo "export APPLIANCE_IP=$CURRENT_IP" >> /etc/profile.d/crucible-env.sh
-    # Delete old entry
-    sudo sed -i "/$DOMAIN/d" /etc/hosts
-    msg="Entry being added in hosts file. entry: '$CURRENT_IP    $DOMAIN'"
-    # Append it to the hosts file
-    tmp_file=/tmp/temp-$(openssl rand -hex 4).txt
-    sudo echo "$CURRENT_IP   $DOMAIN" >> /etc/hosts
-    msg="Entry update in host file: /etc/hosts '$CURRENT_IP   $DOMAIN'"
-    crucible_log "$msg"
-
+    
+    /home/${SSH_USERNAME}/crucible-appliance/scripts/add-hosts-entry.sh $DOMAIN
+    
     # Search for snapshot and do an offline reset
     directory="/var/lib/rancher/k3s/server/db/snapshots"
     prefix=${1:-crucible-appliance}
@@ -71,8 +61,13 @@ if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
     time=15
     echo "Sleeping for $time"
     sleep $time
+    K3S_STATUS=$(systemctl is-active k3s)
+    if [[ "$K3S_STATUS" == active ]]; then
+        sudo sed -i "/APPLIANCE_IP=/d" /etc/profile.d/crucible-env.sh
+        echo "export APPLIANCE_IP=$CURRENT_IP" >> /etc/profile.d/crucible-env.sh
+    fi
     # Add NodeHosts entry to coredns
-    /home/crucible/crucible-appliance/scripts/add-coredns-entry.sh $DOMAIN
+    /home/${SSH_USERNAME}/crucible-appliance/crucible-appliance/scripts/add-coredns-entry.sh $DOMAIN
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
     k3s kubectl wait deployment \
     --all \
@@ -85,10 +80,10 @@ else
 fi
 # Unseal the vault on startup 
 crucible_log "Attempting to unseal the vault"
-/home/crucible/crucible-appliance/packer/scripts/09-unseal-vault.sh
+/home/${SSH_USERNAME}/crucible-appliance/crucible-appliance/packer/scripts/09-unseal-vault.sh
 
 image_count=$(sudo k3s ctr images ls | awk 'END{print NR'})
 if [[ ! "$IS_ONLINE" && -f "$DIST_DIR/containers/images-amd64.tar.zst" ]]; then
-    sudo /home/crucible/crucible-appliance/packer/10-import-images.sh
+    sudo /home/${SSH_USERNAME}/crucible-appliance/crucible-appliance/packer/10-import-images.sh
 fi
 
