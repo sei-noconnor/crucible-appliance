@@ -1,26 +1,26 @@
 alloy: 
-  alloy-api-connection-string: Server=postgresql;Port=5432;Database=alloy_db;Username=postgres;Password=${ADMIN_PASS};SSL Mode=Prefer;Trust Server Certificate=true;
+  alloy-api-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=alloy_db;Username=postgres;Password=${ADMIN_PASS};SSL Mode=Prefer;Trust Server Certificate=true;
 argocd: 
   argo-password: ${ADMIN_PASS}
   argo-user: admin
 blueprint:
-  blueprint-db-connection-string: Server=postgresql;Port=5432;Database=blueprint_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+  blueprint-db-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=blueprint_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
 caster:
   caster-api-crucible-client-id: player.provider
   caster-api-crucible-client-secret: ~
   caster-api-crucible-id: caster-admin
-  caster-api-db-connection-string: Server=postgresql;Port=5432;Database=caster_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+  caster-api-db-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=caster_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
   caster-api-git-credentials: ~
   caster-api-gitlab-token-terraform: ~
   caster-api-sei-id-client-id: terraform-identity-provider
   caster-api-sei-id-client-secret: 37f0f2c5e0c24cffa7c099ffea3804e0
   caster-storage-class: longhorn
 cite:
-  cite-db-connection-string: Server=postgresql;Port=5432;Database=cite_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+  cite-db-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=cite_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
   cite-user-0-id: 6a4feb54-e3b4-4d09-b09a-9b13aaaca466
   cite-user-0-name: crucible-admin
 gallery:
-  gallery-db-connection-string: Server=postgresql;Port=5432;Database=gallery_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+  gallery-db-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=gallery_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
 gitea:
   argocd-password: ${ADMIN_PASS}
   argocd-token: ~
@@ -37,9 +37,9 @@ graylog:
   mongo-user: graylog-user
   mongo-user-pass: ${ADMIN_PASS}
 player:
-  player-api-db-connection-string: Server=postgresql;Port=5432;Database=player_db;Username=postgres;Password=${ADMIN_PASS};
-  player-vm-api-db-connection-string: Server=postgresql;Port=5432;Database=vm_db;Username=postgres;Password=${ADMIN_PASS};
-  player-vm-api-logging-connection-string: Server=postgresql;Port=5432;Database=vm_logging_db;Username=postgres;Password=${ADMIN_PASS};
+  player-api-db-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=player_db;Username=postgres;Password=${ADMIN_PASS};
+  player-vm-api-db-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=vm_db;Username=postgres;Password=${ADMIN_PASS};
+  player-vm-api-logging-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=vm_logging_db;Username=postgres;Password=${ADMIN_PASS};
   player-vm-api-vsphere-pass: ${ADMIN_PASS}
   player-vm-api-vsphere-user: caster-svc@vsphere.local
   proxmox-token: ${PROXMOX_TOKEN}
@@ -54,7 +54,7 @@ stackstorm:
   stackstorm-rabbitmq-password: ${ADMIN_PASS}
   stackstorm-rabbitmq-user: administrator
 steamfitter:
-  steamfitter-api-connection-string: Server=postgresql;Port=5432;Database=steamfitter_db;Username=postgres;Password=${ADMIN_PASS};SSL Mode=Prefer;Trust Server Certificate=true;
+  steamfitter-api-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=steamfitter_db;Username=postgres;Password=${ADMIN_PASS};SSL Mode=Prefer;Trust Server Certificate=true;
   steamfitter-api-vm-task-api-pass: ${ADMIN_PASS}
   steamfitter-api-vm-task-api-user: administrator
 shared:
@@ -80,7 +80,7 @@ shared:
   oauth-token-url: realms/crucible/protocol/openid-connect/token
   oauth-userapi-url: realms/crucible/protocol/openid-connect/userinfo
 topomojo:
-  topomojo-api-connection-string: Server=postgresql.default.svc.cluster.local;Port=5432;Database=topomojo_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
+  topomojo-api-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=topomojo_db;Username=postgres;Password='${ADMIN_PASS}';SSL Mode=Prefer;Trust Server Certificate=true;
 vsphere: 
   vsphere-cluster: ${VSPHERE_CLUSTER}
   vsphere-datacenter: ${VSPHERE_DATACENTER}
@@ -89,6 +89,6 @@ vsphere:
   vsphere-download-cert: "false"
   vsphere-dv-switch: ${VSPHERE_SWITCH}
   vsphere-iso-datastore: ${VSPHERE_ISO_DATASTORE}
-  vsphere-pass: ${VSPHERE_PASS}
+  vsphere-pass: ${VSPHERE_PASSWORD}
   vsphere-server: ${VSPHERE_SERVER}
   vsphere-user: ${VSPHERE_USER}

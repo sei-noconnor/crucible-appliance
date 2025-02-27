@@ -1,5 +1,9 @@
 #!/bin/bash 
-
+# Get vars from appliamce.yaml
+if [ -f ./appliance.yaml ]; then
+ #source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+ export $(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+fi
 localport=8200
 typename=service/appliance-vault
 remoteport=8200
