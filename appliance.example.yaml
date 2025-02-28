@@ -1,7 +1,7 @@
 vars:
-  domain:
-  vsphere_server:
-  vsphere_user:
+  domain: crucible.io
+  vsphere_server: vcsa.crucible.io
+  vsphere_user: administrator@vsphere.local
   vsphere_password:
   vsphere_template:
   vsphere_datacenter:
@@ -11,20 +11,20 @@ vars:
   vsphere_iso_datastore:
   vsphere_switch: 
   vsphere_portgroup:
-  ssh_username:
-  ssh_password:
+  ssh_username: crucible
+  ssh_password: crucible
 apps:
 features:
   # Allows the appliance to work in an air-gapped environment by downloading 
   # containers, charts, binary packages and and OS packages required 
   # values: [true, false]
-  airgap_mode:
+  airgap_mode: true
 
   # Enables a set of gitea actions to create packer images, and cluster,
   # dependancies to extend the default single node appliance to a full 
   # k3s cluster.
   # values : [true, false]
-  cluster_builder:
+  cluster_builder: true
 
   # Allows the appliance to use a private registry or registry mirror that 
   # already exists on your network. This helps with docker pull limits. 

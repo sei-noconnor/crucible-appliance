@@ -65,6 +65,7 @@ echo "NEW DOMAIN: $NEW_DOMAIN"
 # EOF
 # )"
 #     done
+#     # Get the number of hosts (in case of multiple tls entries)
 #     TLS_COUNT=$(kubectl get ing -n "$NS" "$NAME" -o yaml | yq eval ".spec.tls | length" -)
 #     for k in $(seq 0 $((TLS_COUNT - 1))); do
 #       HOST_COUNT=$(kubectl get ing -n "$NS" "$NAME" -o yaml | yq eval ".spec.tls[$k].hosts | length" -)
@@ -74,9 +75,9 @@ echo "NEW DOMAIN: $NEW_DOMAIN"
 #           echo "CHANGING TLS HOST to $NEW_DOMAIN"
 #           HOST=$(echo "$HOST" | sed "s|$DOMAIN|$NEW_DOMAIN|g")
 #         fi
-#         HOST_PATH="/spec/tls/$k/hosts/$l"
+#         HOST_PATH="/spec/tls/$k/hosts/-"
 #         kubectl patch ing "$NAME" -n "$NS" --type=json -p="$(cat <<EOF
-# - op: replace
+# - op: add
 #   path: $HOST_PATH
 #   value: $HOST
 # EOF
@@ -85,12 +86,58 @@ echo "NEW DOMAIN: $NEW_DOMAIN"
 #     done
 # done
 
-# # add coredns-custom hosts entries
-# ./scripts/add-coredns-entry.sh $NEW_DOMAIN
+# # update gitea ingress
+# YAML=$(kubectl get ingress "appliance-gitea" -n gitea -o yaml) 
+# SPEC_PATHS=$(echo "$YAML" | yq '.spec.rules[0].http.paths')
+# echo "path is: $SPEC_PATHS"
+# PATCH="$(cat <<-EOF
+# - op: add
+#   path: /spec/rules/-
+#   value: 
+#     host: $NEW_DOMAIN
+#     http:
+#       paths: 
+# $(echo "$SPEC_PATHS" | sed 's/^/        /g')
+# EOF
+# )"
 
-# # Update os hosts entry
-# echo "$SSH_PASSWORD" | sudo -S sed -i "s|$DOMAIN|$NEW_DOMAIN|g" /etc/hosts
+# echo "$PATCH" | yq -P
 
+# kubectl patch ing "appliance-gitea" -n "gitea" --type=json -p="$PATCH"
+
+# PATCH="$(cat <<-EOF
+# - op: add
+#   path: /spec/tls/0/0
+#   value: 
+#     hosts:
+#       - $NEW_DOMAIN
+# EOF
+# )"
+# echo "$PATCH" | yq -P
+
+# kubectl patch ing "appliance-gitea" -n "gitea" --type=json -p="$PATCH"
+
+OLD_INGRESS="appliance-gitea"
+NEW_INGRESS="appliance-gitea-$NEW_DOMAIN"
+NAMESPACE="gitea"
+SECRET_NAME="gitea-tls-$NEW_DOMAIN"
+
+# Get the existing Ingress YAML
+kubectl get ingress $OLD_INGRESS -n $NAMESPACE -o yaml > ingress.yaml
+
+# Use yq to modify the hosts and tls
+yq eval ".metadata.name = \"$NEW_INGRESS\" |
+        .spec.rules[].host = \"$NEW_DOMAIN\" |
+        .spec.tls[].hosts = [\"$NEW_DOMAIN\"] |
+        .spec.tls[].secretName = \"$SECRET_NAME\"" ingress.yaml > new-ingress.yaml
+
+# Apply the modified Ingress
+kubectl apply -f new-ingress.yaml
+
+
+# add coredns-custom hosts entries
+./scripts/add-coredns-entry.sh $NEW_DOMAIN
+./scripts/add-hosts-entry.sh $NEW_DOMAIN
 # # add tls-san to k3s-service
 # echo "Updating K3s tls san "
 # echo "$SSH_PASSWORD" | \
@@ -109,7 +156,7 @@ REPO_DEST="/tmp/crucible-appliance"
 GITEA_ORG="fortress-manifests"
 GIT_BRANCH=$(git -C "$REPO_DEST" rev-parse --abbrev-ref HEAD)
 #find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/https:\/\/${NEW_DOMAIN}\/gitea\/${GITEA_ORG}/g" {} \;
-find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/test.io/g" {} \;
+find $REPO_DEST -name -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/https:\/\/${NEW_DOMAIN}\/gitea\/fortress-manifests/g" {} \;
 git -C $REPO_DEST add --all
 git -C $REPO_DEST commit -m "updating domain to $NEW_DOMAIN"
 
@@ -118,7 +165,7 @@ git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git -C $RE
 git -C $REPO_DEST push appliance $GIT_BRANCH
 # update vault shared/domain value
 
-# # update argocd root-appjourn
+# # update argocd root-app
 # REPO_PATH=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.path')
 # REPO_URL=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.repoURL')
 # TARGET_REVISION=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.targetRevision')
@@ -132,4 +179,4 @@ git -C $REPO_DEST push appliance $GIT_BRANCH
 # sync argocd root-app
 
 # hard-refresh all apps
-#for app in $(argocd --core app list -p default -o json | jq -r .[].metadata.name); do argocd --core app get --hard-refresh $app; done
+for app in $(argocd --core app list -p default -o json | jq -r .[].metadata.name); do argocd --core app get --hard-refresh $app; done
