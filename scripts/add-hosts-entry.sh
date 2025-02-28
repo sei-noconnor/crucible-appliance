@@ -11,7 +11,6 @@ fi
 
 # Delete old entry
 sudo sed -i "/$DOMAIN/d" $HOSTS_FILE
-sudo sed -i "/$IP/d" $HOSTS_FILE
 msg="Entry being added in hosts file. entry: '$IP    $DOMAIN cd.$DOMAIN help.$DOMAIN keystore.$DOMAIN id.$DOMAIN code.$DOMAIN'"
 # Append it to the hosts file
 sudo echo "$IP  $DOMAIN cd.$DOMAIN help.$DOMAIN keystore.$DOMAIN id.$DOMAIN code.$DOMAIN" >> $HOSTS_FILE

@@ -61,29 +61,3 @@ git -C $REPO_DEST remote remove appliance
 git -C $REPO_DEST remote remove origin
 git -C $REPO_DEST remote add appliance https://administrator:${ADMIN_PASS}@crucible.io/gitea/${GITEA_ORG}/crucible-appliance.git
 git -C $REPO_DEST push -u appliance --mirror -f || true
-
-# echo "Creating argocd app to gitea source control on branch ${GIT_BRANCH}"
-# kubectl apply -f $REPO_DEST/argocd/install/argocd/Application.yaml
-# argocd --core app create argocd \
-#   --repo https://crucible.io/gitea/crucible/crucible-appliance-argo.git \
-#   --path argocd/install/argocd/kustomize/overlays/appliance \
-#   --ref "${GIT_BRANCH}" \
-#   --dest-server https://kubernetes.default.svc \
-#   --sync-policy auto \
-#   --upsert \
-#   --sync-option Prune=true 
-  
-  
-  
-# echo "Updating argo app of apps to source control on branch ${GIT_BRANCH:-main}"
-
-#kubectl apply -f $REPO_DEST/argocd/apps/Application.yaml
-
-# argocd --core app create apps \
-#   --repo https://crucible.io/gitea/crucible/crucible-appliance-argo.git \
-#   --path argocd/apps \
-#   --ref "${GIT_BRANCH:-main}" \
-#   --dest-server https://kubernetes.default.svc \
-#   --sync-policy auto \
-#   --sync-option Prune=true \
-#   --upsert

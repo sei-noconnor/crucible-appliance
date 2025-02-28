@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #export $(cat .env)
 # Gitea details and YAML file path
 YAML_FILE="$1"
@@ -40,8 +40,8 @@ process_helm() {
     repoName=$(yq eval ".helm[$i].name" "$YAML_FILE")
     repoUrl=$(yq eval ".helm[$i].repoUrl" "$YAML_FILE")
     giteaUrl=$(yq eval ".helm[$i].giteaUrl" "$YAML_FILE" | sed "s|\${DOMAIN}|$DOMAIN|g" | sed "s|\${OWNER}|$OWNER|g")
-    helm repo add ${repoName} ${repoUrl} || true
-    helm repo update
+    helm repo add ${repoName} ${repoUrl} > /dev/null|| true
+    helm repo update > /dev/null
     # Iterate through helm items
     item_count=$(yq eval ".helm[$i].items | length" "$YAML_FILE")
     for j in $(seq 0 $(($item_count - 1))); do
@@ -55,8 +55,10 @@ process_helm() {
       fi
       package_url=$(echo "$giteaUrl" | sed "s|\${OWNER}|$OWNER|g" | sed "s|\${DOMAIN}|$repoUrl|g")
       file=($(find "$helm_output" -type f -name "*$name*$version*" -print))
-      echo "Uploading Helm chart $item to $package_url"
-      curl --location --user ${ADMIN_USER}:${ADMIN_PASS} -X POST --upload-file $file $package_url
+      if [ -n $file ]; then
+        echo "Uploading Helm chart $item to $package_url"
+        curl --location --user ${ADMIN_USER}:${ADMIN_PASS} -X POST --upload-file $file $package_url
+      fi
     done
   done
 }
