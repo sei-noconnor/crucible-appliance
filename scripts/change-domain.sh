@@ -136,8 +136,10 @@ kubectl apply -f new-ingress.yaml
 
 
 # add coredns-custom hosts entries
-./scripts/add-coredns-entry.sh $NEW_DOMAIN
-./scripts/add-hosts-entry.sh $NEW_DOMAIN
+./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $NEW_DOMAIN,cd.$NEW_DOMAIN,keystore.$NEW_DOMAIN,id.$NEW_DOMAIN,code.$NEW_DOMAIN -a upsert
+./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $DOMAIN,cd.$DOMAIN,keystore.$DOMAIN,id.$DOMAIN,code.$DOMAIN -a upsert
+./scripts/add-hosts-entry.sh -f /etc/hosts -r $NEW_DOMAIN,cd.$NEW_DOMAIN,keystore.$NEW_DOMAIN,id.$NEW_DOMAIN,code.$NEW_DOMAIN -a upsert
+
 # # add tls-san to k3s-service
 # echo "Updating K3s tls san "
 # echo "$SSH_PASSWORD" | \
@@ -155,10 +157,17 @@ kubectl apply -f new-ingress.yaml
 REPO_DEST="/tmp/crucible-appliance"
 GITEA_ORG="fortress-manifests"
 GIT_BRANCH=$(git -C "$REPO_DEST" rev-parse --abbrev-ref HEAD)
-#find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/https:\/\/${NEW_DOMAIN}\/gitea\/${GITEA_ORG}/g" {} \;
-find $REPO_DEST -name -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/https:\/\/${NEW_DOMAIN}\/gitea\/fortress-manifests/g" {} \;
+
+find $REPO_DEST -path "$REPO_DEST/.git" -prune -o -type f -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/https:\/\/${NEW_DOMAIN}\/gitea\/fortress-manifests/g" {} +
+
+# update URLS
+find $REPO_DEST -path $REPO_DEST/.git -prune -o -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/https:\/\/${NEW_DOMAIN}\/gitea\/fortress-manifests/g" {} \;
 git -C $REPO_DEST add --all
-git -C $REPO_DEST commit -m "updating domain to $NEW_DOMAIN"
+git -C $REPO_DEST commit -m "updating URLS from $DOMAIN to $NEW_DOMAIN"
+# update domains
+find $REPO_DEST -path $REPO_DEST/.git -prune -o -exec sed -i "s/${DOMAIN}/${NEW_DOMAIN}/g" {} \;
+git -C $REPO_DEST add --all
+git -C $REPO_DEST commit -m "updating all instances of $DOMAIN to $NEW_DOMAIN"
 
 REMOTE_URL="https://administrator:crucible@${NEW_DOMAIN}/gitea/${GITEA_ORG}/crucible-appliance.git"
 git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git -C $REPO_DEST remote set-url appliance "${REMOTE_URL}"
@@ -179,4 +188,4 @@ git -C $REPO_DEST push appliance $GIT_BRANCH
 # sync argocd root-app
 
 # hard-refresh all apps
-for app in $(argocd --core app list -p default -o json | jq -r .[].metadata.name); do argocd --core app get --hard-refresh $app; done
+#for app in $(argocd --core app list -p default -o json | jq -r .[].metadata.name); do argocd --core app get --hard-refresh $app; done

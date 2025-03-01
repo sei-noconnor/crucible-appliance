@@ -22,14 +22,14 @@ generate_certs:
 sudo-deps: generate_certs 
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-build-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-vars.sh
-	make add-hosts-entry ${DOMAIN}
+	make add-hosts-entry -- -f /etc/hosts -r ${DOMAIN} -a upsert
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-snapshot.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-import-images.sh
 
 add-coredns-entry:
-	./scripts/add-coredns-entry.sh "${DOMAIN}" $(filter-out $@,$(MAKECMDGOALS))
+	./scripts/add-coredns-entry.sh $(filter-out $@,$(MAKECMDGOALS))
 %:
 	@true
 
@@ -44,7 +44,7 @@ init: sudo-deps
 	make snapshot
 	
 init-argo: 
-	make add-coredns-entry
+	make add-coredns-entry -- -n kube-system -c coredns-custom -d ${DOMAIN} -a upsert
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault
