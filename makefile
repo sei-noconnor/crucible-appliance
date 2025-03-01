@@ -28,8 +28,8 @@ sudo-deps: generate_certs
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-snapshot.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-import-images.sh
 
-add-coredns-entry:
-	./scripts/add-coredns-entry.sh $(filter-out $@,$(MAKECMDGOALS))
+add-coredns-hosts-entry:
+	./scripts/add-coredns-hosts-entry.sh $(filter-out $@,$(MAKECMDGOALS))
 %:
 	@true
 
@@ -44,7 +44,7 @@ init: sudo-deps
 	make snapshot
 	
 init-argo: 
-	make add-coredns-entry -- -n kube-system -c coredns-custom -d ${DOMAIN} -a upsert
+	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN} -a upsert
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault

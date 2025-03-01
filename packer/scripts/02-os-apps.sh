@@ -54,6 +54,7 @@ if $IS_ONLINE; then
     curl -C - -Lo $DIST_DIR/generic/packer_1.12.0_linux_amd64.zip https://releases.hashicorp.com/packer/1.12.0/packer_1.12.0_linux_amd64.zip
     curl -C - -Lo $DIST_DIR/generic/podman-linux-amd64.tar.gz https://github.com/containers/podman/releases/download/v5.4.0/podman-remote-static-linux_amd64.tar.gz
     curl -C - -Lo $DIST_DIR/generic/kind-linux-amd64 https://github.com/kubernetes-sigs/kind/releases/download/v0.26.0/kind-linux-amd64
+    curl -C - -Lo $DIST_DIR/generic/lazygit_0.48.0_linux_x86_64.tar.gz https://github.com/jesseduffield/lazygit/releases/download/v0.48.0/lazygit_0.48.0_Linux_x86_64.tar.gz
 fi  
 # Install yq
 sudo mv $DIST_DIR/generic/yq /usr/bin/yq && sudo chmod +x /usr/bin/yq
@@ -136,6 +137,9 @@ sudo cp $DIST_DIR/generic/kind-linux-amd64 /usr/local/bin/kind
 sudo chown root:root /usr/local/bin/kind
 sudo chmod +x /usr/local/bin/kind
 kind version
+
+# Install lazygit
+sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/lazygit_0.48.0_linux_x86_64.tar.gz
 # Install Brew
 # NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/ubuntu/.baschrc
