@@ -62,4 +62,5 @@ fi
 
 sudo k3s ctr -n=k8s.io images ls -q | awk '!/sha256/ {print}' > $image_list_file
 images=$(cat "${image_list_file}")
-sudo nerdctl -n=k8s.io --address /run/k3s/containerd/containerd.sock save --platform=$PLATFORM -o $DIST_DIR/images-${ARCH}.tar.zst ${images}
+sudo k3s ctr -n=k8s.io images export --platform=$PLATFORM $DIST_DIR/images-${ARCH}.tar.zst ${images}
+# sudo nerdctl -n=k8s.io --address /run/k3s/containerd/containerd.sock save --platform=$PLATFORM -o $DIST_DIR/images-${ARCH}.tar.zst ${images}
