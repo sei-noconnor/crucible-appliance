@@ -197,6 +197,9 @@ tmp:
 template:
 	./packer/scripts/template.sh $(filter-out $@,$(MAKECMDGOALS))
 
+ca-update:
+	
+
 .PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
 
 all: init
