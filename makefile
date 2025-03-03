@@ -25,7 +25,7 @@ sudo-deps: generate_certs
 	make add-hosts-entry -- -f /etc/hosts -r ${DOMAIN} -a upsert
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
-	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-snapshot.sh
+	make snapshot -- -n "BASE-CLUSTER-INSTALLED" -c 
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-import-images.sh
 
 add-coredns-hosts-entry:
@@ -137,7 +137,7 @@ clean-certs:
 	rm -rf ./argocd/apps/cert-manager/kustomize/base/files/{root-*,intermediate-*}
 
 snapshot:
-	@echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/06-snapshot-etcd.sh $(filter-out $@,$(MAKECMDGOALS)) 
+	@echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/02-os-snapshot.sh $(filter-out $@,$(MAKECMDGOALS)) 
 %:
 	@true
 

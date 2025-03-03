@@ -55,6 +55,7 @@ if $IS_ONLINE; then
     curl -C - -Lo $DIST_DIR/generic/podman-linux-amd64.tar.gz https://github.com/containers/podman/releases/download/v5.4.0/podman-remote-static-linux_amd64.tar.gz
     curl -C - -Lo $DIST_DIR/generic/kind-linux-amd64 https://github.com/kubernetes-sigs/kind/releases/download/v0.26.0/kind-linux-amd64
     curl -C - -Lo $DIST_DIR/generic/lazygit_0.48.0_linux_x86_64.tar.gz https://github.com/jesseduffield/lazygit/releases/download/v0.48.0/lazygit_0.48.0_Linux_x86_64.tar.gz
+    curl -C - -Lo $DIST_DIR/generic/kubectl-node-shell https://github.com/kvaps/kubectl-node-shell/raw/master/kubectl-node_shell
 fi  
 # Install yq
 sudo mv $DIST_DIR/generic/yq /usr/bin/yq && sudo chmod +x /usr/bin/yq
@@ -74,6 +75,9 @@ chmod go-r ~/.kube/config
 
 # Install Kubectl
 install -o root -g root -m 0755 $DIST_DIR/generic/kubectl /usr/local/bin/kubectl
+# Install kubectl node-shell
+chmod +x $DIST_DIR/generic/kubectl-node-shell
+sudo mv $DIST_DIR/generic/kubectl-node-shell /usr/local/bin/kubectl-node_shell
 
 # Install Helm
 tar -C /usr/local/bin -xzf "$DIST_DIR/generic/helm-v3.16.3-linux-amd64.tar.gz" linux-amd64/helm --strip-components=1 
