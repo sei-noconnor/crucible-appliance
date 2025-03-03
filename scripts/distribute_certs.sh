@@ -29,7 +29,7 @@ if [ "$APPLIANCE_ENVIRONMENT" == APPLIANCE ]; then
     fi
     cat $src_dir/server/tls/intermediate-ca.pem $src_dir/server/tls/root-ca.pem > $src_dir/root-chain.pem
     echo "$ADMIN_PASS" | sudo -S cp -R $src_dir/server $k3s_cert_dir
-    echo "$ADMIN_PASS" | sudo -S cp "$src_dir/root-chain.pem" "/usr/local/share/ca-certificates/root-chain.crt"
+    echo "$ADMIN_PASS" | sudo -S cp "$src_dir/tls/server/root-ca.pem" "/usr/local/share/ca-certificates/root-ca.crt"
     echo "$ADMIN_PASS" | sudo -S update-ca-certificates
 fi
 
