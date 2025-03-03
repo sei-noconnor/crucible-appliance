@@ -1,29 +1,36 @@
 #!/bin/bash
 
-CERT_NAME="my-trusted-cert"
+CERT_NAME=""
 CERT_FILE="./dist/ssl/server/tls/root-ca.crt"
 CERT_DIR="/usr/local/share/ca-certificates"
 CERT_SYSTEM_DIR="/etc/ssl/certs"
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 [-n CERT_NAME] [-f CERT_FILE] [-h]"
-    echo "  -n, --name      Certificate name"
+    echo "Usage: $0 [-f CERT_FILE] [-h]"
     echo "  -f, --file      Certificate file path"
     echo "  -h, --help      Display this help message"
     exit 1
 }
 
+# Function to extract certificate name from the certificate file
+extract_cert_name() {
+    CERT_NAME=$(openssl x509 -noout -subject -in "$CERT_FILE" | sed -n 's/^.*CN = \(.*\)$/\1/p')
+    echo "$CERT_NAME"
+}
+
 # Parse command line options
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        -n|--name) CERT_NAME="$2"; shift ;;
         -f|--file) CERT_FILE="$2"; shift ;;
         -h|--help) usage ;;
         *) echo "Unknown parameter passed: $1"; usage ;;
     esac
     shift
 done
+
+# Extract certificate name
+extract_cert_name
 
 # Function to check if the certificate is already trusted
 is_cert_trusted() {
@@ -32,7 +39,7 @@ is_cert_trusted() {
         security find-certificate -c "$CERT_NAME" /Library/Keychains/System.keychain > /dev/null 2>&1
     else
         # Linux
-        grep -q "$CERT_NAME" "$CERT_SYSTEM_DIR/ca-certificates.crt"
+        awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < $CERT_SYSTEM_DIR/ca-certificates.crt | grep "$CERT_NAME"
     fi
 }
 
