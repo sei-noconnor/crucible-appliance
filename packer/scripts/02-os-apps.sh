@@ -149,3 +149,6 @@ sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/lazygit_0.48.0_linux_x86_64.ta
 # (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/ubuntu/.baschrc
 # eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 # brew install gcc
+
+# Reset Permissions
+sudo chown -R $SSH_USERNAME:$SSH_USERNAME /home/$SSH_USERNAME
