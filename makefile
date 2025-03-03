@@ -44,7 +44,7 @@ init: sudo-deps
 	make snapshot
 	
 init-argo: 
-	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN} -a upsert
+	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN},cd.${DOMAIN},keystore.${DOMAIN},help.${DOMAIN},id.${DOMAIN} -a upsert
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault
