@@ -44,6 +44,7 @@ init: sudo-deps
 	make snapshot
 	
 init-argo: 
+	make ca-check-trusted -- -f $(SSL_DIR)/server/tls/root-ca.crt
 	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN},cd.${DOMAIN},keystore.${DOMAIN},help.${DOMAIN},id.${DOMAIN} -a upsert
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
@@ -197,8 +198,8 @@ tmp:
 template:
 	./packer/scripts/template.sh $(filter-out $@,$(MAKECMDGOALS))
 
-ca-update:
-	
+ca-check-trusted:
+	./scripts/check-trusted-os-certs.sh	$(filter-out $@,$(MAKECMDGOALS)) 
 
 .PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
 
