@@ -158,32 +158,31 @@ REPO_DEST="/tmp/crucible-appliance"
 GITEA_ORG="fortress-manifests"
 GIT_BRANCH=$(git -C "$REPO_DEST" rev-parse --abbrev-ref HEAD)
 
-find $REPO_DEST -path "$REPO_DEST/.git" -prune -o -type f -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/https:\/\/${NEW_DOMAIN}\/gitea\/fortress-manifests/g" {} +
 
 # update URLS
-find $REPO_DEST -path $REPO_DEST/.git -prune -o -exec sed -i "s/https:\/\/${DOMAIN}\/gitea\/fortress-manifests/https:\/\/${NEW_DOMAIN}\/gitea\/fortress-manifests/g" {} \;
+find $REPO_DEST -path $REPO_DEST/.git -prune -o -name "*.yaml|yml" -exec sed -i "s/${DOMAIN}/${NEW_DOMAIN}/g" {} \;
 git -C $REPO_DEST add --all
 git -C $REPO_DEST commit -m "updating URLS from $DOMAIN to $NEW_DOMAIN"
-# update domains
-find $REPO_DEST -path $REPO_DEST/.git -prune -o -exec sed -i "s/${DOMAIN}/${NEW_DOMAIN}/g" {} \;
-git -C $REPO_DEST add --all
-git -C $REPO_DEST commit -m "updating all instances of $DOMAIN to $NEW_DOMAIN"
+# # update domains
+# find $REPO_DEST -path $REPO_DEST/.git -prune -o -exec sed -i "s/${DOMAIN}/${NEW_DOMAIN}/g" {} \;
+# git -C $REPO_DEST add --all
+# git -C $REPO_DEST commit -m "updating all instances of $DOMAIN to $NEW_DOMAIN"
 
 REMOTE_URL="https://administrator:crucible@${NEW_DOMAIN}/gitea/${GITEA_ORG}/crucible-appliance.git"
 git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git -C $REPO_DEST remote set-url appliance "${REMOTE_URL}"
 git -C $REPO_DEST push appliance $GIT_BRANCH
 # update vault shared/domain value
 
-# # update argocd root-app
-# REPO_PATH=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.path')
-# REPO_URL=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.repoURL')
-# TARGET_REVISION=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.targetRevision')
-# if [[ "$REPO_URL" =~ "$DOMAIN" ]]; then
-#   echo "CHANGING REPO URL to $NEW_DOMAIN"
-#   REPO_URL=$(echo "$REPO_URL" | sed "s|$DOMAIN|$NEW_DOMAIN|g")
-#   argocd --core app set prod-argo --repo "$REPO_URL"
-#   argocd --core app sync prod-argo
-# fi
+# update argocd root-app
+REPO_PATH=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.path')
+REPO_URL=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.repoURL')
+TARGET_REVISION=$(argocd --core app get prod-argo --output=yaml | yq eval '.spec.source.targetRevision')
+if [[ "$REPO_URL" =~ "$DOMAIN" ]]; then
+  echo "CHANGING REPO URL to $NEW_DOMAIN"
+  REPO_URL=$(echo "$REPO_URL" | sed "s|$DOMAIN|$NEW_DOMAIN|g")
+  argocd --core app set prod-argo --repo "$REPO_URL"
+  argocd --core app sync prod-argo
+fi
 
 # sync argocd root-app
 

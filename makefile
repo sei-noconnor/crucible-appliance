@@ -25,7 +25,7 @@ sudo-deps: generate_certs
 	make add-hosts-entry -- -f /etc/hosts -r ${DOMAIN} -a upsert
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
-	make snapshot -- -n "BASE-CLUSTER-INSTALLED" -c 
+	make snapshot -- -n "BEFORE-CRUCIBLE-BASE" -c 
 	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-import-images.sh
 
 add-coredns-hosts-entry:
