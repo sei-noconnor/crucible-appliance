@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "player-connect",
-        "project_branch" : "HEAD",
+        "project_branch" : "domain-change",
 	    "namespace" : "default",
 	    "manifest_type": "yaml",
         "helm_chart" : "",

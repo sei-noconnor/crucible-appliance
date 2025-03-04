@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "keycloak",
-        "project_branch" : "main",
+        "project_branch" : "domain-change",
         "namespace" : "default",
         "manifest_type": "kustomize",
         "helm_repo" : "",

@@ -15,6 +15,6 @@ spec:
   source:
     path: argocd/patches
     repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: main
+    targetRevision: domain-change
     directory:
       recurse: true

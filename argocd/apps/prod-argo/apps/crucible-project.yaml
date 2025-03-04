@@ -14,4 +14,4 @@ spec:
     - namespace: default
       server: '*'
   sourceRepos:
-    - 'https://github.com/sei-noconnor/crucible-appliance.git'
+    - 'https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git'

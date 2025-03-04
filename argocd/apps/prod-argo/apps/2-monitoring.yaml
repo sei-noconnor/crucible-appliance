@@ -9,8 +9,8 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/sei-noconnor/crucible-appliance.git
-      revision: main
+      repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
+      revision: domain-change
       files:
       - path: "argocd/apps/prod-argo/apps/2-monitoring/*.json"
   template:
@@ -19,7 +19,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/sei-noconnor/crucible-appliance.git
+        repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
         targetRevision: '{{app.project_branch}}'
         path: "argocd/apps/prod-k8s/2-monitoring"
         plugin:

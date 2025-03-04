@@ -12,8 +12,8 @@ spec:
   project: default
   source:
     path: argocd/apps/prod-argo
-    repoURL: https://github.com/sei-noconnor/crucible-appliance.git
-    targetRevision: main
+    repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
+    targetRevision: domain-change
     directory:
       recurse: false
   sources: []

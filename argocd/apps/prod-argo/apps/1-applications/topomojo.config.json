@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "topomojo",
-        "project_branch" : "HEAD",
+        "project_branch" : "domain-change",
         "namespace" : "topomojo",
         "manifest_type": "kustomize",
         "helm_repo" : "https://helm.cmusei.dev/charts",

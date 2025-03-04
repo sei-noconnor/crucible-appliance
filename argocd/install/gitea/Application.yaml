@@ -17,6 +17,6 @@ spec:
     - CreateNamespace=true
   sources:
   - path: argocd/install/gitea/kustomize/overlays/appliance
-    repoURL: file:///crucible-repo/crucible-appliance
-    targetRevision: main
+    repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
+    targetRevision: domain-change
 
