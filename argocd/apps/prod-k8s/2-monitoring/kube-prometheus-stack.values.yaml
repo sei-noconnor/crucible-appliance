@@ -993,9 +993,9 @@ grafana:
 
   grafana.ini :
     server:
-      domain: onprem.imcite-phl.net
+      domain: onprem.phl-imcite.net
         #root_url: '%(protocol)s://%(domain)s:%(http_port)s/monitoring/'
-      root_url: https://onprem.imcite-phl.net/monitoring
+      root_url: https://onprem.phl-imcite.net/monitoring
       serve_from_sub_path: true
 
     smtp:
@@ -1053,7 +1053,7 @@ grafana:
     # hosts:
     #   - grafana.domain.com
     hosts:
-      - onprem.imcite-phl.net
+      - onprem.phl-imcite.net
 
     ## Path for grafana ingress
     path: /monitoring
@@ -1066,7 +1066,7 @@ grafana:
     tls:
       - secretName: appliance-cert
         hosts:
-          - onprem.imcite-phl.net
+          - onprem.phl-imcite.net
 
     # - secretName: grafana-general-tls
     #   hosts:

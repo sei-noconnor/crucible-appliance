@@ -9,10 +9,10 @@ jobs:
       - run: echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by Gitea!"
       - run: echo "🔎 The name of your branch is ${{ gitea.ref }} and your repository is ${{ gitea.repository }}."
-      - name: Login to onprem.imcite-phl.net registry
+      - name: Login to onprem.phl-imcite.net registry
         uses: https://github.com/docker/login-action@v3
         with:
-          registry: onprem.imcite-phl.net
+          registry: onprem.phl-imcite.net
           username: ${{ github.actor }}
           password: crucible
       - name: Set up QEMU
@@ -24,6 +24,6 @@ jobs:
         with:
           context: "{{defaultContext}}:.github/runners/."
           push: true
-          tags: onprem.imcite-phl.net/fortress-manifests/github-runner:crucible
+          tags: onprem.phl-imcite.net/fortress-manifests/github-runner:crucible
       
       - run: echo "🍏 This job's status is ${{ job.status }}."

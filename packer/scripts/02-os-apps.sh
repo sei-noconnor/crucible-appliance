@@ -65,7 +65,7 @@ sudo mkdir -p /etc/rancher/k3s
 mkdir -p ~/.kube
 sudo echo "$MIRRORS" > /etc/rancher/k3s/registries.yaml
 sudo cp $DIST_DIR/generic/k3s /usr/local/bin/k3s && sudo chmod +x /usr/local/bin/k3s
-INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --node-name crucible-ctrl-01 --tls-san ${DOMAIN:-onprem.imcite-phl.net} --cluster-init" $DIST_DIR/generic/k3s-install.sh
+INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --node-name crucible-ctrl-01 --tls-san ${DOMAIN:-onprem.phl-imcite.net} --cluster-init" $DIST_DIR/generic/k3s-install.sh
 mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i "s/default/crucible-appliance/g" ~/.kube/config

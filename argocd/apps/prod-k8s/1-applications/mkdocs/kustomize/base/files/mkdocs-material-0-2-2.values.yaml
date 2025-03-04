@@ -22,14 +22,14 @@ ingress:
       rewrite ^(/start)$ $1/ redirect;
     cert-manager.io/cluster-issuer: ca-issuer
   hosts:
-    - host: onprem.imcite-phl.net
+    - host: onprem.phl-imcite.net
       paths:
         - path: /start(/|$)(.*)
           pathType: ImplementationSpecific
   tls:
     - secretName: mkdocs-material-tls
       hosts:
-        - onprem.imcite-phl.net
+        - onprem.phl-imcite.net
 
 # storage - either an existing pvc, the size for a new pvc, or emptyDir (git requires a pvc)
 storage:
@@ -43,7 +43,7 @@ storage:
 ##################
 
 ## giturl is the url of an MkDocs git repository
-giturl: "https://onprem.imcite-phl.net/gitea/fortress-manifests/crucible-appliance"
+giturl: "https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance"
 # giturl: ""
 ## gitbranch sets which repo branch to publish
 gitbranch: "upgrades"

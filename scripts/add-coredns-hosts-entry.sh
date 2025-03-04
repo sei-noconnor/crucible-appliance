@@ -10,7 +10,7 @@ usage() {
     echo "Usage: $0 [-n|--namespace <namespace>] [-c|--configmap_name <configmap_name>] [-r|--records <record1,record2,...>] [-a|--action <action>] [-h|--help]"
     echo "  -n, --namespace        Set the namespace for CoreDNS (default: kube-system)"
     echo "  -c, --configmap_name   Set the configmap name for CoreDNS (default: coredns-custom)"
-    echo "  -r, --records          Set the records (comma-separated, default: onprem.imcite-phl.net)"
+    echo "  -r, --records          Set the records (comma-separated, default: onprem.phl-imcite.net)"
     echo "  -a, --action           Set the action (upsert, delete) (default: upsert)"
     echo "  -h, --help             Display this help message"
     echo ""
@@ -48,7 +48,7 @@ else
 apiVersion: v1
 data:
   hosts.server: |
-    onprem.imcite-phl.net:53 {
+    onprem.phl-imcite.net:53 {
       log
       errors
       hosts {

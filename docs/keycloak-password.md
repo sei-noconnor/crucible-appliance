@@ -1,5 +1,5 @@
 ## Change Keycloak password
-1. open keycloak admin url for the `master` realm [https://onprem.imcite-phl.net/keycloak/admin](https://onprem.imcite-phl.net/keycloak/admin)
+1. open keycloak admin url for the `master` realm [https://onprem.phl-imcite.net/keycloak/admin](https://onprem.phl-imcite.net/keycloak/admin)
 
 ```
 username: admin

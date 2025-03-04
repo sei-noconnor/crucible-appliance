@@ -21,12 +21,12 @@ server:
     # configure the ingress to point to the Vault active service.
     activeService: true
     hosts:
-      - host:  keystore.onprem.imcite-phl.net
+      - host:  keystore.onprem.phl-imcite.net
         paths: []
     tls:
       - secretName: vault-tls
         hosts:
-          - keystore.onprem.imcite-phl.net
+          - keystore.onprem.phl-imcite.net
   dataStorage:
     enabled: true
     # Size of the PVC created

@@ -12,6 +12,6 @@ cat <<EOF
 
 Welcome to Crucible Appliance $(cat /etc/appliance_version) ($(lsb_release -ds))
 
-Visit https://onprem.imcite-phl.net to get started.
+Visit https://onprem.phl-imcite.net to get started.
 
 EOF

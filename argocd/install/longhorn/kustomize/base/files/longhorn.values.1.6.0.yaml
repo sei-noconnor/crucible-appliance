@@ -406,7 +406,7 @@ ingress:
   ingressClassName: nginx
 
   # -- Hostname of the Layer 7 load balancer.
-  host: onprem.imcite-phl.net
+  host: onprem.phl-imcite.net
 
   # -- Setting that allows you to enable TLS on ingress records.
   tls: true

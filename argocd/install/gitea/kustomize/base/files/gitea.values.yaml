@@ -39,7 +39,7 @@ ingress:
     
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: onprem.imcite-phl.net
+    - host: onprem.phl-imcite.net
       paths:
         - path: /(gitea|v2)(/|$)
           pathType: ImplementationSpecific
@@ -47,7 +47,7 @@ ingress:
   tls:
     - secretName: gitea-tls
       hosts:
-        - onprem.imcite-phl.net
+        - onprem.phl-imcite.net
 
 persistence:
   enabled: true
@@ -108,7 +108,7 @@ actions:
           enabled: false
         runner:
           labels:
-            - "crucible:docker://onprem.imcite-phl.net/fortress-manifests/node:20-bookworm-slim"
+            - "crucible:docker://onprem.phl-imcite.net/fortress-manifests/node:20-bookworm-slim"
             - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
             - "builder:host"
         container:
@@ -125,12 +125,12 @@ gitea:
   admin:
     username: administrator
     password: crucible
-    email: "administrator@onprem.imcite-phl.net"
+    email: "administrator@onprem.phl-imcite.net"
   config:
     APP_NAME: Crucible Gitea
     server:
-      DOMAIN: onprem.imcite-phl.net
-      ROOT_URL: https://onprem.imcite-phl.net/gitea
+      DOMAIN: onprem.phl-imcite.net
+      ROOT_URL: https://onprem.phl-imcite.net/gitea
     database:
       DB_TYPE: postgres
       HOST: appliance-postgresql.postgres.svc.cluster.local:5432

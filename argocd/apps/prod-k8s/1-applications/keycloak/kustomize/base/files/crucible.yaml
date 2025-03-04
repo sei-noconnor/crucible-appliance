@@ -74,10 +74,10 @@ emailMatchAutoJoinGroup:
       - ".mil"
       - ".cert.org"
       - ".sei.cmu.edu"
-      - ".onprem.imcite-phl.net"
+      - ".onprem.phl-imcite.net"
 
   - description: DoD IL2 Users
     groups:
       - "/Impact Level 2 Authorized"
     domains:
-      - "@onprem.imcite-phl.net"
+      - "@onprem.phl-imcite.net"

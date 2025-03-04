@@ -37,7 +37,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: onprem.imcite-phl.net
+  - host: onprem.phl-imcite.net
     http:
       paths:
       - backend:

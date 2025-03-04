@@ -1,6 +1,6 @@
 vars:
-  domain: onprem.imcite-phl.net
-  vsphere_server: vcsa.onprem.imcite-phl.net
+  domain: onprem.phl-imcite.net
+  vsphere_server: vcsa.onprem.phl-imcite.net
   vsphere_user: administrator@vsphere.local
   vsphere_password:
   vsphere_template:

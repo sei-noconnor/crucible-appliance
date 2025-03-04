@@ -18,7 +18,7 @@ metadata:
       }
 spec:
   rules:
-  - host: onprem.imcite-phl.net
+  - host: onprem.phl-imcite.net
     http:
       paths:
       - path: /console
@@ -31,5 +31,5 @@ spec:
   tls:
   - secretName: topomojo-tls
     hosts:
-      - onprem.imcite-phl.net
+      - onprem.phl-imcite.net
     

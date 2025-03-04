@@ -5,7 +5,7 @@
 global:
   # -- Common labels for the all resources
   additionalLabels: {}
-  domain: cd.onprem.imcite-phl.net
+  domain: cd.onprem.phl-imcite.net
   # app: argo-cd
   # -- Number of old deployment ReplicaSets to retain. The rest will be
   # garbage collected.
@@ -193,9 +193,9 @@ configs:
       # -- TLS certificates for Git repositories
       # @default -- `{}` (See [values.yaml])
     certificates: 
-      onprem.imcite-phl.net: |
+      onprem.phl-imcite.net: |
         <ADD CERTS HERE>
-      code.onprem.imcite-phl.net: |
+      code.onprem.phl-imcite.net: |
         <ADD CERT HERE>
       # server.example.com: | -----BEGIN
       # CERTIFICATE----- ...  -----END
@@ -392,7 +392,7 @@ server:
     ## Hostnames must be provided if Ingress is enabled.
     ## Secrets must be manually created in the namespace
     hosts: 
-      - cd.onprem.imcite-phl.net
+      - cd.onprem.phl-imcite.net
     # - argocd.example.com
     # -- List of ingress paths
     paths:
@@ -417,7 +417,7 @@ server:
     tls: 
       - secretName: fortress-tls
         hosts:
-          - cd.onprem.imcite-phl.net
+          - cd.onprem.phl-imcite.net
     # -- Uses `server.service.servicePortHttps` instead `server.service.servicePortHttp`
     https: false
 

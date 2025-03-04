@@ -11,7 +11,7 @@ CURL_OPTS=( --location --header "Content-Type: application/json" )
 RANDOM_NAME=$(openssl rand -hex 4)
 REQ=$(curl "${CURL_OPTS[@]}" \
   --user "${ADMIN_USER}:${ADMIN_PASS}" \
-  --request POST "https://onprem.imcite-phl.net/gitea/api/v1/users/$ADMIN_USER/tokens" \
+  --request POST "https://onprem.phl-imcite.net/gitea/api/v1/users/$ADMIN_USER/tokens" \
   --data @- <<EOF
   {
     "name": "write-package-${RANDOM_NAME}",

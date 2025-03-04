@@ -21,7 +21,7 @@ crucible_log "$msg"
 source /etc/profile.d/crucible-env.sh
 CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
-DOMAIN=${DOMAIN:-onprem.imcite-phl.net}
+DOMAIN=${DOMAIN:-onprem.phl-imcite.net}
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 
 # Expand Volume

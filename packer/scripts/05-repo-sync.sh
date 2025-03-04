@@ -12,7 +12,7 @@ fi
 # set all config dirs to absolute paths
 REPO_DIR="/home/crucible/crucible-appliance"
 REPO_DEST="/tmp/crucible-appliance"
-DOMAIN=${DOMAIN:-onprem.imcite-phl.net}
+DOMAIN=${DOMAIN:-onprem.phl-imcite.net}
 GITEA_SERVER="${2:-https://$DOMAIN/gitea}"
 CMT_MSG=${1:-}
 GITEA_ORG=fortress-manifests
@@ -47,8 +47,8 @@ echo "REPO Destination: $REPO_DEST"
 echo
 echo "Making replacements in $REPO_DEST on Branch: $GIT_BRANCH"
 
-find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/onprem.imcite-phl.net\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
-find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/onprem.imcite-phl.net\/gitea\/${GITEA_ORG}/g" {} \;
+find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/onprem.phl-imcite.net\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/onprem.phl-imcite.net\/gitea\/${GITEA_ORG}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: HEAD/targetRevision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
@@ -57,7 +57,7 @@ find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: main/targetRevisi
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: main/revision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"main\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
 
-find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/onprem.imcite-phl.net/https:\/\/${DOMAIN}/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/onprem.phl-imcite.net/https:\/\/${DOMAIN}/g" {} \;
 # allow root-ca.pem to be commited.
 echo "!**/*/root-ca.pem" >> $REPO_DEST/.gitignore
 # allow root-ca.key to be commited. This is bad, use a vault!
