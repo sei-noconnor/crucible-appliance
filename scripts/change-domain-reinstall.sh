@@ -48,17 +48,6 @@ echo "GIT BRANCH: $GIT_BRANCH"
 
 echo "$SSH_PASSWORD" | sudo -E -S ./scripts/add-hosts-entry.sh -f /etc/hosts -r $NEW_DOMAIN,cd.$NEW_DOMAIN,keystore.$NEW_DOMAIN,id.$NEW_DOMAIN,code.$NEW_DOMAIN -a upsert
 
-# TODO: backup cluster 
-
-REPO_DEST=/tmp/crucible-appliance-random
-GITEA_ORG="fortress-manifests"
-REMOTE_URL="https://administrator:crucible@${DOMAIN}/gitea/${GITEA_ORG}/crucible-appliance.git"
-# git -C $REPO_DEST remote add appliance "${REMOTE_URL}" 2>/dev/null || git remote set-url appliance "${REMOTE_URL}"
-mkdir -p $REPO_DEST
-git -C $REPO_DEST clone $REMOTE_URL
-git -C $REPO_DEST add
-git -C $REPO_DEST remote add github $PWD 2>/dev/null || git remote set-url github $PWD
-git -C $REPO_DEST rebase github $GIT_BRANCH
 # backup container images
 if [ ! -f ./dist/containers/images-amd64.tar.zst ]; then 
     make gitea-export-images
@@ -70,5 +59,7 @@ if [ -f ./appliance.yaml ]; then
 fi
 
 # uninstall K3s
-# make uninstall
-# make init
+make uninstall
+echo "Sleeping 10 seconds"
+sleep 10
+make init
