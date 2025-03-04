@@ -41,13 +41,13 @@ if $IS_ONLINE; then
     curl -C - -Lo $DIST_DIR/generic/k3s-install.sh "https://get.k3s.io" && chmod +x "$DIST_DIR/generic/k3s-install.sh"
     curl -C - -Lo $DIST_DIR/generic/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
     curl -C - -Lo $DIST_DIR/generic/kubectl "https://dl.k8s.io/release/v1.31.3/bin/linux/amd64/kubectl"
-    curl -C - -Lo $DIST_DIR/generic/k9s_linux_amd64.tar.gz "https://github.com/derailed/k9s/releases/download/v0.32.7/k9s_Linux_amd64.tar.gz"
+    curl -C - -Lo $DIST_DIR/generic/k9s_linux_amd64.tar.gz "https://github.com/derailed/k9s/releases/download/v0.40.5/k9s_Linux_amd64.tar.gz"
     curl -C - -Lo $DIST_DIR/generic/argocd-linux-amd64 "https://github.com/argoproj/argo-cd/releases/download/v$ARGOCD_VERSION/argocd-linux-amd64"
     curl -C - -Lo $DIST_DIR/generic/vault_${VAULT_VERSION}_linux_amd64.zip "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip"
     curl -C - -Lo $DIST_DIR/generic/go1.22.5.linux-amd64.tar.gz "https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz"
     curl -C - -Lo $DIST_DIR/generic/helm-v3.16.3-linux-amd64.tar.gz https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz
     curl -C - -Lo $DIST_DIR/generic/govc_Linux_x86_64.tar.gz https://github.com/vmware/govmomi/releases/download/v0.46.2/govc_Linux_x86_64.tar.gz
-    curl -C - -Lo $DIST_DIR/generic/k3sup https://github.com/alexellis/k3sup/releases/download/0.13.6/k3sup
+    curl -C - -Lo $DIST_DIR/generic/k3sup https://github.com/alexellis/k3sup/releases/download/0.13.8/k3sup
     curl -C - -Lo $DIST_DIR/generic/nerdctl-2.0.3-linux-amd64.tar.gz https://github.com/containerd/nerdctl/releases/download/v2.0.3/nerdctl-2.0.3-linux-amd64.tar.gz
     curl -C - -Lo $DIST_DIR/generic/hauler_1.2.0-dev.2_linux_amd64.tar.gz https://github.com/hauler-dev/hauler/releases/download/v1.2.0-dev.2/hauler_1.2.0-dev.2_linux_amd64.tar.gz
     curl -C - -Lo $DIST_DIR/generic/terraform_1.10.5_linux_amd64.zip https://releases.hashicorp.com/terraform/1.10.5/terraform_1.10.5_linux_amd64.zip
@@ -98,7 +98,7 @@ sudo chown root:root /usr/local/bin/govc
 sudo chmod +x /usr/local/bin/govc
 
 # Install k3sup
-sudo cp $DIST_DIR/generic/govc_Linux_x86_64.tar.gz /usr/local/bin/k3sup
+sudo cp $DIST_DIR/generic/k3sup /usr/local/bin/k3sup
 sudo chown root:root /usr/local/bin/k3sup
 sudo chmod +x /usr/local/bin/k3sup
 
