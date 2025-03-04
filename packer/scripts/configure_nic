@@ -20,7 +20,7 @@ FLAG=/etc/.configure-nic
 if [ ! -f "$FLAG" ]; then
     sed -i -r "s/en.*:/$PRIMARY_ETH:/" $NETPLAN_CONF
     netplan apply
-    sed -i -r "s/(crucible.io,).*/\1$PRIMARY_ETH/" $DNSMASQ_CONF
+    sed -i -r "s/(onprem.imcite-phl.net,).*/\1$PRIMARY_ETH/" $DNSMASQ_CONF
     systemctl restart dnsmasq
     date > $FLAG
     echo "$PRIMARY_ETH configured as primary Ethernet interface."

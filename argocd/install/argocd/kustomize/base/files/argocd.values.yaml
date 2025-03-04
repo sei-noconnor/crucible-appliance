@@ -5,7 +5,7 @@
 global:
   # -- Common labels for the all resources
   additionalLabels: {}
-  domain: cd.crucible.io
+  domain: cd.onprem.imcite-phl.net
   # app: argo-cd
   # -- Number of old deployment ReplicaSets to retain. The rest will be
   # garbage collected.
@@ -375,14 +375,14 @@ server:
       cert-manager.io/cluster-issuer: ca-issuer
     # -- Defines which ingress controller will implement the resource
     ingressClassName: "nginx"
-    hostname: cd.crucible.io
+    hostname: cd.onprem.imcite-phl.net
 
     # -- List of ingress hosts
     ## Argo Ingress.
     ## Hostnames must be provided if Ingress is enabled.
     ## Secrets must be manually created in the namespace
     hosts: 
-      - cd.crucible.io
+      - cd.onprem.imcite-phl.net
     # - argocd.example.com
     # -- List of ingress paths
     paths:
@@ -407,7 +407,7 @@ server:
     tls: 
       - secretName: argocd-tls
         hosts:
-          - cd.crucible.io
+          - cd.onprem.imcite-phl.net
     # -- Uses `server.service.servicePortHttps` instead `server.service.servicePortHttp`
     https: false
   volumeMounts:
@@ -481,7 +481,7 @@ repoServer:
       args:
         - >-
           /usr/sbin/update-ca-certificates &&
-          curl -L https://crucible.io/gitea/api/packages/fortress-manifests/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
+          curl -L https://onprem.imcite-phl.net/gitea/api/packages/fortress-manifests/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin &&
           chmod +x argocd-vault-plugin &&
           mv argocd-vault-plugin /custom-tools/
       volumeMounts:

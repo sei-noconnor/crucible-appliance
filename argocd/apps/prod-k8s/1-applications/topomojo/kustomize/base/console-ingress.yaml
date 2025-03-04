@@ -18,7 +18,7 @@ metadata:
       }
 spec:
   rules:
-  - host: crucible.io
+  - host: onprem.imcite-phl.net
     http:
       paths:
       - path: /console
@@ -31,5 +31,5 @@ spec:
   tls:
   - secretName: topomojo-tls
     hosts:
-      - crucible.io
+      - onprem.imcite-phl.net
     

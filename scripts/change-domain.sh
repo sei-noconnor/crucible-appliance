@@ -5,8 +5,8 @@ if [ -f ./appliance.yaml ]; then
 fi
 
 # Defaults
-DOMAIN_DEFAULT="${DOMAIN:-crucible.io}"
-NEW_DOMAIN_DEFAULT="crucible.io"
+DOMAIN_DEFAULT="${DOMAIN:-onprem.imcite-phl.net}"
+NEW_DOMAIN_DEFAULT="onprem.imcite-phl.net"
 
 # Function to display usage information
 usage() {

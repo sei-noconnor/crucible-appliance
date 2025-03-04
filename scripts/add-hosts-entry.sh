@@ -2,14 +2,14 @@
 
 # Default values
 HOSTS_FILE="/etc/hosts"
-RECORDS=("crucible.io")
+RECORDS=("onprem.imcite-phl.net")
 ACTION="upsert"
 
 # Usage function
 usage() {
     echo "Usage: $0 [-f|--hosts_file <hosts_file>] [-r|--records <record1,record2,...>] [-a|--action <action>] [-h|--help]"
     echo "  -f, --hosts_file       Set the hosts file (default: /etc/hosts)"
-    echo "  -r, --records          Set the records (comma-separated, default: crucible.io)"
+    echo "  -r, --records          Set the records (comma-separated, default: onprem.imcite-phl.net)"
     echo "  -a, --action           Set the action (upsert, delete) (default: upsert)"
     echo "  -h, --help             Display this help message"
     echo ""

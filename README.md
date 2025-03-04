@@ -17,7 +17,7 @@ This repository contains the configuration and scripts needed to build a Crucibl
 
 - **SSO Authentication (Keycloak):** Secure and centralized authentication across all services within the appliance, simplifying user management.
 - **Git Server (Gitea):** Embedded Gitea server for streamlined in-cluster version control and collaboration.
-- **Cert-Manager:** Automates certificate management, including the use of a "crucible.io" root CA, ensuring secure communication.
+- **Cert-Manager:** Automates certificate management, including the use of a "onprem.imcite-phl.net" root CA, ensuring secure communication.
 - **CI/CD (ArgoCD):** Enables continuous integration and continuous deployment with ArgoCD for seamless application updates and rollbacks.
 - **Offline Registry Cache:** Utilizes the built-in registry cache of k3s to support offline deployments, reducing dependencies on external registries.
 
@@ -109,7 +109,7 @@ The Crucible appliance is tested on vSphere 8, ensuring seamless compatibility a
 
 ## Usage
 
-Once deployed, access the Start page at [https://crucible.io](https://crucible.io)
+Once deployed, access the Start page at [https://onprem.imcite-phl.net](https://onprem.imcite-phl.net)
 
 ## Contributing
 

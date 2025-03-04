@@ -21,12 +21,12 @@ server:
     # configure the ingress to point to the Vault active service.
     activeService: true
     hosts:
-      - host:  keystore.crucible.io
+      - host:  keystore.onprem.imcite-phl.net
         paths: []
     tls:
       - secretName: vault-tls
         hosts:
-          - keystore.crucible.io
+          - keystore.onprem.imcite-phl.net
   dataStorage:
     enabled: true
     # Size of the PVC created

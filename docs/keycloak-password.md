@@ -1,5 +1,5 @@
 ## Change Keycloak password
-1. open keycloak admin url for the `master` realm [https://crucible.io/keycloak/admin](https://crucible.io/keycloak/admin)
+1. open keycloak admin url for the `master` realm [https://onprem.imcite-phl.net/keycloak/admin](https://onprem.imcite-phl.net/keycloak/admin)
 
 ```
 username: admin

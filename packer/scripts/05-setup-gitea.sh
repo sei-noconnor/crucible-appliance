@@ -7,7 +7,7 @@ ADMIN_PASS=${ADMIN_PASS:-crucible}
 # CURL_OPTS=( --silent --header "accept: application/json" --header "Content-Type: application/json" )
 CURL_OPTS=( --user "administrator:${ADMIN_PASS}" --header "accept: application/json" --header "Content-Type: application/json" )
 echo "Waiting for gitea to become available"
-timeout 60s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://crucible.io/gitea)" != "200" ]]; do sleep 5; done'
+timeout 60s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://onprem.imcite-phl.net/gitea)" != "200" ]]; do sleep 5; done'
 
 REPO_DIR=/home/crucible/crucible-appliance
 REPO_DEST=/tmp/crucible-appliance
@@ -15,7 +15,7 @@ GITEA_ORG=fortress-manifests
 
 # Create Organization
 curl "${CURL_OPTS[@]}" \
-  --request POST "https://crucible.io/gitea/api/v1/orgs" \
+  --request POST "https://onprem.imcite-phl.net/gitea/api/v1/orgs" \
   --data @- <<EOF
   {
     "repo_admin_change_team_access": true,
@@ -25,7 +25,7 @@ EOF
 
 # Create repo
 curl "${CURL_OPTS[@]}" \
-    --request POST "https://crucible.io/gitea/api/v1/orgs/${GITEA_ORG}/repos" \
+    --request POST "https://onprem.imcite-phl.net/gitea/api/v1/orgs/${GITEA_ORG}/repos" \
     --data @- <<EOF
 {
   "auto_init": true,
@@ -46,8 +46,8 @@ EOF
 GIT_BRANCH=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
 
 # Replace Repo URL to cluster gitea
-find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/crucible.io\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
-find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/crucible.io\/gitea\/${GITEA_ORG}/g" {} \;
+find $REPO_DEST -name "Application.yaml" -exec sed -i "s/file:\/\/\/crucible-repo\/crucible-appliance/https:\/\/onprem.imcite-phl.net\/gitea\/${GITEA_ORG}\/crucible-appliance.git/g" {} \;
+find $REPO_DEST -name "*.yaml" -exec sed -i "s/https:\/\/github.com\/sei-noconnor/https:\/\/onprem.imcite-phl.net\/gitea\/${GITEA_ORG}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/targetRevision: HEAD/targetRevision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.yaml" -exec sed -i "s/revision: HEAD/revision: ${GIT_BRANCH}/g" {} \;
 find $REPO_DEST -name "*.json" -exec sed -i "s/\"project_branch\" : \"HEAD\"/\"project_branch\" : \"${GIT_BRANCH}\"/g" {} \;
@@ -59,5 +59,5 @@ git -C $REPO_DEST add --all
 git -C $REPO_DEST commit -m "update repo urls and add certificates"
 git -C $REPO_DEST remote remove appliance
 git -C $REPO_DEST remote remove origin
-git -C $REPO_DEST remote add appliance https://administrator:${ADMIN_PASS}@crucible.io/gitea/${GITEA_ORG}/crucible-appliance.git
+git -C $REPO_DEST remote add appliance https://administrator:${ADMIN_PASS}@onprem.imcite-phl.net/gitea/${GITEA_ORG}/crucible-appliance.git
 git -C $REPO_DEST push -u appliance --mirror -f || true

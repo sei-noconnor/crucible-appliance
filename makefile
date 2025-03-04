@@ -1,7 +1,7 @@
 # VARS
 SHELL := /bin/bash
-DOMAIN ?= crucible.io
-SUDO_USERNAME ?= crucible
+DOMAIN ?= onprem.imcite-phl.net
+SSH_USERNAME ?= crucible
 ADMIN_PASS ?= crucible
 SSL_DIR ?= /home/crucible/crucible-appliance/dist/ssl
 APPS_DIR ?= argocd/apps

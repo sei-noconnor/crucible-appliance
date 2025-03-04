@@ -6,10 +6,10 @@ jobs:
   login:
     runs-on: crucible
     steps:
-      - name: Login to crucible.io registry
+      - name: Login to onprem.imcite-phl.net registry
         uses: docker/login-action@v3
         with:
-          registry: crucible.io
+          registry: onprem.imcite-phl.net
           username: ${{ githu.actor }}
           password: crucible
       
