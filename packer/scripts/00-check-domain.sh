@@ -9,6 +9,9 @@ fi
 if [ ${DOMAIN} != crucible.io ]; then
     echo "Changing domain from crucible.io to ${DOMAIN}"
     find . -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} \;
+    echo "Changing legacy appliance domains"
+    find . -type f -exec sed -i "s/crucible.local/${DOMAIN}/g" {} \;
+    find . -type f -exec sed -i "s/crucible.dev/${DOMAIN}/g" {} \;
     # commit the code
     git add --all
     git commit -m "Change domain from crucible.io to ${DOMAIN}"    
