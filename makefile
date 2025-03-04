@@ -38,7 +38,9 @@ add-hosts-entry:
 %:
 	@true
 
-init: sudo-deps
+init: 
+	./packer/scripts/00-check-domain.sh
+	make sudo-deps
 	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
 	make init-argo
 	make snapshot
