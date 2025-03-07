@@ -70,7 +70,7 @@ mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i "s/default/crucible-appliance/g" ~/.kube/config
 sed -i "s/127.0.0.1/${DOMAIN}/g" ~/.kube/config
-sudo chown -R $SSH_USERNAME:$SSH_USERNAME ~/.kube
+sudo chown -R $SUDO_USERNAME:$SUDO_USERNAME ~/.kube
 chmod go-r ~/.kube/config
 
 # Install Kubectl
@@ -151,4 +151,4 @@ sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/lazygit_0.48.0_linux_x86_64.ta
 # brew install gcc
 
 # Reset Permissions
-sudo chown -R $SSH_USERNAME:$SSH_USERNAME /home/$SSH_USERNAME
+sudo chown -R $SUDO_USERNAME:$SUDO_USERNAME /home/$SUDO_USERNAME
