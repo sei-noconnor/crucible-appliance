@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Ensure yq is installed
 if ! command -v yq &> /dev/null
@@ -51,6 +51,7 @@ for node in $NODES; do
     export NODE_EXTRA_CONFIG=$(yq ".cluster.$node.extra_config" ./appliance.yaml)
     export NODE_NAME="$node"
     govc vm.clone -vm "$VSPHERE_TEMPLATE" -on=false -c "$NODE_CPUS" -m "$NODE_MEM" -net="$VSPHERE_PORTGROUP" -folder="/$VSPHERE_DATACENTER/vm" -pool="/$VSPHERE_DATACENTER/host/$VSPHERE_CLUSTER/Resources" -ds="$VSPHERE_DATASTORE" -link=true "$NODE_NAME"
+    govc vm.disk.create -vm $NODE_NAME -ds "$VSPHERE_DATASTORE" -name disk1 -size 1TB -thick false
     govc vm.customize -vm $NODE_NAME -type=Linux -ip $BASE_IP.$NODE_IP -netmask $(cidr2mask $DEFAULT_NETMASK) -gateway $DEFAULT_GATEWAY -dns-server $DNS_01 -name $NODE_NAME
     govc vm.power -on $NODE_NAME
 done
