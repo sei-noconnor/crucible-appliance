@@ -1,7 +1,7 @@
 # VARS
 SHELL := /bin/bash
 DOMAIN ?= crucible.io
-SSH_USERNAME ?= crucible
+SUDO_USERNAME ?= crucible
 ADMIN_PASS ?= crucible
 SSL_DIR ?= /home/crucible/crucible-appliance/dist/ssl
 APPS_DIR ?= argocd/apps
@@ -21,12 +21,12 @@ generate_certs:
 	
 sudo-deps: generate_certs 
 	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-build-expand-volume.sh && \
-	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-vars.sh
+	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-vars.sh
 	make add-hosts-entry -- -f /etc/hosts -r ${DOMAIN} -a upsert
-	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
-	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
+	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
+	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
 	make snapshot -- -n "BEFORE-CRUCIBLE-BASE" -c 
-	echo "${ADMIN_PASS}" | SSH_USERNAME="${SSH_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-import-images.sh
+	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-import-images.sh
 
 add-coredns-hosts-entry:
 	./scripts/add-coredns-hosts-entry.sh $(filter-out $@,$(MAKECMDGOALS))
@@ -41,7 +41,7 @@ add-hosts-entry:
 init: 
 	./packer/scripts/00-check-domain.sh
 	make sudo-deps
-	SSH_USERNAME="${SSH_USERNAME}" ./packer/scripts/04-user-deps.sh
+	SUDO_USERNAME="${SUDO_USERNAME}" ./packer/scripts/04-user-deps.sh
 	make init-argo
 	make snapshot
 	
@@ -202,6 +202,8 @@ template:
 
 ca-check-trusted:
 	./scripts/check-trusted-os-certs.sh	$(filter-out $@,$(MAKECMDGOALS)) 
+cluster-expand:
+	./scripts/cluster-expand.sh $(filter-out $@,$(MAKECMDGOALS))
 
 .PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
 

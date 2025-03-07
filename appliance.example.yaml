@@ -11,8 +11,40 @@ vars:
   vsphere_iso_datastore:
   vsphere_switch: 
   vsphere_portgroup:
-  ssh_username: crucible
-  ssh_password: crucible
+  sudo_username: crucible
+  sudo_password: crucible
+  default_network:
+  default_netmask:
+  default_gateway:
+  dns_01:
+  dns_02:
+  
+cluster:
+  crucible-ctrl-02:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+  crucible-ctrl-03:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+  crucible-wrkr-01:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+  crucible-wrkr-02:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+  crucible-wrkr-03:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
 apps:
 features:
   # Allows the appliance to work in an air-gapped environment by downloading 
