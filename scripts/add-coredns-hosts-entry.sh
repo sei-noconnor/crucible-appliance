@@ -1,4 +1,33 @@
 #!/bin/bash
+# This script updates CoreDNS ConfigMap with custom host entries and restarts CoreDNS pods to apply changes.
+#
+# Default values:
+#   NAMESPACE="kube-system"
+#   CONFIGMAP_NAME="coredns-custom"
+#   ACTION="upsert"
+#
+# Usage:
+#   ./add-coredns-hosts-entry.sh [-n|--namespace <namespace>] [-c|--configmap_name <configmap_name>] [-r|--records <record1,record2,...>] [-a|--action <action>] [-h|--help]
+#
+# Options:
+#   -n, --namespace        Set the namespace for CoreDNS (default: kube-system)
+#   -c, --configmap_name   Set the configmap name for CoreDNS (default: coredns-custom)
+#   -r, --records          Set the records (comma-separated, default: crucible.io)
+#   -a, --action           Set the action (upsert, delete) (default: upsert)
+#   -h, --help             Display this help message
+#
+# Example:
+#   ./add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r example.com,example.org -a upsert
+#
+# The script performs the following steps:
+# 1. Parses command-line options.
+# 2. Retrieves the current CoreDNS ConfigMap or creates a new one if it doesn't exist.
+# 3. Updates or deletes host entries in the ConfigMap based on the specified action.
+# 4. Removes duplicate entries from the ConfigMap.
+# 5. Applies the modified ConfigMap using kubectl.
+# 6. Restarts CoreDNS pods to apply the new configuration.
+# 7. Cleans up temporary files.
+
 
 # Default values
 NAMESPACE="kube-system"
