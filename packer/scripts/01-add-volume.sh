@@ -62,7 +62,7 @@ lvcreate -l "$LV_SIZE" -n "$LV_NAME" "$VG_NAME"
 
 # Format the LV with ext4 filesystem
 echo "Formatting logical volume $LV_NAME with ext4 filesystem..."
-yes | mkfs.ext4 -n "/dev/$VG_NAME/$LV_NAME"
+yes | sudo mkfs.ext4 -F "/dev/$VG_NAME/$LV_NAME"
 
 # Create the mount directory if it doesn't exist
 if [ ! -d "$MOUNT_DIR" ]; then
