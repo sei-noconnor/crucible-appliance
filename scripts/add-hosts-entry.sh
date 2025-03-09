@@ -1,4 +1,29 @@
 #!/bin/bash
+# This script manages entries in the /etc/hosts file.
+# It supports adding (upserting) and deleting entries based on the provided IP address and records.
+#
+# Usage:
+#   ./add-hosts-entry.sh [-f|--hosts_file <hosts_file>] [-r|--records <record1,record2,...>] [-a|--action <action>] [-h|--help]
+#
+# Options:
+#   -f, --hosts_file       Set the hosts file (default: /etc/hosts)
+#   -r, --records          Set the records (comma-separated, default: crucible.io)
+#   -a, --action           Set the action (upsert, delete) (default: upsert)
+#   -h, --help             Display this help message
+#
+# Example:
+#   ./add-hosts-entry.sh -f /etc/hosts -r example.com,example.org -a upsert
+#
+# The script determines the IP address of the current machine and performs the specified action (upsert or delete)
+# on the provided records in the specified hosts file.
+#
+# Actions:
+#   upsert - Adds or updates the entry for the given record(s) with the current machine's IP address.
+#   delete - Removes the entry for the given record(s) with the current machine's IP address.
+#
+# Debug messages are printed to indicate the actions being performed.
+# The updated hosts file is displayed at the end of the script execution.
+
 
 # Default values
 HOSTS_FILE="/etc/hosts"

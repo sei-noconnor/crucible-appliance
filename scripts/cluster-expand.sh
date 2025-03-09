@@ -1,4 +1,22 @@
-#!/bin/bash
+#!/bin/bash -x
+#
+# This script is used to expand a cluster by cloning and configuring virtual machines (VMs) based on the configuration
+# specified in the appliance.yaml file. It ensures that the required tool 'yq' is installed, reads configuration values
+# from the YAML file, and performs the following tasks:
+# # Prerequisites:
+#   - yq must be installed to parse YAML files.
+#
+# The script performs the following steps:
+# 1. Checks if 'yq' is installed and exits if not found.
+# 2. Loads variables from the appliance.yaml file into environment variables.
+# 3. Sets up the GOVC_URL and GOVC_INSECURE environment variables for vSphere operations.
+# 4. Defines functions to convert subnet masks to CIDR notation and vice versa.
+# 5. Calculates the BASE_IP from the DEFAULT_NETWORK.
+# 6. Iterates over the nodes defined in the appliance.yaml file and performs the following for each node:
+#    - Clones the VM from a specified template.
+#    - Creates an additional disk for the VM.
+#    - Customizes the VM with the specified IP, netmask, gateway, DNS server, and name.
+#    - Powers on the VM.
 
 # Ensure yq is installed
 if ! command -v yq &> /dev/null
@@ -47,16 +65,14 @@ export NODES=$(yq '.cluster | to_entries | .[] | .key' ./appliance.yaml | xargs)
 for node in $NODES; do
     export NODE_CPUS=$(yq ".cluster.$node.cpus" ./appliance.yaml)
     export NODE_MEM=$(yq ".cluster.$node.memory" ./appliance.yaml)
-    export NODE_IP=$(yq ".cluster.$node.ip" ./appliance.yaml)
+    export NODE_IP=$BASE_IP.$(yq ".cluster.$node.ip" ./appliance.yaml)
     export NODE_EXTRA_CONFIG=$(yq ".cluster.$node.extra_config" ./appliance.yaml)
     export NODE_NAME="$node"
-    govc vm.clone -vm "$VSPHERE_TEMPLATE" -on=false -c "$NODE_CPUS" -m "$NODE_MEM" -net="$VSPHERE_PORTGROUP" -folder="/$VSPHERE_DATACENTER/vm" -pool="/$VSPHERE_DATACENTER/host/$VSPHERE_CLUSTER/Resources" -ds="$VSPHERE_DATASTORE" -link=true "$NODE_NAME"
-    govc vm.disk.create -vm $NODE_NAME -ds "$VSPHERE_DATASTORE" -name disk1 -size 1TB -thick false
-    govc vm.customize -vm $NODE_NAME -type=Linux -ip $BASE_IP.$NODE_IP -netmask $(cidr2mask $DEFAULT_NETMASK) -gateway $DEFAULT_GATEWAY -dns-server $DNS_01 -name $NODE_NAME
-    govc vm.power -on $NODE_NAME
+    # TODO: get type of node ctrl or wrkr
+    if [[ $node == *"ctrl"* ]]; then
+        NODE_TYPE="controller"
+    else
+        NODE_TYPE="worker"
+    fi
+    ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k $(cidr2mask $DEFAULT_NETMASK) --deploy
 done
-
-
-
-
-

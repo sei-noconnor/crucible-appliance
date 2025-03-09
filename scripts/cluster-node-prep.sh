@@ -2,8 +2,23 @@
 
 set -e # Exit on any error
 
-K3S_VERSION="v1.29.1+k3s1"
+# Variables
+K3S_VERSION="v1.31.3+k3s1"
 K3S_BASE_URL="https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}"
+MIRRORS=$(cat <<EOF
+mirrors:
+  docker.io:
+    endpoint:
+      - https://mirror.gcr.io
+  "*":
+EOF
+)
+
+# Check for root privileges
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root."
+   exit 1
+fi
 
 echo "Setting up Ubuntu 22.04 for K3s version ${K3S_VERSION} using manual binaries and k3sup..."
 
@@ -13,12 +28,15 @@ sudo apt-get update && sudo apt-get upgrade -y
 
 # Install necessary packages
 echo "Installing required packages..."
-sudo apt-get install -y curl software-properties-common apt-transport-https ca-certificates
+sudo apt-get install -y curl software-properties-common apt-transport-https ca-certificates nfs-common
 
 # Disable swap (required for Kubernetes)
 echo "Disabling swap..."
 sudo swapoff -a
 sudo sed -i '/ swap / s/^/#/' /etc/fstab
+
+# Increase inodes for asp.net applications
+echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
 # Load necessary kernel modules and configure sysctl
 echo "Configuring kernel parameters for Kubernetes..."
@@ -51,9 +69,7 @@ sudo chmod +x /usr/local/bin/k3s /usr/local/bin/k3s-agent
 echo "Verifying K3s version..."
 k3s --version
 
-# Instructions for adding the node to the cluster using k3sup
-echo "To add this node to the cluster using k3sup, run the following command on your local machine:"
-echo
-echo "  k3sup join --ip <WORKER_NODE_IP> --server-ip <MASTER_NODE_IP> --user <USER> --sudo --k3s-version ${K3S_VERSION}"
-echo
-echo "Replace <WORKER_NODE_IP>, <MASTER_NODE_IP>, and <USER> with appropriate values."
+# Install K3s
+sudo mkdir -p /etc/rancher/k3s
+mkdir -p ~/.kube
+sudo echo "$MIRRORS" > /etc/rancher/k3s/registries.yaml

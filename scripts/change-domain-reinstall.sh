@@ -1,4 +1,27 @@
 #!/bin/bash 
+# This script changes all ingress objects in all namespaces to a new domain.
+# It also updates the domain variable in the appliance.yaml file and reinstalls K3s.
+#
+# Usage: change-domain-reinstall.sh [-n|--new-domain <domain>] [-d|--domain <domain>] [-b|--branch <branch>]
+#
+# Options:
+#   -n, --new-domain        Domain to change to (default: onprem.imcite-phl.net)
+#   -d, --domain            Original domain you want to rename (default: onprem.imcite-phl.net)
+#   -b, --branch            Git branch to use (default: main)
+#   -h, --help              Show this message
+#
+# The script performs the following steps:
+# 1. Parses command-line arguments to get the new domain, original domain, and git branch.
+# 2. Assigns default values if the arguments are not provided.
+# 3. Displays the domain, new domain, and git branch being used.
+# 4. Adds new domain entries to the /etc/hosts file.
+# 5. Backs up container images if not already backed up.
+# 6. Updates the domain variable in the appliance.yaml file.
+# 7. Uninstalls K3s.
+# 8. Waits for 10 seconds.
+# 9. Reinitializes the setup.
+
+
 # Get vars from appliamce.yaml
 if [ -f ./appliance.yaml ]; then
   source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
