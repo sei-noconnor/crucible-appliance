@@ -1,0 +1,23 @@
+all:
+  children:
+    ctrl:
+      hosts:
+        ctrl-02:
+          ansible_host: 192.168.1.18
+        ctrl-03:
+            ansible_host: 192.168.1.42
+    wrkr:
+      hosts:
+        wrkr-01:
+          ansible_host: 192.168.1.36
+        wrkr-02:
+          ansible_host: 192.168.1.95
+        wrkr-03:
+          ansible_host: 192.168.1.51
+          
+  vars:
+    ansible_user: crucible
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    ansible_become: true
+    ansible_become_method: sudo
+    
