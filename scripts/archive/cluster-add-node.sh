@@ -131,18 +131,19 @@ if [ "$INSTALL" = true ]; then
     # copy node token 
     sudo cp -f /var/lib/rancher/k3s/server/node-token ./dist/ssl/server/tls/node-token
     # install K3s on the node
-    govc guest.upload -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD -f ./packer/scripts/01-add-volume.sh /home/$SUDO_USERNAME/01-add-volume.sh
-    govc guest.upload -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD -f ./scripts/cluster-node-prep.sh /home/$SUDO_USERNAME/cluster-node-prep.sh
-    govc guest.upload -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD -f ./dist/ssl/server/tls/node-token /home/$SUDO_USERNAME/node-token
-    govc guest.upload -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD -f ./dist/generic/k3s-install.sh /home/$SUDO_USERNAME/k3s-install.sh
-    govc guest.upload -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD -f ./registries.yaml /home/$SUDO_USERNAME/registries.yaml
-    govc guest.chmod -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD 0711 /home/$SUDO_USERNAME/01-add-volume.sh
-    govc guest.chmod -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD 0711 /home/$SUDO_USERNAME/k3s-install.sh
-    govc guest.chmod -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD 0711 /home/$SUDO_USERNAME/cluster-node-prep.sh
-    govc guest.chmod -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD 0611 /home/$SUDO_USERNAME/registries.yaml
-    govc guest.chmod -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD 0600 /home/$SUDO_USERNAME/node-token
-    # govc guest.run -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD -e SUDO_USERNAME=$SUDO_USERNAME sudo /home/$SUDO_USERNAME/01-add-volume.sh
-    # govc guest.run -vm $NODE_NAME -l $SUDO_USERNAME:$SUDO_PASSWORD -e SUDO_USERNAME=$SUDO_USERNAME sudo /home/$SUDO_USERNAME/node-prep.sh
+    sshpass -p$SUDO_PASSWORD scp -o StrictHostKeyChecking=no ./packer/scripts/01-add-volume.sh $SUDO_USERNAME@$NODE_IP:/home/$SUDO_USERNAME/01-add-volume.sh
+    sshpass -p$SUDO_PASSWORD scp -o StrictHostKeyChecking=no ./scripts/cluster-node-prep.sh $SUDO_USERNAME@$NODE_IP:/home/$SUDO_USERNAME/cluster-node-prep.sh
+    sshpass -p$SUDO_PASSWORD scp -o StrictHostKeyChecking=no ./dist/ssl/server/tls/node-token $SUDO_USERNAME@$NODE_IP:/home/$SUDO_USERNAME/node-token
+    sshpass -p$SUDO_PASSWORD scp -o StrictHostKeyChecking=no ./dist/generic/k3s-install.sh $SUDO_USERNAME@$NODE_IP:/home/$SUDO_USERNAME/k3s-install.sh
+    sshpass -p$SUDO_PASSWORD scp -o StrictHostKeyChecking=no ./registries.yaml $SUDO_USERNAME@$NODE_IP:/home/$SUDO_USERNAME/registries.yaml
+    
+    sshpass -p$SUDO_PASSWORD ssh -o StrictHostKeyChecking=no $SUDO_USERNAME@$NODE_IP << EOF
+chmod 0711 /home/$SUDO_USERNAME/01-add-volume.sh
+chmod 0711 /home/$SUDO_USERNAME/k3s-install.sh
+chmod 0711 /home/$SUDO_USERNAME/cluster-node-prep.sh
+chmod 0611 /home/$SUDO_USERNAME/registries.yaml
+chmod 0600 /home/$SUDO_USERNAME/node-token
+EOF
 
     # Run K3s installer over ssh
 

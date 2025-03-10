@@ -74,5 +74,5 @@ for node in $NODES; do
     else
         NODE_TYPE="worker"
     fi
-    ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k $(cidr2mask $DEFAULT_NETMASK) --deploy
+    ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k 255.255.255.0 --install
 done
