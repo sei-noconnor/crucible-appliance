@@ -19,13 +19,21 @@ then
     exit
 fi
 
+# Check if the number of replicas is provided as an argument
+if [ -z "$1" ]; then
+    echo "Usage: $0 <number_of_replicas>"
+    exit 1
+fi
+
+NUMBER_OF_REPLICAS=$1
+
 if [ -f ./appliance.yaml ]; then
     export $(yq '.vars | to_entries | .[] | "\(.key | upcase)=\(.value)"' ./appliance.yaml | xargs)
 fi
 
-# Increase volume replicas to 3
+# Increase volume replicas to the specified number
 for vol in $(kubectl get volumes.longhorn.io -n longhorn-system -o jsonpath="{.items[*].metadata.name}"); do
-    kubectl patch volumes.longhorn.io "$vol" -n longhorn-system --type='merge' -p '{"spec": {"numberOfReplicas": 2}}'
+    kubectl patch volumes.longhorn.io "$vol" -n longhorn-system --type='merge' -p "{\"spec\": {\"numberOfReplicas\": $NUMBER_OF_REPLICAS}}"
 done
 
 

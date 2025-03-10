@@ -18,7 +18,7 @@ function detect_available_disks {
     AVAILABLE_DISKS=()
 
     # Loop through the specific disk range
-    for disk in /dev/sd{b..c}; do
+    for disk in /dev/(sd|vd){b..c}; do
         # Check if the disk physically exists and meets criteria
         if [ -b "$disk" ] && \
            fdisk -l "$disk" 2>/dev/null | grep -q "^Disk $disk:" && \

@@ -25,8 +25,8 @@ DOMAIN=${DOMAIN:-onprem.phl-imcite.net}
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 
 # Expand Volume
-sudo /home/${SSH_USERNAME}/crucible-appliance/packer/scripts/01-build-expand-volume.sh
-#sudo /home/${SSH_USERNAME}/crucible-appliance/crucible-appliance/packer/scripts/01-build-add-volume.sh
+sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/expand-all-lvms.sh
+#sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/add-longhorn-lvm.sh
 # Add coredns entry
 sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/add-coredns-entry.sh
 #Set if the appliance is on the internet
@@ -67,7 +67,7 @@ if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
         echo "export APPLIANCE_IP=$CURRENT_IP" >> /etc/profile.d/crucible-env.sh
     fi
     # Add NodeHosts entry to coredns
-    /home/${SSH_USERNAME}/crucible-appliance/crucible-appliance/scripts/add-coredns-entry.sh $DOMAIN
+    /home/$SSH_USERNAME/crucible-appliance/scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $DOMAIN,cd.$DOMAIN,keystore.$DOMAIN,id.$DOMAIN,code.$DOMAIN -a upsert
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
     k3s kubectl wait deployment \
     --all \
