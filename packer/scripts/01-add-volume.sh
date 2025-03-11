@@ -1,89 +1,106 @@
-#!/bin/bash
+#!/bin/bash -x
+# This script sets up and mounts a Logical Volume Manager (LVM) for Longhorn.
+# It performs the following steps:
+# 1. Detects new unused disks that meet a minimum size requirement (10GB).
+# 2. Creates a volume group (VG) named "longhorn-vg" if it doesn't exist.
+# 3. Adds detected new disks to the volume group.
+# 4. Creates a logical volume (LV) named "longhorn-lv" if it doesn't exist.
+# 5. Formats the logical volume with ext4 filesystem if necessary.
+# 6. Checks if the mount point (/var/lib/longhorn) is empty and moves contents to a temporary directory if not.
+# 7. Mounts the logical volume to the mount point.
+# 8. Restores files from the temporary directory to the mount point if necessary.
+# 9. Outputs a message indicating the completion of the Longhorn LVM setup and mounting process.
 
-# Variables
+set -e
+
+# Default values
 VG_NAME="longhorn-vg"
 LV_NAME="longhorn-lv"
-MOUNT_DIR="/var/lib/longhorn"
-LV_SIZE="100%FREE"  # Adjust this if you want a specific size
+MOUNT_POINT="/var/lib/longhorn"
+TEMP_DIR=$(mktemp -d)
+MIN_DISK_SIZE_MB=10240  # Minimum disk size for LVM (10GB)
 
-# Check for root privileges
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root."
-   exit 1
-fi
-
-# Function to detect available, unallocated, physical disks within /dev/sdb to /dev/sdc range
-function detect_available_disks {
-    echo "Detecting available physical disks in the range /dev/sdb to /dev/sdf..."
-    AVAILABLE_DISKS=()
-
-    # Loop through the specific disk range
-    for disk in /dev/(sd|vd){b..c}; do
-        # Check if the disk physically exists and meets criteria
-        if [ -b "$disk" ] && \
-           fdisk -l "$disk" 2>/dev/null | grep -q "^Disk $disk:" && \
-           ! pvs --noheadings -o pv_name | grep -q "$disk" && \
-           ! lsblk -ln -o NAME "$disk" | grep -E "^${disk#/dev/}[1-9]"; then
-            AVAILABLE_DISKS+=("$disk")
-        fi
-    done
-
-    # Check if any available disks were found
-    if [ ${#AVAILABLE_DISKS[@]} -eq 0 ]; then
-        echo "No unallocated available physical disks found in the specified range."
-        exit 1
-    fi
+# Usage information
+usage() {
+    echo "Usage: $0 [-v|--vg-name <volume_group_name>] [-l|--lv-name <logical_volume_name>] [-m|--mount-point <mount_point>] [-s|--min-disk-size <size_in_mb>]"
+    echo "Options:"
+    echo "  -v, --vg-name        Name of the volume group (default: longhorn-vg)"
+    echo "  -l, --lv-name        Name of the logical volume (default: longhorn-lv)"
+    echo "  -m, --mount-point    Mount point for the logical volume (default: /var/lib/longhorn)"
+    echo "  -s, --min-disk-size  Minimum disk size in MB for LVM (default: 10240)"
+    echo "  -h, --help           Display this help message"
+    echo "Example: $0 --vg-name my-vg --lv-name my-lv --mount-point /mnt/my_mount --min-disk-size 20480"
+    exit 1
 }
 
-# Run the disk detection function
-detect_available_disks
-
-# Display available disks
-echo "Available physical disks:"
-for disk in "${AVAILABLE_DISKS[@]}"; do
-    echo "$disk"
+# Parse options
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -v|--vg-name) VG_NAME="$2"; shift ;;
+        -l|--lv-name) LV_NAME="$2"; shift ;;
+        -m|--mount-point) MOUNT_POINT="$2"; shift ;;
+        -s|--min-disk-size) MIN_DISK_SIZE_MB="$2"; shift ;;
+        -h|--help) usage ;;
+        *) echo "Unknown parameter passed: $1"; usage ;;
+    esac
+    shift
 done
 
-# Select the first available disk (modify if you want to choose a specific one)
-DISK="${AVAILABLE_DISKS[0]}"
-echo "Selected disk: $DISK"
+# Detect new unused disks
+NEW_DISKS=()
+for DISK in $(lsblk -d -n -o NAME,TYPE | awk '$2=="disk" {print "/dev/"$1}'); do
+    DISK_SIZE=$(lsblk -b -d -n -o SIZE "$DISK")
+    DISK_SIZE_MB=$((DISK_SIZE / 1024 / 1024))
+    if [[ $DISK_SIZE_MB -ge $MIN_DISK_SIZE_MB ]] && ! pvs | grep -q "$DISK"; then
+        NEW_DISKS+=("$DISK")
+    fi
+done
 
-# Create a new Physical Volume (PV)
-echo "Creating physical volume on $DISK..."
-pvcreate "$DISK"
-
-# Create a Volume Group (VG)
-echo "Creating volume group $VG_NAME..."
-vgcreate "$VG_NAME" "$DISK"
-
-# Create a Logical Volume (LV)
-echo "Creating logical volume $LV_NAME with size $LV_SIZE..."
-lvcreate -l "$LV_SIZE" -n "$LV_NAME" "$VG_NAME"
-
-# Format the LV with ext4 filesystem
-echo "Formatting logical volume $LV_NAME with ext4 filesystem..."
-yes | sudo mkfs.ext4 -F "/dev/$VG_NAME/$LV_NAME"
-
-# Create the mount directory if it doesn't exist
-if [ ! -d "$MOUNT_DIR" ]; then
-    echo "Creating mount directory $MOUNT_DIR..."
-    mkdir -p "$MOUNT_DIR"
-fi
-
-if [ -d "$MOUNT_DIR" ] && [ "$(ls -A $MOUNT_DIR)" ]; then
-    echo "Directory is not empty."
-    echo "REFUSING TO MOUNT NEW DISK, $MOUNT_DIR IS NOT EMPTY, MOUNTING WOULD KILL THE CLUSTER"
+if [[ ${#NEW_DISKS[@]} -eq 0 ]]; then
+    echo "No new unused disks detected that meet the minimum size requirement."
     exit 0
-else
-    echo "Directory is empty."
-    # Mount the logical volume
-    echo "Mounting /dev/$VG_NAME/$LV_NAME to $MOUNT_DIR..."
-    mount "/dev/$VG_NAME/$LV_NAME" "$MOUNT_DIR"
-
-    # Add to /etc/fstab for persistent mount
-    echo "Updating /etc/fstab for persistent mount..."
-    echo "/dev/$VG_NAME/$LV_NAME $MOUNT_DIR ext4 defaults 0 0" >> /etc/fstab
-
-    echo "Done! Logical volume $LV_NAME is mounted on $MOUNT_DIR."
 fi
 
+echo "New unused disks detected: ${NEW_DISKS[*]}"
+
+# Create a volume group if it doesn't exist
+if ! vgs | grep -q "$VG_NAME"; then
+    vgcreate "$VG_NAME" "${NEW_DISKS[0]}"
+    NEW_DISKS=("${NEW_DISKS[@]:1}")
+fi
+
+# Add new disks to the volume group
+if [[ ${#NEW_DISKS[@]} -gt 0 ]]; then
+    for DISK in "${NEW_DISKS[@]}"; do
+        vgextend "$VG_NAME" "$DISK"
+    done
+fi
+
+# Create a logical volume if it doesn't exist
+if ! lvs | grep -q "$LV_NAME"; then
+    lvcreate -l 100%FREE -n "$LV_NAME" "$VG_NAME"
+fi
+
+# Format if necessary
+LV_PATH="/dev/$VG_NAME/$LV_NAME"
+if ! blkid "$LV_PATH"; then
+    mkfs.ext4 "$LV_PATH"
+fi
+
+# Check if mount point is empty
+if [[ -n "$(ls -A $MOUNT_POINT 2>/dev/null)" ]]; then
+    echo "$MOUNT_POINT is not empty, moving contents to $TEMP_DIR"
+    mkdir -p "$TEMP_DIR"
+    mv "$MOUNT_POINT"/* "$TEMP_DIR"/
+fi
+
+# Mount the new volume
+mount "$LV_PATH" "$MOUNT_POINT"
+
+# Restore files if necessary
+if [[ -d "$TEMP_DIR" ]]; then
+    mv "$TEMP_DIR"/* "$MOUNT_POINT"/
+    rmdir "$TEMP_DIR"
+fi
+
+echo "Longhorn LVM setup and mounting completed."
