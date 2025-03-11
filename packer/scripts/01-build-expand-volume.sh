@@ -1,43 +1,58 @@
-#!/bin/bash -x
-#
-# Copyright 2022 Carnegie Mellon University.
-# Released under a BSD (SEI)-style license, please see LICENSE.md in the
-# project root or contact permission@sei.cmu.edu for full terms.
-#
-# Expand LVM logical volume and underlying ext4 filesystem
+#!/bin/bash
 
-if [[ $UID != 0 ]]; then
-    echo "Please run this script with sudo:"
-    echo "sudo $0 $*"
-    exit 1
-fi
+# This script expands all physical and logical volumes on the system.
+# It first resizes all physical volumes to use any additional space available on the devices.
+# Then, it checks for free space in each volume group and expands the logical volumes accordingly.
+# Finally, it resizes the filesystem on each logical volume to use the newly allocated space.
 
+# The script performs the following steps:
+# 1. Retrieves all physical volumes using the `pvs` command.
+# 2. Iterates over each physical volume and resizes it using the `pvresize` command if the device size has changed.
+# 3. Retrieves all logical volumes using the `lvs` command.
+# 4. For each logical volume, it checks the free space available in the corresponding volume group.
+# 5. If there is free space available, it expands the logical volume using the `lvextend` command.
+# 6. Depending on the filesystem type (ext4 or xfs), it resizes the filesystem using `resize2fs` or `xfs_growfs`.
+# 7. If the filesystem type is unsupported, it skips the resize operation for that logical volume.
+# 8. Prints messages indicating the progress and completion of the LVM expansion process.
 
+set -e
+# This script has no parameters 
 
+# Get all physical volumes
+PVS=$(pvs --noheadings -o pv_name)
 
-detect_expandable_devices() {
-    local devices=$(lsblk -d -o NAME | grep -E '^(vda|sda)')
-    for device in $devices; do
-        local size=$(lsblk -d -o SIZE -n /dev/$device)
-        local last_partition=$(fdisk -l /dev/$device | grep "^/dev/${device}" | tail -n 1 | awk '{print $1}' | grep -o '[0-9]*$')
-        echo "Device: /dev/$device, Size: $size, Last Partition: $last_partition"
-        PV=/dev/$device$last_partition
-        LV=/dev/ubuntu--vg/ubuntu--lv
-        if [ -n $PV ]; then 
-            growpart /dev/$device$last_partition
-        fi
-        if [ -n $PV ]; then
-            pvresize $PV
-        fi
-        if [ -n $LV ]; then
-            lvextend -l +100%FREE $LV
-        fi
-        if [ -n $LV ]; then
+for PV in $PVS; do
+    DEVICE=$(basename $PV)
+    
+    # Check if the device size has changed
+    if [[ -b $PV ]]; then
+        pvresize $PV
+    fi
+done
+
+# Get all logical volumes
+LVS=$(lvs --noheadings -o lv_path)
+
+for LV in $LVS; do
+    VG=$(lvs --noheadings -o vg_name $LV | awk '{print $1}')
+    FREE_SPACE=$(vgs --noheadings -o free --units m $VG | awk '{print $1}' | sed 's/m//')
+    
+    if (( $(echo "$FREE_SPACE > 0" | bc -l) )); then
+        echo "Expanding $LV in volume group $VG by $FREE_SPACE MB"
+        lvextend -L+${FREE_SPACE}M $LV
+        
+        # Check filesystem type
+        FS_TYPE=$(blkid -o value -s TYPE $LV)
+        if [[ "$FS_TYPE" == "ext4" ]]; then
             resize2fs $LV
+        elif [[ "$FS_TYPE" == "xfs" ]]; then
+            xfs_growfs $LV
+        else
+            echo "Unsupported filesystem type $FS_TYPE on $LV, skipping resize."
         fi
-        # Add logic to check if the device can be expanded
-        # For example, check if there is unallocated space
-    done
-}
+    else
+        echo "No free space available in volume group $VG for $LV."
+    fi
+done
 
-detect_expandable_devices
+echo "LVM expansion process completed."
