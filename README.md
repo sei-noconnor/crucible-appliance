@@ -48,8 +48,34 @@ Install the following external tools: (These are installed with `make init`)
 - **argocd-cli:** Install from [Argo CD releases](https://argo-cd.readthedocs.io/en/stable/cli_installation/)
 
 ## Getting Started
+Absent a proper packer build environment the appliance can be instantiated with a standard ubuntu 22.04 vm. 
+1. Configure a VM with 
+  - cpu : 8
+  - memory: 12GB
+  - disk: +50GB
 
-## Build
+some of the code is still dependent on a `crucible` user
+
+1. create and configure the crucible user
+  - `sudo adduser crucible`
+  - `sudo usermod -aG sudo`
+  - `sudo passwd crucible`
+1. log out and log back in as `crucible`
+1. install make 
+`sudo apt-get install make`
+
+1. clone the repo `git clone https://github.com/sei-noconnor/crucible-appliance.git`
+1. cd crucible-appliance
+1. run `make init`
+
+depending on your internet connection the appliance takes about 20 minutes to provision.
+
+1. create an entry in dns or in your local hosts file for the domain
+```
+<ip> crucible.io cd.crucible.io keystore.crucible.io vault.crucible.io
+```
+
+## Packer Build
 
 ### Building the Appliance
 
@@ -68,15 +94,70 @@ The Crucible appliance is tested on vSphere 8, ensuring seamless compatibility a
 
  ```yaml
    vars:
-      vsphere_server: vcsa.example.com
-      vsphere_user: administrator@vsphere.local
-      vsphere_password: pasword1234!@
-      datacenter: Datacenter1
-      cluster: Cluster1
-      datastore: ds1
-      network_name: "VM Network"
-      ssh_username: crucible
-      ssh_password: crucible
+  domain: crucible.io
+  vsphere_server: vcsa.crucible.io
+  vsphere_user: administrator@vsphere.local
+  vsphere_password:
+  vsphere_template:
+  vsphere_datacenter:
+  vsphere_cluster:
+  vsphere_host:
+  vsphere_datastore:
+  vsphere_iso_datastore:
+  vsphere_switch: 
+  vsphere_portgroup:
+  sudo_username: crucible
+  sudo_password: crucible
+  default_network:
+  default_netmask:
+  default_gateway:
+  dns_01:
+  dns_02:
+  
+cluster:
+  crucible-ctrl-02:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+  crucible-ctrl-03:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+  crucible-wrkr-01:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+  crucible-wrkr-02:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+  crucible-wrkr-03:
+    ip:
+    cpus:
+    memory:
+    extra_config: {}
+apps:
+features:
+  # Allows the appliance to work in an air-gapped environment by downloading 
+  # containers, charts, binary packages and and OS packages required 
+  # values: [true, false]
+  airgap_mode: true
+
+  # Enables a set of gitea actions to create packer images, and cluster,
+  # dependancies to extend the default single node appliance to a full 
+  # k3s cluster.
+  # values : [true, false]
+  cluster_builder: true
+
+  # Allows the appliance to use a private registry or registry mirror that 
+  # already exists on your network. This helps with docker pull limits. 
+  # value: https://<registry_url>:<registry_port>
+  private_registry:
+
 ```
 
 3.  **Initiate the Build:**
