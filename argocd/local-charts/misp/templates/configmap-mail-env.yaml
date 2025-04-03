@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "misp.fullname" . }}-mail-env
+  labels:
+    {{- include "misp.labels" . | nindent 4 }}
+data:
+  SMARTHOST_ADDRESS: {{ .Values.env.SMARTHOST_ADDRESS | quote }}
+  SMARTHOST_PORT: {{ .Values.env.SMARTHOST_PORT | quote }}
+  SMARTHOST_USER: {{ .Values.env.SMARTHOST_USER | quote }}
+  SMARTHOST_PASSWORD: {{ .Values.env.SMARTHOST_PASSWORD | quote }}
+  SMARTHOST_ALIASES: {{ .Values.env.SMARTHOST_ALIASES | quote }}
+

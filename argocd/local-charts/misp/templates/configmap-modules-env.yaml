@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "misp.fullname" . }}-modules-env
+  labels:
+    {{- include "misp.labels" . | nindent 4 }}
+data:
+  REDIS_BACKEND: {{ .Values.env.REDIS_HOST | quote }}
+  REDIS_PORT: {{ .Values.env.REDIS_PORT | quote }}
+  REDIS_PASSWORD: {{ .Values.env.REDIS_PASSWORD | quote }}
+

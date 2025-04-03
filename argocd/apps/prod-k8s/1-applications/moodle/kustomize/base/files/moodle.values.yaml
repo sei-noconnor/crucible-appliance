@@ -1,0 +1,2467 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.defaultStorageClass Global default StorageClass for Persistent Volume(s)
+## @param global.storageClass DEPRECATED: use global.defaultStorageClass instead
+##
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  defaultStorageClass: "-"
+  storageClass: ""
+  ## Compatibility adaptations for Kubernetes platforms
+  ##
+  compatibility:
+    ## Compatibility adaptations for Openshift
+    ##
+    openshift:
+      ## @param global.compatibility.openshift.adaptSecurityContext Adapt the securityContext sections of the deployment to make them compatible with Openshift restricted-v2 SCC: remove runAsUser, runAsGroup and fsGroup and let the platform use their allowed default IDs. Possible values: auto (apply if the detected running cluster is Openshift), force (perform the adaptation always), disabled (do not perform adaptation)
+      ##
+      adaptSecurityContext: auto
+## @section Common parameters
+
+## @param kubeVersion Force target Kubernetes version (using Helm capabilities if not set)
+##
+kubeVersion: ""
+## @param nameOverride String to partially override moodle.fullname template
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override moodle.fullname template
+##
+fullnameOverride: ""
+## @param commonAnnotations Common annotations to add to all Harbor resources (sub-charts are not considered). Evaluated as a template
+##
+commonAnnotations: {}
+## @param commonLabels Common labels to add to all Harbor resources (sub-charts are not considered). Evaluated as a template
+##
+commonLabels: {}
+
+## @section Moodle&trade; parameters
+extraDeploy:
+  - |-
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: run-moodle-install-script
+        namespace: moodle
+        annotations:
+          "helm.sh/hook": post-install
+      spec:
+        backoffLimit: 3
+        activeDeadlineSeconds: 1800
+        template:
+          spec:
+            restartPolicy: Never
+            serviceAccountName: moodle-job-sa
+            containers:
+              - name: moodle-script-runner
+                image: bitnami/kubectl:latest  # An image with kubectl installed
+                command: ["/bin/bash", "-c"]
+                args:
+                  - |
+                    set -e
+                    echo "Waiting for the Moodle pod to be ready and log 'Moodle setup finished!'..."
+
+                    # Wait until a Moodle pod is running.
+                    until POD_STATUS=$(kubectl get pods -l "app.kubernetes.io/name=moodle" -o jsonpath='{.items[0].status.phase}' 2>/dev/null) && [ "$POD_STATUS" = "Running" ]; do
+                      echo "Moodle pod not ready yet (current status: ${POD_STATUS:-none}). Sleeping for 5 seconds..."
+                      sleep 5
+                    done
+
+                    POD_NAME=$(kubectl get pods -l "app.kubernetes.io/name=moodle" -o jsonpath='{.items[0].metadata.name}')
+                    echo "Found Moodle pod: $POD_NAME"
+
+                    # Wait for 'Moodle setup finished!' in logs.
+                    until kubectl logs "$POD_NAME" | grep -q "Moodle setup finished!"; do
+                      echo "Moodle setup not finished yet. Checking logs again in 10 seconds..."
+                      sleep 10
+                    done
+
+                    echo "'Moodle setup finished!' found in logs. Proceeding to execute install.sh..."
+
+                    # Execute the script in the Moodle pod.
+                    kubectl exec "$POD_NAME" -- bash -c "update-ca-certificates"
+                    kubectl exec "$POD_NAME" -- cp /opt/cmu/manage.php /opt/cmu/custom-scripts/manage.php
+                    kubectl exec "$POD_NAME" -- cp /opt/cmu/install.sh /opt/cmu/custom-scripts/install.sh
+                    kubectl exec "$POD_NAME" -- bash -c "chmod +x /opt/cmu/custom-scripts/install.sh"
+                    kubectl exec "$POD_NAME" -- bash -c "/opt/cmu/custom-scripts/install.sh"
+                    echo "install.sh executed successfully."
+            volumes:
+              - name: moodle-scripts
+                persistentVolumeClaim:
+                  claimName: moodle-script-pvc
+              - name: env
+                configMap:
+                  name: moodle-automation
+                  items:
+                    - key: install_config.env
+                      path: install_config.env
+                    - key: install.sh
+                      path: install.sh
+                    - key: manage.php
+                      path: manage.php
+      ---
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: moodle-job-role
+        namespace: moodle  # Ensure this matches your namespace
+      rules:
+        - apiGroups: [""]
+          resources: ["pods"]
+          verbs: ["get", "list"]
+        - apiGroups: [""]
+          resources: ["pods/exec"]
+          verbs: ["create"]
+        - apiGroups: [""]
+          resources: ["pods/log"]
+          verbs: ["get", "watch"]
+
+      ---
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: moodle-job-rolebinding
+        namespace: moodle
+      subjects:
+      - kind: ServiceAccount
+        name: moodle-job-sa
+        namespace: default
+      roleRef:
+        kind: Role
+        name: moodle-job-role
+        apiGroup: rbac.authorization.k8s.io
+      ---
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: moodle-automation
+        namespace: moodle
+        labels:
+          app: moodle
+          app.kubernetes.io/name: argocd-cm
+      data:
+        install_config.env: |
+          #===============================================BLOCK CRUCIBLE CONFIGS==============================================================
+          ENABLED="1"
+          SHOWALLAPPS="1"
+          BLOCKTITLE="1"
+          CUSTOMWELCOMEMESSAGE="IMCITE Applications"
+          SHOWKEYCLOAK="1"
+          KEYCLOAKAPPURL="https://onprem.phl-imcite.net/keycloak/realms/crucible"
+          KEYCLOAKGROUPS="training-managers"
+          SHOWGAMEBOARD="1"
+          GAMEBOARDAPIURL="https://onprem.phl-imcite.net/gameboard/api"
+          GAMEBOARDAPPURL="https://onprem.phl-imcite.net/gameboard/practice"
+          SHOWMISP="1"
+          MISPAPPURL="https://misp.onprem.phl-imcite.net/dashboards"
+          SHOWTOPOMOJO="1"
+          TOPOMOJOAPIURL="https://onprem.phl-imcite.net/topomojo/api"
+          TOPOMOJOAPPURL="https://onprem.phl-imcite.net/topomojo"
+
+          #===============================================LANGUAGE PACK INSTALLATION CONFIGS==============================================================
+          LANG_CODES="en_us,zh_cn,zh_cn_wp"
+          MOODLE_VERSION="4.4"
+
+          #===============================================MOD TOPOMOJO CONFIGS==============================================================
+          TOPOMOJOAPIURL='https://onprem.phl-imcite.net/topomojo/api'
+          TOPOMOJOBASEURL='https://onprem.phl-imcite.net/topomojo'
+          MANAGERNAME='bot-moodle-prod'
+          TAGIMPORT='1'
+
+          #===============================================SMTP CONFIG==============================================================
+          SMTPSECURE="tls"
+          SMTPMAXBULK="1"
+          NOREPLYADDRESS="noreply@onprem.phl-imcite.net"
+
+          #===============================================OAUTH2 CONFIGS==============================================================
+          KEYCLOAK_URL="https://onprem.phl-imcite.net/keycloak/realms/crucible"
+          KEYCLOAK_CLIENTID="moodle-client"
+          KEYCLOAK_CLIENTSECRET="Fxo5evJO7DKaAzvzwTx8uaP4kVoeeiyf"
+          KEYCLOAK_LOGINSCOPES="openid profile email"
+          KEYCLOAK_LOGINSCOPESOFFLINE="openid profile email offline_access"
+          KEYCLOAK_NAME="PHL ONPREM Keycloak"
+          KEYCLOAK_IMAGE="https://onprem.phl-imcite.net/keycloak/resources/q4326/admin/keycloak.v2/icon.svg"
+
+          #===============================================BOOST UNION THEME SETTINGS==============================================================
+          SCSSPRE=$(cat <<'EOF'
+            #page-content .sitetopic .topics.frontpage {
+                display: none;
+            }
+
+            /* Remove the "My courses" top menu tab (Randy Thorton).
+            Add a "Course Block" to the Dashboard for Courses.
+            This provides one place for students to go, i.e. the Dashboard. */
+            .primary-navigation li[data-key="mycourses"] {
+                display: none;
+            }
+
+            .activityicon { filter: none !important } //testmessage
+
+            .auth_outage #theme_boost-drawers-courseindex {
+                margin-top: 100px !important; /* Adds space above the button */
+            }
+
+            .auth_outage .drawer-toggler {
+                margin-top: 100px !important; /* Adds space above the button */
+            }
+
+            .courses.frontpage-course-list-all {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr); /* Two columns */
+                gap: 20px; /* Gap between items */
+            }
+
+            .coursebox {
+                box-sizing: border-box; /* Ensures padding doesn't affect width */
+            }
+
+            .card.shadow {
+                min-width: 200px !important;   /* Control minimum width */
+                max-width: 200px !important;   /* Control maximum width */
+                max-height: 500px !important;
+                min-height: 200px !important;
+                padding: 20px !important;      /* Adjust padding for internal spacing */
+            }
+
+            .fc-coursecard-card .card-title {
+                font-size: 1.0rem; /* Adjust font size as needed */
+                line-height: 1.2; /* Adjust line height for readability */
+                text-align: center; /* Centers the text */
+                word-wrap: normal;
+            }
+
+            .fc-coursecard-card {
+                height: 250px;
+                width: 300px;
+            }
+
+            #page-site-index .page-header-headings h1::before {
+                content: "";
+                display: inline-block;
+                width: 40px; /* Set width for the icon */
+                height: 40px; /* Set height for the icon */
+                background-size: contain; /* Ensures the icon fits within its dimensions */
+                background-repeat: no-repeat;
+                margin-right: 8px; /* Adds space between the icon and the text */
+                vertical-align: middle; /* Aligns the icon with the text */
+            }
+
+            .fc-categorycards.card-deck.mr-0 {
+                margin-bottom: 0;
+            }
+
+            #page-mod-quiz-edit .option label[for="item_qtype_mojomatch"] {
+                display: none !important;
+            }
+          EOF
+          )
+        install.sh: |
+          #!/bin/bash
+          # Global Variables
+          STATUS_FILE="/opt/cmu/custom-scripts/script_status.log"
+          LOG_FILE="/tmp/moodle_script.log"
+          MOODLE_DIR="/bitnami/moodle"
+          MOODLE_CLI="$MOODLE_DIR/admin/cli"
+          MOODLEDATA_DIR="/bitnami/moodledata"
+
+          # Function to log messages
+          log() {
+              echo "[INFO] $1" | tee -a "$LOG_FILE"
+          }
+
+          # Function to log errors
+          error() {
+              local section="$1"
+              local message="$2"
+              echo "[ERROR] $message" | tee -a "$LOG_FILE"
+              echo "$section = Failed" >> "$STATUS_FILE"
+          }
+
+          # Function to record status
+          record_status() {
+              local section="$1"
+              local status="$2"
+              sed -i "/^$section =/d" "$STATUS_FILE"
+              echo "$section = $status" >> "$STATUS_FILE"
+          }
+
+          # Function to check and execute a section
+          execute_section() {
+              local section="$1"
+              local function="$2"
+              local status=$(grep "^$section =" "$STATUS_FILE" | cut -d '=' -f2 | xargs)
+
+              if [[ "$status" != "Completed" ]]; then
+                  log "Running section: $section"
+                  $function
+                  if [[ $? -eq 0 ]]; then
+                      record_status "$section" "Completed"
+                  else
+                      record_status "$section" "Failed"
+                      log "Section $section failed."
+                  fi
+              else
+                  log "Skipping section: $section (already completed)"
+              fi
+          }
+
+          # Function to upgrade Moodle
+          upgrade_moodle() {
+              local section="Upgrade Moodle"
+              log "Running Moodle upgrade script..."
+              MOODLE_CLI="$MOODLE_DIR/admin/cli"
+              php "$MOODLE_CLI/upgrade.php" --non-interactive || error "$section" "Failed to upgrade Moodle."
+          }
+
+          # Function to install a plugin
+          install_plugin() {
+              log "Updating system and installing wget and unzip..."
+              apt update && apt install wget unzip -y || error "Failed to install wget and unzip."
+              local plugin_dir="$1"
+              local zip_url="$2"
+              local plugin_name="$3"
+
+              log "Installing plugin: $plugin_name into $plugin_dir..."
+              mkdir -p "$plugin_dir"
+              cd "$plugin_dir" || error "install_plugin" "Failed to navigate to directory $plugin_dir."
+
+              if [[ -d "$plugin_name" ]]; then
+                  log "Plugin $plugin_name already exists. Skipping..."
+              else
+                  # Create a temporary file for the zip
+                  local temp_zip="${plugin_name}.zip"
+                  wget "$zip_url" -O "$temp_zip" || error "install_plugin" "Failed to download $plugin_name from $zip_url."
+                  unzip "$temp_zip" -d "$plugin_name-temp" || error "install_plugin" "Failed to extract $plugin_name."
+
+                  # Handle cases where ZIP contains a top-level folder
+                  local extracted_dir=$(find "$plugin_name-temp" -mindepth 1 -maxdepth 1 -type d)
+                  if [[ -n "$extracted_dir" ]]; then
+                      mv "$extracted_dir" "$plugin_name" || error "install_plugin" "Failed to move $extracted_dir to $plugin_name."
+                  else
+                      mv "$plugin_name-temp" "$plugin_name" || error "install_plugin" "Failed to rename extracted content to $plugin_name."
+                  fi
+                  rm -rf "$plugin_name-temp"
+                  rm "$temp_zip"
+              fi
+          }
+
+          install_mod_plugins() {
+              log "Installing MOD plugins..."
+              install_plugin "$MOODLE_DIR/mod" "https://github.com/adlnet/Moodle-mod_cmi5launch/archive/refs/tags/v0.9.0-beta.zip" "cmi5launch"
+              install_plugin "$MOODLE_DIR/mod" "https://moodle.org/plugins/download.php/33446/mod_customcert_moodle43_2023100907.zip" "customcert"
+              install_plugin "$MOODLE_DIR/mod" "https://github.com/cmu-sei/moodle-mod_topomojo/archive/refs/heads/main.zip" "topomojo"
+              install_plugin "$MOODLE_DIR/mod" "https://moodle.org/plugins/download.php/34151/mod_hvp_moodle45_2024120900.zip" "hvp"
+          }
+
+          install_question_plugins() {
+              log "Installing QUESTIONS plugins..."
+              install_plugin "$MOODLE_DIR/question/type" "https://github.com/cmu-sei/moodle-qtype_mojomatch/archive/refs/heads/main.zip" "mojomatch"
+              install_plugin "$MOODLE_DIR/question/behaviour" "https://github.com/cmu-sei/moodle-qbehaviour_mojomatch/archive/refs/heads/main.zip" "mojomatch"
+          }
+
+          install_block_plugins() {
+              log "Installing BLOCKS plugins..."
+              install_plugin "$MOODLE_DIR/blocks" "https://github.com/cmu-sei/moodle-block_crucible/archive/refs/heads/main.zip" "crucible"
+              install_plugin "$MOODLE_DIR/blocks" "https://moodle.org/plugins/download.php/33329/block_taggedcoursesearch_moodle45_2024100700.zip" "taggedcoursesearch"
+              install_plugin "$MOODLE_DIR/blocks" "https://moodle.org/plugins/download.php/33390/block_timezoneclock_moodle45_2024092100.zip" "timezoneclock"
+          }
+
+          install_filter_plugins() {
+              log "Installing FILTER plugins..."
+              install_plugin "$MOODLE_DIR/filter" "https://moodle.org/plugins/download.php/33419/filter_filtercodes_moodle45_2024100701.zip" "filtercodes"
+          }
+
+          install_enrol_plugins() {
+              log "Installing ENROL plugins..."
+              install_plugin "$MOODLE_DIR/enrol" "https://moodle.org/plugins/download.php/31161/enrol_autoenrol_moodle43_2024021900.zip" "autoenrol"
+          }
+
+          install_auth_plugins() {
+              log "Installing AUTH plugins..."
+              install_plugin "$MOODLE_DIR/auth" "https://moodle.org/plugins/download.php/32195/auth_outage_moodle44_2024052400.zip" "outage"
+          }
+
+          install_tool_plugins() {
+              log "Installing TOOL plugins..."
+              install_plugin "$MOODLE_DIR/admin/tool" "https://github.com/cmu-sei/moodle-tool_lptmanager/archive/refs/heads/main.zip" "lptmanager"
+          }
+
+          install_logstore_plugins() {
+              log "Installing LOGSTORE plugins..."
+              install_plugin "$MOODLE_DIR/admin/tool/installaddon" "https://moodle.org/plugins/download.php/27762/logstore_xapi_moodle41_2022101800.zip" "xapi"
+          }
+
+          install_report_plugins() {
+              log "Installing REPORT plugins..."
+              install_plugin "$MOODLE_DIR/report" "https://moodle.org/plugins/download.php/28451/report_benchmark_moodle41_2023012800.zip" "benchmark"
+              install_plugin "$MOODLE_DIR/report" "https://github.com/StudiUM/moodle-report_lpmonitoring/archive/refs/tags/v1.8.zip" "lpmonitoring"
+          }
+
+          install_theme_plugins() {
+              local section="Install Theme Plugins"
+              log "Installing THEME plugins..."
+              local theme_dir="$MOODLE_DIR/theme"
+              local theme_name="boost_union"
+              local zip_url="https://moodle.org/plugins/download.php/34421/theme_boost_union_moodle44_2024060111.zip"
+
+              mkdir -p "$theme_dir"
+              cd "$theme_dir" || error "$section" "Failed to navigate to $theme_dir."
+
+              if [[ -d "$theme_name" ]]; then
+                  log "Theme $theme_name is already installed. Skipping installation."
+              else
+                  local temp_zip="${theme_name}.zip"
+                  wget "$zip_url" -O "$temp_zip" || error "$section" "Failed to download $theme_name from $zip_url."
+                  unzip "$temp_zip" -d "$theme_name-temp" || error "$section" "Failed to extract $theme_name."
+
+                  # Handle cases where ZIP contains a top-level folder
+                  local extracted_dir=$(find "$theme_name-temp" -mindepth 1 -maxdepth 1 -type d)
+                  if [[ -n "$extracted_dir" ]]; then
+                      mv "$extracted_dir" "$theme_name" || error "$section" "Failed to move $extracted_dir to $theme_name."
+                  else
+                      mv "$theme_name-temp" "$theme_name" || error "$section" "Failed to rename extracted content to $theme_name."
+                  fi
+                  rm -rf "$theme_name-temp"
+                  rm "$temp_zip"
+                  log "Theme $theme_name installed successfully."
+              fi
+          }
+
+          install_local_plugins() {
+              install_plugin "$MOODLE_DIR/local" "https://moodle.org/plugins/download.php/32149/local_coursetransfer_moodle44_2024052000.zip" "coursetransfer"
+          }
+
+          update_permissions() {
+          log "Updating permissions for Moodle data directory..."
+
+          # Update ownership for all files and hidden files in moodledata
+          find "$MOODLEDATA_DIR"/* "$MOODLEDATA_DIR"/.* -exec chown daemon:daemon {} \; 2>/dev/null || \
+              error "update_permissions" "Failed to update ownership for files in $MOODLEDATA_DIR."
+
+          # Set permissions for directories and files inside moodledata
+          find "$MOODLEDATA_DIR" -type d -exec chmod 775 {} \; || \
+              error "update_permissions" "Failed to set directory permissions in $MOODLEDATA_DIR."
+          find "$MOODLEDATA_DIR" -type f -exec chmod 644 {} \; || \
+              error "update_permissions" "Failed to set file permissions in $MOODLEDATA_DIR."
+
+          # Update ownership for Moodle core files
+          find "$MOODLE_DIR" -exec chown daemon:root {} \; || \
+              error "update_permissions" "Failed to update ownership for files in $MOODLE_DIR."
+
+          # Set permissions for directories and files inside Moodle
+          find "$MOODLE_DIR" -type d -exec chmod 775 {} \; || \
+              error "update_permissions" "Failed to set directory permissions in $MOODLE_DIR."
+          find "$MOODLE_DIR" -type f -exec chmod 644 {} \; || \
+              error "update_permissions" "Failed to set file permissions in $MOODLE_DIR."
+
+          chown root:daemon "$MOODLE_DIR/config.php" || \
+              error "update_permissions" "Failed to set ownership for $MOODLE_DIR/config.php."
+
+          chmod 644 "$MOODLE_DIR/config.php" || \
+              error "update_permissions" "Failed to set permissions for $MOODLE_DIR/config.php."
+
+          log "Permissions updated successfully!"
+          }
+
+          update_permissions_and_upgrade() {
+          update_permissions  # Call the function to update permissions first
+          upgrade_moodle
+          log "Moodle plugin installation and upgrades completed successfully!"
+          }
+
+          configure_theme_plugin() {
+              PLUGIN="theme_boost_union"
+              CONFIG_FILE="/opt/cmu/custom-scripts/install_config.env"
+              MOODLE_CLI="/bitnami/moodle/admin/cli/cfg.php"
+
+              log "Setting theme boost_union"
+              php /bitnami/moodle/admin/cli/cfg.php --name=theme --set=boost_union
+
+              log "Setting SITE Short Name"
+              php /bitnami/moodle/admin/cli/cfg.php --name=shortname --set=IMCITE
+
+              log "Configuring site home"
+              php /bitnami/moodle/admin/cli/cfg.php --name=defaulthomepage --set=0
+
+              log "Disabling guest access to Dashboard"
+              php /bitnami/moodle/admin/cli/cfg.php --name=allowguestmymoodle --set=0
+
+              log "Force login site home"
+              php /bitnami/moodle/admin/cli/cfg.php --name=forcelogin --set=1
+
+              # Load configuration file
+              if [[ -f "$CONFIG_FILE" ]]; then
+                  log "Loading configuration from $CONFIG_FILE..."
+                  source "$CONFIG_FILE" || error "Failed to load configuration."
+              else
+                  error "Configuration file $CONFIG_FILE not found."
+              fi
+
+              # List of settings to configure
+              declare -a SETTINGS=(
+                  "scsspre"
+                  "coursecontentmaxwidth"
+                  "logo"
+                  "loginbackgroundimageposition"
+                  "loginformtransparency"
+                  "loginlocalloginenable"
+                  "loginlocalshowintro"
+                  "loginidpshowintro"
+                  "loginorderidp"
+                  "loginorderfirsttimesignup"
+                  "loginorderguest"
+                  "courseheaderimageenabled"
+                  "courseheaderimagelayout"
+                  "courseheaderimageheight"
+                  "courseindexmodiconenabled"
+                  "additionalresources"
+                  "hidenodesprimarynavigation"
+                  "showfullnameinusermenu"
+                  "addpreferredlang"
+                  "shownavbarstarredcourses"
+                  "backtotopbutton"
+                  "scrollspy"
+                  "activitynavigation"
+                  "blockregionsforfrontpage"
+                  "showsitehomerighthandblockdraweronvisit"
+                  "showsitehomerighthandblockdraweronfirstlogin"
+                  "showsitehomerighthandblockdraweronguestlogin"
+                  "policyoverviewnavigation"
+                  "markbrokenlinks"
+                  "javascriptdisabledhint"
+                  "enablefooterbutton"
+                  "footersuppressicons"
+                  "footersuppresschat"
+                  "footersuppressservices"
+                  "footersuppresscontact"
+                  "footersuppresslogininfo"
+                  "footersuppressusertour"
+                  "footersuppressthemeswitch"
+                  "footersuppresspowered"
+                  "footersuppressstandardfooter_tool_dataprivacy"
+                  "footersuppressstandardfooter_core_userfeedback"
+                  "footersuppressstandardfooter_tool_policy"
+                  "footersuppressstandardfooter_tool_mobile"
+                  "enablemaintenance"
+                  "infobanner1content"
+                  "infobanner1pages"
+                  "tilecolumns"
+                  "tileheight"
+                  "tile2order"
+                  "tile3order"
+                  "tile4order"
+                  "tile5order"
+                  "tile6order"
+                  "tile7order"
+                  "tile8order"
+                  "tile9order"
+                  "tile10order"
+                  "tile11order"
+                  "tile12order"
+                  "sliderarrownav"
+                  "sliderindicatornav"
+                  "slideranimation"
+                  "sliderinterval"
+                  "slide1enabled"
+                  "slide2enabled"
+                  "slide3enabled"
+                  "slide3order"
+                  "slide4enabled"
+                  "slide4order"
+                  "slide5enabled"
+                  "slide5order"
+                  "slide6enabled"
+                  "slide6order"
+                  "showswitchedroleincourse"
+                  "showhintcoursehidden"
+                  "showhintforumnotifications"
+                  "showhintcourseguestaccess"
+                  "showviewcourseiconincoursemgnt"
+              )
+
+              # Default Configurations for Boost Union Theme Settings
+              COURSECONTENTMAXWIDTH="1200px"
+              LOGINBACKGROUNDIMAGEPOSITION="center center"
+              LOGINFORMTRANSPARENCY="yes"
+              LOGINLOCLOGINENABLE="no"
+              LOGINLOCALSHOWINTRO="yes"
+              LOGINIDPSHOWINTRO="no"
+              LOGINORDERIDP="1"
+              LOGINORDERFIRSTTIMESIGNUP="1"
+              LOGINORDERGUEST="1"
+              COURSEHEADERIMAGEENABLED="yes"
+              COURSEHEADERIMAGELAYOUT="stackeddark"
+              COURSEHEADERIMAGEHEIGHT="100px"
+              COURSEINDEXMODICONENABLED="yes"
+              HIDENODESPRIMARYNAVIGATION="home"
+              SHOWFULLNAMEINUSERMENU="yes"
+              ADDPREFERREDLANG="yes"
+              SHOWNAVBARSTARREDCOURSES="yes"
+              BACKTOTOPBUTTON="yes"
+              SCROLLSPY="yes"
+              ACTIVITYNAVIGATION="yes"
+              BLOCKREGIONSFORFRONTPAGE="content-upper, content-lower"
+              SHOWSITEHOMERIGHTHANDBLOCKDRAWERONVISIT="yes"
+              SHOWSITEHOMERIGHTHANDBLOCKDRAWERONFIRSTLOGIN="yes"
+              SHOWSITEHOMERIGHTHANDBLOCKDRAWERONGUESTLOGIN="yes"
+              POLICYOVERVIEWNAVIGATION="yes"
+              MARKBROKENLINKS="yes"
+              JAVASCRIPTDISABLEDHINT="yes"
+              ENABLEFOOTERBUTTON="enablefooterbuttonall"
+              FOOTERSUPPRESSICONS="yes"
+              FOOTERSUPPRESSCHAT="yes"
+              FOOTERSUPPRESSSERVICES="yes"
+              FOOTERSUPPRESSCONTACT="yes"
+              FOOTERSUPPRESSLOGININFO="yes"
+              FOOTERSUPPRESSUSERTOUR="yes"
+              FOOTERSUPPRESSTHEMESWITCH="yes"
+              FOOTERSUPPRESSPOWERED="yes"
+              FOOTERSUPPRESSSTANDARDFOOTER_TOOL_DATAPRIVACY="yes"
+              FOOTERSUPPRESSSTANDARDFOOTER_CORE_USERFEEDBACK="yes"
+              FOOTERSUPPRESSSTANDARDFOOTER_TOOL_POLICY="yes"
+              FOOTERSUPPRESSSTANDARDFOOTER_TOOL_MOBILE="yes"
+              ENABLEMAINTENANCE="yes"
+              INFOBANNER1CONTENT="Moodle is a free, open-source Learning Management System (LMS) that helps educators create online courses and personalized learning environments. It is the most widely used learning platform in the world, with hundreds of thousands of learning environments globally."
+              INFOBANNER1PAGES="frontpage"
+              TILECOLUMNS="1"
+              TILEHEIGHT="100px"
+              TILE2ORDER="1"
+              TILE3ORDER="1"
+              TILE4ORDER="1"
+              TILE5ORDER="1"
+              TILE6ORDER="1"
+              TILE7ORDER="1"
+              TILE8ORDER="1"
+              TILE9ORDER="1"
+              TILE10ORDER="1"
+              TILE11ORDER="1"
+              TILE12ORDER="1"
+              SLIDERARROWNAV="yes"
+              SLIDERINDICATORNAV="yes"
+              SLIDERANIMATION="none"
+              SLIDERINTERVAL="0"
+              SLIDE1ENABLED="yes"
+              SLIDE2ENABLED="yes"
+              SLIDE3ENABLED="yes"
+              SLIDE3ORDER="1"
+              SLIDE4ENABLED="yes"
+              SLIDE4ORDER="1"
+              SLIDE5ENABLED="yes"
+              SLIDE5ORDER="1"
+              SLIDE6ENABLED="yes"
+              SLIDE6ORDER="1"
+              SHOWSWITCHEDROLEINCOURSE="yes"
+              SHOWHINTCOURSEHIDDEN="yes"
+              SHOWHINTFORUMNOTIFICATIONS="yes"
+              SHOWHINTCOURSEGUESTACCESS="yes"
+              SHOWVIEWCOURSEICONINCOURSEMGNT="yes"
+              LOGINLOCALLOGINENABLE="no"
+
+              # Apply configuration
+              for setting in "${SETTINGS[@]}"; do
+                  # Convert setting name to uppercase for environment variable matching
+                  env_var_name=$(echo "$setting" | tr '[:lower:]' '[:upper:]')
+
+                  # Check if the variable exists in the environment
+                  if [[ ! -z "${!env_var_name}" ]]; then
+                      value="${!env_var_name}"
+                      log "Setting $setting to '$value' for $PLUGIN..."
+                      php "$MOODLE_CLI" --component="$PLUGIN" --name="$setting" --set="$value" || error "Failed to set $setting to $value."
+                  else
+                      log "No value provided for $setting. Skipping..."
+                  fi
+              done
+
+              log "Configuration of $PLUGIN completed successfully!"
+          }
+
+          configure_oauth2() {
+              local section="OAuth2 Configuration"
+              CONFIG_FILE="/opt/cmu/custom-scripts/install_config.env"
+              log "Configuring OAuth2 settings..."
+
+              # Load configuration file
+              if [[ -f "$CONFIG_FILE" ]]; then
+                  source "$CONFIG_FILE" || error "$section" "Failed to load configuration."
+              else
+                  error "$section" "Configuration file $CONFIG_FILE not found."
+              fi
+
+              # Verify required keys
+              REQUIRED_KEYS=(
+                  "KEYCLOAK_URL"
+                  "KEYCLOAK_CLIENTID"
+                  "KEYCLOAK_CLIENTSECRET"
+                  "KEYCLOAK_LOGINSCOPES"
+                  "KEYCLOAK_LOGINSCOPESOFFLINE"
+                  "KEYCLOAK_NAME"
+                  "KEYCLOAK_IMAGE"
+              )
+
+              for key in "${REQUIRED_KEYS[@]}"; do
+                  if [[ -z "${!key}" ]]; then
+                      error "$section" "Missing required configuration: $key"
+                  fi
+              done
+
+              log "Creating a new OAuth2 provider..."
+
+              # Create the provider (do not specify --id)
+              PROVIDER_OUTPUT=$(php /opt/cmu/custom-scripts/manage.php \
+                  --baseurl="$KEYCLOAK_URL" \
+                  --clientid="$KEYCLOAK_CLIENTID" \
+                  --clientsecret="$KEYCLOAK_CLIENTSECRET" \
+                  --loginscopes="$KEYCLOAK_LOGINSCOPES" \
+                  --loginscopesoffline="$KEYCLOAK_LOGINSCOPESOFFLINE" \
+                  --name="$KEYCLOAK_NAME" \
+                  --image="$KEYCLOAK_IMAGE" \
+                  --requireconfirmation=0 \
+                  --showonloginpage=1 \
+                  2>/dev/null) || error "$section" "Failed to create OAuth2 provider."
+
+              log "Provider creation output: $PROVIDER_OUTPUT"
+
+              # Extract the newly created provider ID from the output
+              NEW_ISSUER_ID=$(echo "$PROVIDER_OUTPUT" | grep -oP '(?<=Created new provider with ID )\d+')
+
+              if [[ -z "$NEW_ISSUER_ID" ]]; then
+                  error "$section" "Failed to retrieve the new provider ID."
+              else
+                  log "OAuth2 Provider created successfully with ID: $NEW_ISSUER_ID"
+              fi
+
+              # Create the user field mapping for the new provider
+              log "Creating user field mapping for provider ID: $NEW_ISSUER_ID..."
+              USER_FIELD_OUTPUT=$(php /opt/cmu/custom-scripts/manage.php \
+                  --create-user-field \
+                  --id="$NEW_ISSUER_ID" \
+                  --json='{"externalfieldname":"sub","internalfieldname":"idnumber"}' 2>&1)
+
+              if echo "$USER_FIELD_OUTPUT" | grep -q "User field mapping created successfully"; then
+                  log "User field mapping created successfully for provider ID: $NEW_ISSUER_ID"
+              else
+                  log "Failed to create user field mapping: $USER_FIELD_OUTPUT"
+                  error "$section" "User field mapping creation failed."
+              fi
+
+              # **Set multiple authentication methods in Moodle**
+              log "Updating Moodle authentication settings..."
+              php /bitnami/moodle/admin/cli/cfg.php --name=auth --set="oauth2,outage" || \
+              error "$section" "Failed to update Moodle authentication settings."
+              php /bitnami/moodle/admin/cli/cfg.php --name=guestloginbutton --set=0 || \
+              error "$section" "Failed to update Moodle authentication settings."
+
+              log "OAuth2 configuration completed successfully."
+          }
+
+          configure_language_packs() {
+              # Variables
+              MOODLE_LANG_DIR="/bitnami/moodledata/lang"
+              MOODLE_CLI="/bitnami/moodle/admin/cli/upgrade.php"
+              CONFIG_FILE="/opt/cmu/custom-scripts/install_config.env"
+              LOG_FILE="/tmp/moodle_langpack_install.log"
+
+              # Function to log messages
+              log() {
+                  echo "[INFO] $1" | tee -a "$LOG_FILE"
+              }
+
+              # Function to log errors
+              error() {
+                  echo "[ERROR] $1" | tee -a "$LOG_FILE"
+                  exit 1
+              }
+
+              # Ensure wget and unzip are installed
+              log "Updating package lists and ensuring wget and unzip are installed..."
+              apt update && apt install wget unzip -y || error "Failed to install required packages."
+
+              # Load configuration file
+              if [[ -f "$CONFIG_FILE" ]]; then
+                  log "Loading configuration from $CONFIG_FILE..."
+                  source "$CONFIG_FILE" || error "Failed to load configuration."
+              else
+                  error "Configuration file $CONFIG_FILE not found."
+              fi
+
+              # Validate MOODLE_VERSION
+              if [[ -z "$MOODLE_VERSION" ]]; then
+                  error "MOODLE_VERSION is not set in $CONFIG_FILE."
+              fi
+
+              # Construct LANG_URL using MOODLE_VERSION
+              LANG_URL="https://download.moodle.org/download.php/direct/langpack/$MOODLE_VERSION"
+
+              # Parse LANG_CODES from the configuration file
+              if [[ -z "$LANG_CODES" ]]; then
+                  error "LANG_CODES is not set in $CONFIG_FILE."
+              fi
+
+              IFS=',' read -ra LANG_CODES_ARRAY <<< "$LANG_CODES"
+
+              # Ensure the Moodle language directory exists
+              if [[ ! -d "$MOODLE_LANG_DIR" ]]; then
+                  log "Creating language directory at $MOODLE_LANG_DIR..."
+                  mkdir -p "$MOODLE_LANG_DIR" || error "Failed to create language directory."
+              fi
+
+              # Iterate over language codes
+              for LANG_CODE in "${LANG_CODES_ARRAY[@]}"; do
+                  LANG_ZIP="$LANG_CODE.zip"
+                  LANG_ZIP_URL="$LANG_URL/$LANG_ZIP"
+                  TEMP_ZIP="/tmp/$LANG_ZIP"
+
+                  # Download the language pack
+                  log "Downloading language pack: $LANG_CODE from $LANG_ZIP_URL..."
+                  wget -O "$TEMP_ZIP" "$LANG_ZIP_URL" || error "Failed to download language pack: $LANG_CODE."
+
+                  # Extract the language pack
+                  log "Extracting $LANG_ZIP into $MOODLE_LANG_DIR..."
+                  unzip -o "$TEMP_ZIP" -d "$MOODLE_LANG_DIR" || error "Failed to extract language pack: $LANG_CODE."
+
+                  # Clean up the temporary ZIP file
+                  log "Cleaning up temporary file..."
+                  rm -f "$TEMP_ZIP"
+
+                  log "Language pack $LANG_CODE installed successfully!"
+              done
+
+              # Cleanup temporary files
+              log "Cleaning up temporary files in $MOODLE_LANG_DIR..."
+              find "$MOODLE_LANG_DIR" -name "_temp*" -exec rm -rf {} \; || log "No temporary files or directories found."
+
+              # Run Moodle upgrade script
+              log "Running Moodle upgrade script to finalize language pack installation..."
+              php "$MOODLE_CLI" --non-interactive || error "Moodle upgrade failed."
+
+              log "All language packs installed successfully!"
+
+              log "Setting default language"
+              php "$MOODLE_CLI" --name=lang --set="en_us"
+          }
+
+          configure_moodle_block() {
+              MOODLE_CLI="/bitnami/moodle/admin/cli/cfg.php"
+              PLUGIN="block_crucible"
+              CONFIG_FILE="/opt/cmu/custom-scripts/install_config.env"
+
+              # List of all available settings for block_crucible
+              declare -a SETTINGS=(
+                  "version"
+                  "enabled"
+                  "showallapps"
+                  "blocktitle"
+                  "customwelcomemessagecb"
+                  "customwelcomemessage"
+                  "showkeycloak"
+                  "keycloakappurl"
+                  "keycloakgroups"
+                  "alloyapiurl"
+                  "alloyappurl"
+                  "blueprintapiurl"
+                  "blueprintappurl"
+                  "casterapiurl"
+                  "casterappurl"
+                  "citeapiurl"
+                  "citeappurl"
+                  "galleryapiurl"
+                  "galleryappurl"
+                  "showgameboard"
+                  "gameboardapiurl"
+                  "gameboardappurl"
+                  "gameboardapikey"
+                  "showmisp"
+                  "mispappurl"
+                  "mispapikey"
+                  "playerapiurl"
+                  "playerappurl"
+                  "steamfitterapiurl"
+                  "steamfitterappurl"
+                  "showtopomojo"
+                  "topomojoapiurl"
+                  "topomojoappurl"
+                  "topomojoapikey"
+                  "enablecommapps"
+                  "rocketchatapiurl"
+                  "rocketchatappurl"
+                  "rocketchatauthtoken"
+                  "rocketchatuserid"
+                  "roundcubeappurl"
+              )
+
+              # Function to log messages
+              log() {
+                  echo "[INFO] $1" | tee -a "$LOG_FILE"
+              }
+
+              # Function to log errors
+              error() {
+                  echo "[ERROR] $1" | tee -a "$LOG_FILE"
+                  exit 1
+              }
+
+              # Load config file
+              if [[ -f "$CONFIG_FILE" ]]; then
+                  log "Loading configuration from $CONFIG_FILE..."
+                  source "$CONFIG_FILE"
+              else
+                  log "Configuration file $CONFIG_FILE not found. Continuing without defaults."
+              fi
+
+              # Parse command-line arguments
+              declare -A CONFIG_VALUES
+
+              while getopts "n:v:" opt; do
+                  case "$opt" in
+                      n)
+                          CURRENT_SETTING="$OPTARG"
+                          if [[ ! " ${SETTINGS[@]} " =~ " $CURRENT_SETTING " ]]; then
+                              error "Invalid setting name: $CURRENT_SETTING."
+                          fi
+                          ;;
+                      v)
+                          if [[ -z "$CURRENT_SETTING" ]]; then
+                              error "Value (-v) must follow a valid setting name (-n)."
+                          fi
+                          CONFIG_VALUES["$CURRENT_SETTING"]="$OPTARG"
+                          CURRENT_SETTING=""
+                          ;;
+                      *)
+                          error "Invalid option or missing arguments."
+                          ;;
+                  esac
+              done
+
+              # Merge environment variables from CONFIG_FILE with command-line overrides
+              for setting in "${SETTINGS[@]}"; do
+                  env_var_name=$(echo "$setting" | tr '[:lower:]' '[:upper:]') # Convert setting name to uppercase
+                  if [[ -z "${CONFIG_VALUES[$setting]}" && ! -z "${!env_var_name}" ]]; then
+                      CONFIG_VALUES["$setting"]="${!env_var_name}"
+                  fi
+              done
+
+              # Ensure at least one setting is provided
+              if [[ ${#CONFIG_VALUES[@]} -eq 0 ]]; then
+                  error "No valid settings provided."
+              fi
+
+              # Apply configurations
+              for name in "${!CONFIG_VALUES[@]}"; do
+                  value="${CONFIG_VALUES[$name]}"
+                  log "Setting $name to '$value' for $PLUGIN..."
+                  php "$MOODLE_CLI" --component="$PLUGIN" --name="$name" --set="$value" || error "Failed to set $name to $value."
+              done
+
+              log "Configuration completed successfully!"
+          }
+
+          configure_topomojo_plugin() {
+              # Variables
+              MOODLE_CLI="/bitnami/moodle/admin/cli/cfg.php"
+              PLUGIN="topomojo"
+              CONFIG_FILE="/opt/cmu/custom-scripts/install_config.env"
+              LOG_FILE="/tmp/moodle_config_mod_topomojo.log"
+
+              # List of all available settings for mod_topomojo
+              declare -a SETTINGS=(
+                  "embed"
+                  "autocomplete"
+                  "filterworkspaces"
+                  "topomojoapiurl"
+                  "topomojobaseurl"
+                  "apikey"
+                  "managername"
+                  "maxattempts"
+                  "maxdeployedlabs"
+                  "tagimport"
+                  "tagcreate"
+              )
+
+              # Function to log messages
+              log() {
+                  echo "[INFO] $1" | tee -a "$LOG_FILE"
+              }
+
+              # Function to log errors
+              error() {
+                  echo "[ERROR] $1" | tee -a "$LOG_FILE"
+                  exit 1
+              }
+
+              # Load config file
+              if [[ -f "$CONFIG_FILE" ]]; then
+                  log "Loading configuration from $CONFIG_FILE..."
+                  source "$CONFIG_FILE" || error "Failed to load configuration."
+              else
+                  log "Configuration file $CONFIG_FILE not found. Continuing without defaults."
+              fi
+
+              # Parse command-line arguments
+              declare -A CONFIG_VALUES
+
+              while getopts "n:v:" opt; do
+                  case "$opt" in
+                      n)
+                          CURRENT_SETTING="$OPTARG"
+                          if [[ ! " ${SETTINGS[@]} " =~ " $CURRENT_SETTING " ]]; then
+                              error "Invalid setting name: $CURRENT_SETTING."
+                          fi
+                          ;;
+                      v)
+                          if [[ -z "$CURRENT_SETTING" ]]; then
+                              error "Value (-v) must follow a valid setting name (-n)."
+                          fi
+                          CONFIG_VALUES["$CURRENT_SETTING"]="$OPTARG"
+                          CURRENT_SETTING=""
+                          ;;
+                      *)
+                          error "Invalid option or missing arguments."
+                          ;;
+                  esac
+              done
+
+              # Merge environment variables from CONFIG_FILE with command-line overrides
+              for setting in "${SETTINGS[@]}"; do
+                  env_var_name=$(echo "$setting" | tr '[:lower:]' '[:upper:]') # Convert setting name to uppercase
+                  if [[ -z "${CONFIG_VALUES[$setting]}" && ! -z "${!env_var_name}" ]]; then
+                      CONFIG_VALUES["$setting"]="${!env_var_name}"
+                  fi
+              done
+
+              # Ensure at least one setting is provided
+              if [[ ${#CONFIG_VALUES[@]} -eq 0 ]]; then
+                  error "No valid settings provided."
+              fi
+
+              # Apply configurations
+              for name in "${!CONFIG_VALUES[@]}"; do
+                  value="${CONFIG_VALUES[$name]}"
+                  log "Setting $name to '$value' for $PLUGIN..."
+                  php "$MOODLE_CLI" --component="$PLUGIN" --name="$name" --set="$value" || error "Failed to set $name to $value."
+              done
+
+              log "Configuration of $PLUGIN completed successfully!"
+          }
+
+          configure_global_search() {
+              MOODLE_CLI="/bitnami/moodle/admin/cli"
+              log "Enabling Global Search"
+              php "$MOODLE_CLI/cfg.php" --name=enableglobalsearch --set=1 || error "configure_global_search" "Failed to enable global search."
+
+              log "Enabling Include All Visible Courses"
+              php "$MOODLE_CLI/cfg.php" --name=searchincludeallcourses --set=1 || error "configure_global_search" "Failed to enable all visible courses."
+
+              log "Running Global Search Indexing Scheduled Task"
+              php "$MOODLE_CLI/scheduled_task.php" --execute="\core\task\search_index_task" || error "configure_global_search" "Failed to execute global search indexing task."
+          }
+
+          configure_email() {
+              # Variables
+              MOODLE_CLI="/bitnami/moodle/admin/cli/cfg.php"
+              CONFIG_FILE="/opt/cmu/custom-scripts/install_config.env"
+              LOG_FILE="/tmp/moodle_config_global_smtp.log"
+
+              # List of all available global SMTP settings
+              declare -a SETTINGS=(
+                  "smtpsecure"
+                  "smtpauthtype"
+                  "smtpoauthservice"
+                  "smtpmaxbulk"
+                  "noreplyaddress"
+                  "allowedemaildomains"
+                  "divertallemailsto"
+                  "divertallemailsexcept"
+                  "emaildkimselector"
+                  "sitemailcharset"
+                  "allowusermailcharset"
+                  "allowattachments"
+                  "mailnewline"
+                  "emailfromvia"
+                  "emailsubjectprefix"
+                  "emailheaders"
+              )
+
+              # Function to log messages
+              log() {
+                  echo "[INFO] $1" | tee -a "$LOG_FILE"
+              }
+
+              # Function to log errors
+              error() {
+                  echo "[ERROR] $1" | tee -a "$LOG_FILE"
+                  exit 1
+              }
+
+              # Load config file
+              if [[ -f "$CONFIG_FILE" ]]; then
+                  log "Loading configuration from $CONFIG_FILE..."
+                  source "$CONFIG_FILE" || error "Failed to load configuration."
+              else
+                  error "Configuration file $CONFIG_FILE not found."
+              fi
+
+              # Merge environment variables from CONFIG_FILE
+              declare -A CONFIG_VALUES
+
+              for setting in "${SETTINGS[@]}"; do
+                  env_var_name=$(echo "$setting" | tr '[:lower:]' '[:upper:]') # Convert setting name to uppercase
+                  if [[ ! -z "${!env_var_name}" ]]; then
+                      CONFIG_VALUES["$setting"]="${!env_var_name}"
+                  fi
+              done
+
+              # Ensure at least one setting is provided
+              if [[ ${#CONFIG_VALUES[@]} -eq 0 ]]; then
+                  error "No valid settings provided."
+              fi
+
+              # Apply configurations
+              for name in "${!CONFIG_VALUES[@]}"; do
+                  value="${CONFIG_VALUES[$name]}"
+                  log "Setting global config $name to '$value'..."
+                  php "$MOODLE_CLI" --name="$name" --set="$value" || error "Failed to set $name to $value."
+              done
+
+              log "Global SMTP configuration completed successfully!"
+          }
+
+          configure_enrol() {
+          # Variables
+          MOODLE_CLI="/bitnami/moodle/admin/cli/cfg.php"
+          local section="Configure Enrolment"
+
+          log "Configuring enrolment methods..."
+
+          php "$MOODLE_CLI" --name=enrol_plugins_enabled --set="manual,autoenrol,self,cohort" || {
+              error "$section" "Failed to configure enrolment plugins."
+              return 1
+          }
+
+          log "Enrolment plugins configured successfully."
+          }
+
+          configure_filters() {
+          local section="Configure Filters"
+          local MOODLE_CLI="/bitnami/moodle/admin/cli/cfg.php"
+          local PLUGIN="filter_filtercodes"
+
+          log "Configuring filters for $PLUGIN..."
+
+          php "$MOODLE_CLI" --component="$PLUGIN" --name=categorycardshowpic --set=1 || {
+              error "$section" "Failed to configure filter setting 'categorycardshowpic'."
+              return 1
+          }
+
+          log "Filters configured successfully for $PLUGIN."
+          }
+
+          # Function to uninstall wget and unzip
+          cleanup_tools() {
+              local section="Cleanup Tools"
+              log "Uninstalling wget and unzip..."
+
+              apt remove --purge -y wget unzip || error "$section" "Failed to uninstall wget and unzip."
+              apt autoremove -y || error "$section" "Failed to remove unnecessary dependencies."
+              apt autoclean || error "$section" "Failed to clean up package cache."
+
+              log "wget and unzip uninstalled successfully."
+          }
+
+          # Main execution
+          log "Starting script..."
+
+          # Create STATUS_FILE if it doesn't exist
+          touch "$STATUS_FILE"
+
+          # Execute sections based on status
+          execute_section "MOD Plugins" install_mod_plugins
+          execute_section "Question Plugins" install_question_plugins
+          execute_section "Block Plugins" install_block_plugins
+          execute_section "Filter Plugins" install_filter_plugins
+          execute_section "Enrol Plugins" install_enrol_plugins
+          execute_section "Auth Plugins" install_auth_plugins
+          execute_section "Tool Plugins" install_tool_plugins
+          execute_section "Logstore Plugins" install_logstore_plugins
+          execute_section "Report Plugins" install_report_plugins
+          execute_section "Theme Plugins" install_theme_plugins
+          execute_section "Local Plugins" install_local_plugins
+          execute_section "Update Permissions" update_permissions_and_upgrade
+          execute_section "Configure Theme" configure_theme_plugin
+          execute_section "OAuth2 Configuration" configure_oauth2
+          execute_section "Configure Enrolment" configure_enrol
+          execute_section "Configure Filters" configure_filters
+          execute_section "Moodle Block" configure_moodle_block
+          execute_section "Language Pack Installation" configure_language_packs
+          execute_section "Topomojo Plugin" configure_topomojo_plugin
+          execute_section "Global Search Configuration" configure_global_search
+          execute_section "Email Configuration" configure_email
+          execute_section "Final Update Permissions" update_permissions
+          execute_section "Cleanup Tools" cleanup_tools
+
+          log "Script completed successfully!"
+
+
+        manage.php: |
+          <?php
+          define('CLI_SCRIPT', true);
+
+          require('/bitnami/moodle/config.php');
+          require_once("$CFG->libdir/clilib.php");
+          require_once("$CFG->libdir/adminlib.php");
+          require_once($CFG->dirroot . '/user/lib.php');
+          \core\session\manager::set_user(get_admin());
+
+          // CLI options
+          list($options, $unrecognized) = cli_get_params(
+              [
+                  'id' => '',
+                  'baseurl' => '',
+                  'clientid' => '',
+                  'clientsecret' => '',
+                  'loginscopes' => '',
+                  'loginscopesoffline' => '',
+                  'loginparams' => '',
+                  'loginparamsoffline' => '',
+                  'name' => '',
+                  'showonloginpage' => true,
+                  'image' => '',
+                  'list' => false,
+                  'delete' => false,
+                  'delete-all' => false,
+                  'create-user-field' => false, // New option for updating user field mapping
+                  'help' => false,
+                  'json' => false,
+                  'requireconfirmation' => false,
+              ],
+              [
+                  'l' => 'list',
+                  'd' => 'delete',
+                  'h' => 'help',
+              ]
+          );
+
+          if ($unrecognized) {
+              $unrecognized = implode("\n  ", $unrecognized);
+              cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
+          }
+
+          if ($options['help']) {
+              $help = <<<HELP
+          Manage OAuth2 settings for Moodle.
+
+          Options:
+          --id                  ID to update or delete.
+          --baseurl             Service base URL.
+          --clientid            Client ID.
+          --clientsecret        Client secret.
+          --loginscopes         Scopes included in a login request.
+          --loginscopesoffline  Scopes for offline access in a login request.
+          --loginparams         Additional parameters for a login request.
+          --loginparamsoffline  Additional parameters for offline access in a login request.
+          --name                Name of the OAuth provider.
+          --image               Logo URL.
+          --showonloginpage     Whether to show this provider on the login page.
+          --requireconfirmation Require email confirmation.
+          --list                List providers (all or specific ID).
+          --delete              Delete the provider with the given ID.
+          --delete-all          Delete all providers.
+          --create-user-field   Create user field mapping for OAuth2.
+          --json                Output results in JSON format.
+          -h, --help            Print this help message.
+
+          Examples:
+              php manage.php --list
+              php manage.php --id=2 --delete
+              php manage.php --baseurl=http://example.org --clientid=abc --clientsecret=xyz --loginscopes="openid profile email" --name="Example Provider"
+              php manage.php --create-user-field --id=2 --json='{...}'
+
+          HELP;
+              echo $help;
+              exit(0);
+          }
+
+          // Initialize $api
+          $api = new \core\oauth2\api();
+
+          // Initialize $issuers and $issuer_settings
+          $issuers = $api->get_all_issuers();
+          $issuer_settings = [
+              'id',
+              'baseurl',
+              'clientid',
+              'clientsecret',
+              'loginscopes',
+              'loginscopesoffline',
+              'name',
+              'image',
+              'showonloginpage',
+              'requireconfirmation',
+              'loginparams',
+              'loginparamsoffline',
+              'alloweddomains',
+          ];
+
+          // Result structure
+          $results = [
+              'success' => true,
+              'data' => [],
+          ];
+
+          // Handling user field mapping creation
+          if ($options['create-user-field'] && $options['id'] && $options['json']) {
+              $mapping_data = json_decode($options['json']);
+
+              // Validate JSON input
+              if (!$mapping_data || !isset($mapping_data->externalfieldname) || !isset($mapping_data->internalfieldname)) {
+                  cli_error("Invalid or missing JSON data for user field mapping.");
+              }
+
+              // Construct the data object
+              $data = new stdClass();
+              $data->issuerid = $options['id']; // Use the provider ID from the CLI argument
+              $data->externalfield = $mapping_data->externalfieldname;
+              $data->internalfield = $mapping_data->internalfieldname;
+
+              // Perform the creation
+              try {
+                  $result = \core\oauth2\api::create_user_field_mapping($data);
+                  cli_writeln("User field mapping created successfully for provider ID {$options['id']}.");
+              } catch (Exception $e) {
+                  cli_error("Error creating user field mapping: " . $e->getMessage());
+              }
+              exit(0);
+          }
+
+          // Handling list functionality
+          if ($options['list']) {
+              $results['data'] = [];
+              if ($options['id']) {
+                  $issuer = $api->get_issuer($options['id']);
+                  if (!$issuer) {
+                      $results['success'] = false;
+                      $results['data'] = 'Provider not found.';
+                  } else {
+                      $issuer_values = [];
+                      foreach ($issuer_settings as $key) {
+                          $issuer_values[$key] = $issuer->get($key);
+                      }
+                      $results['data'] = $issuer_values;
+                  }
+              } else {
+                  foreach ($issuers as $issuer) {
+                      $issuer_values = [];
+                      foreach ($issuer_settings as $key) {
+                          $issuer_values[$key] = $issuer->get($key);
+                      }
+                      $results['data'][] = $issuer_values;
+                  }
+              }
+              print_results_and_exit($options, $results, $issuer_settings);
+          }
+
+          // Handling delete functionality
+          if ($options['delete'] && $options['id']) {
+              $issuer = $api->get_issuer($options['id']);
+              if (!$issuer) {
+                  cli_error("Provider with ID {$options['id']} not found.");
+              }
+              $api->delete_issuer($options['id']);
+              cli_writeln("Deleted provider with ID {$options['id']}");
+              exit(0);
+          }
+
+          if ($options['delete-all']) {
+              $issuers = $api->get_all_issuers();
+              if (!$issuers) {
+                  cli_writeln("No OAuth providers found to delete.");
+                  exit(0);
+              }
+
+              foreach ($issuers as $issuer) {
+                  $issuerid = $issuer->get('id'); // Ensure the ID is explicitly retrieved
+                  if ($issuerid) {
+                      $api->delete_issuer($issuerid);
+                      cli_writeln("Deleted provider with ID {$issuerid}");
+                  } else {
+                      cli_writeln("Skipping issuer with missing ID.");
+                  }
+              }
+              cli_writeln("Deleted all OAuth providers.");
+              exit(0);
+          }
+
+          // Creating or updating issuer
+          $data = (object) [];
+          foreach (['id', 'baseurl', 'clientid', 'clientsecret', 'loginscopes', 'loginscopesoffline', 'name', 'image', 'showonloginpage', 'requireconfirmation'] as $key) {
+              if (isset($options[$key]) && $options[$key] !== '') {
+                  $data->$key = $options[$key];
+              }
+          }
+
+          // Validation
+          if (empty($data->baseurl) || empty($data->clientid) || empty($data->clientsecret) || empty($data->name)) {
+              cli_error("Missing required fields: baseurl, clientid, clientsecret, name or image.");
+          }
+
+          // Perform action
+          if (empty($data->id)) {
+              // Create the issuer
+              $newissuer = $api->create_issuer($data);
+
+              // Attempt to retrieve the ID
+              $newissuerid = $newissuer->get('id'); // Use the appropriate getter
+              if ($newissuerid) {
+                  cli_writeln("Created new provider with ID {$newissuerid}");
+              } else {
+                  cli_error("Failed to retrieve ID of the newly created provider.");
+              }
+          } else {
+              $api->update_issuer($data);
+              cli_writeln("Updated provider with ID {$data->id}");
+          }
+          exit(0);
+
+          // Function to print results and exit
+          function print_results_and_exit($options, $results) {
+              if ($options['json']) {
+                  echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+              } else {
+                  print_r($results);
+              }
+              exit(0);
+          }
+## Bitnami Moodle&trade; image version
+## ref: https://hub.docker.com/r/bitnami/moodle/tags/
+## @param image.registry [default: REGISTRY_NAME] Moodle image registry
+## @param image.repository [default: REPOSITORY_NAME/moodle] Moodle image repository
+## @skip image.tag Moodle image tag (immutable tags are recommended)
+## @param image.digest Moodle image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+## @param image.pullPolicy Moodle image pull policy
+## @param image.pullSecrets Specify docker-registry secret names as an array
+## @param image.debug Specify if debug logs should be enabled
+##
+image:
+  registry: docker.io
+  repository: bitnami/moodle
+  tag: 4.4.3-debian-12-r0
+  digest: ""
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## e.g:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: []
+  ## Set to true if you would like to see extra information on logs
+  ##
+  debug: true
+## @param replicaCount Number of Moodle replicas (requires ReadWriteMany PVC support)
+## Setting this will fix the number replica count needed for Moodle&trade;
+## This can be overridden by setting autoscaling.enabled to true
+## For upgrades set the autoscaling.enabled to false and replicaCount to the desired number of replicas
+##
+replicaCount: 1
+## When enabled, the number of Moodle&trade; replicas will be automatically adjusted based on targets on given metrics.
+## Enabling this feature will override the replicaCount value
+## When disabled, the number of Moodle&trade; replicas will be fixed and set by the replicaCount parameter
+## Warning: Before enabling ensure that your persistent volume claim has `Access Modes: RWX` since Autoscaling requires ReadWriteMany PVC support.
+## Moodle Autoscaling parameters
+## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+## @param autoscaling.enabled Enable Horizontal POD autoscaling for Moodle&trade;
+## @param autoscaling.minReplicas Minimum number of Moodle&trade; replicas
+## @param autoscaling.maxReplicas Maximum number of Moodle&trade; replicas
+## @param autoscaling.targetCPU Target CPU utilization percentage
+## @param autoscaling.targetMemory Target Memory utilization percentage
+##
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPU: 80
+  targetMemory: 80
+## @param moodleSkipInstall Skip Moodle&trade; installation wizard. Useful for migrations and restoring from SQL dump
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/moodle#configuration
+##
+moodleSkipInstall: true
+## @param moodleSiteName Site name
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/moodle#configuration
+##
+moodleSiteName: "ONPREM PHLPROD IMCITE"
+## @param moodleLang Site language
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/moodle#configuration
+##
+moodleLang: ""
+## @param moodleUsername User of the application
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/moodle#configuration
+##
+moodleUsername: user
+## @param moodlePassword Application password
+## Defaults to a random 10-character alphanumeric string if not set
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/moodle#configuration
+##
+moodlePassword: ""
+## @param moodleEmail Admin email
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/moodle#configuration
+##
+moodleEmail: user@example.com
+## @param allowEmptyPassword Allow DB blank passwords
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/moodle#environment-variables
+##
+allowEmptyPassword: true
+## @param command Override default container command (useful when using custom images)
+##
+command: []
+## @param args Override default container args (useful when using custom images)
+##
+args: []
+## @param updateStrategy.type Update strategy - only really applicable for deployments with RWO PVs attached
+## If replicas = 1, an update can get "stuck", as the previous pod remains attached to the
+## PV, and the "incoming" pod can never start. Changing the strategy to "Recreate" will
+## terminate the single previous pod, so that the new, incoming pod can attach to the PV
+##
+updateStrategy:
+  type: Recreate
+## @param extraEnvVars An array to add extra env vars
+## For example:
+##  - name: BEARER_AUTH
+##    value: true
+##
+extraEnvVars:
+  - name: MOODLE_SSLPROXY
+    value: "true"
+  - name: PHP_POST_MAX_SIZE
+    value: "15g"
+  - name: PHP_UPLOAD_MAX_FILESIZE
+    value: "15g"
+  - name: PHP_MEMORY_LIMIT
+    value: "1024M"
+  - name: PGSSLCERT
+    value: /tmp/postgresql.crt
+  - name: MOODLE_HOST
+    value: "moodle.onprem.phl-imcite.net"
+  - name: MOODLE_USERNAME
+    value: "<path:fortress-prod/data/moodle#username>"
+  - name: MOODLE_PASSWORD
+    value: "<path:fortress-prod/data/moodle#admin-password>"
+## @param extraEnvVarsCM ConfigMap with extra environment variables
+##
+extraEnvVarsCM: ""
+## @param extraEnvVarsSecret Secret with extra environment variables (in case of sensitive data)
+##
+extraEnvVarsSecret: ""
+## @param extraVolumes Array of extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`
+##
+extraVolumes:
+  - name: ca-cert-volume
+    configMap:
+      name: root-ca
+  - name: moodle-scripts
+    persistentVolumeClaim:
+      claimName: moodle-script-pvc
+  - name: install-config
+    configMap:
+      name: moodle-automation
+      items:
+        - key: install_config.env
+          path: install_config.env
+        - key: install.sh
+          path: install.sh
+        - key: manage.php
+          path: manage.php
+# ## @param extraVolumeMounts Array of extra volume mounts to be added to the container (evaluated as template). Normally used with `extraVolumes`.
+# ##
+extraVolumeMounts:
+  - name: ca-cert-volume
+    mountPath: /usr/local/share/ca-certificates
+  - name: moodle-scripts
+    mountPath: opt/cmu/custom-scripts
+    subPath: "moodle-scripts/cli"
+  - name: install-config
+    mountPath: /opt/cmu/custom-scripts/install_config.env
+    subPath: install_config.env
+    readOnly: true
+  - name: install-config
+    mountPath: /opt/cmu/install.sh
+    subPath: install.sh
+    readOnly: false
+  - name: install-config
+    mountPath: /opt/cmu/manage.php
+    subPath: manage.php
+    readOnly: false
+
+## @param initContainers Extra init containers to add to the deployment
+##
+initContainers: []
+## Pod Disruption Budget configuration
+## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb
+## @param pdb.create Enable/disable a Pod Disruption Budget creation
+## @param pdb.minAvailable Minimum number/percentage of pods that should remain scheduled
+## @param pdb.maxUnavailable Maximum number/percentage of pods that may be made unavailable. Defaults to `1` if both `pdb.minAvailable` and `pdb.maxUnavailable` are empty.
+##
+pdb:
+  create: true
+  minAvailable: ""
+  maxUnavailable: ""
+## @param sidecars Extra sidecar containers to add to the deployment
+##
+sidecars: []
+## @param automountServiceAccountToken Mount Service Account token in pod
+##
+automountServiceAccountToken: false
+## @param hostAliases Moodle&trade; pods host aliases
+## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+##
+hostAliases: []
+## @param tolerations Tolerations for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
+tolerations: []
+## @param priorityClassName Moodle&trade; pods' priorityClassName
+##
+priorityClassName: ""
+## @param schedulerName Name of the k8s scheduler (other than default)
+## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+##
+schedulerName: ""
+## @param topologySpreadConstraints Topology Spread Constraints for pod assignment
+## https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+## The value is evaluated as a template
+##
+topologySpreadConstraints: []
+## @param existingSecret Name of a secret with the application password
+##
+existingSecret: ""
+## SMTP mail delivery configuration
+## ref: https://github.com/bitnami/containers/tree/main/bitnami/moodle/#smtp-configuration
+## @param smtpHost SMTP host
+## @param smtpPort SMTP port
+## @param smtpUser SMTP user
+## @param smtpPassword SMTP password
+## @param smtpProtocol SMTP Protocol (options: ssl,tls, nil)
+##
+smtpHost: ""
+smtpPort: ""
+smtpUser: ""
+smtpPassword: ""
+smtpProtocol: ""
+## @param containerPorts [object] Container ports
+##
+containerPorts:
+  http: 8080
+  https: 8443
+## @param extraContainerPorts Optionally specify extra list of additional ports for Moodle&trade container(s)
+## e.g:
+## extraContainerPorts:
+##   - name: myservice
+##     containerPort: 9090
+##
+extraContainerPorts: []
+## @param sessionAffinity Control where client requests go, to the same pod or round-robin
+## Values: ClientIP or None
+## ref: https://kubernetes.io/docs/concepts/services-networking/service/
+##
+sessionAffinity: "None"
+## Enable persistence using Persistent Volume Claims
+## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+##
+persistence:
+  ## @param persistence.enabled Enable persistence using PVC
+  ##
+  enabled: true
+  ## @param persistence.customStorageClass Create a custom storage class
+  ## Requires persistence.enabled: true
+  ## Requires persistence.storageClass: name
+  ## ref: https://kubernetes.io/docs/concepts/storage/storage-classes/
+  ## E.g.
+  ## provisioner: efs.csi.aws.com
+  ##   parameters:
+  ##     provisioningMode: efs-ap
+  ##     fileSystemId: fs-12345678
+  ##     directoryPerms: "700"
+  ##     gidRangeStart: "1000" # optional
+  ##     gidRangeEnd: "2000" # optional
+  ##
+  customStorageClass: {}
+  ## @param persistence.storageClass PVC Storage Class for Moodle
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  storageClass: ""
+  ## @param persistence.accessModes PVC Access Mode for Moodle
+  ## Requires persistence.enabled: true
+  ## If defined, and no customStorageClass is defined, then
+  ## PVC must be created manually before volume will be bound
+  ##
+  accessModes:
+    -
+  ## @param persistence.size PVC Storage Request for Moodle
+  ##
+  size: ""
+  ## @param persistence.existingClaim An Existing PVC name
+  ## Requires persistence.enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  ##
+  existingClaim: "moodledata-pvc"
+
+  ## @param persistence.hostPath Host mount path for Moodle
+  ## Requires persistence.enabled: true
+  ## Requires persistence.existingClaim: nil|false
+  ## Default: nil.
+  ##
+  hostPath: ""
+  ## @param persistence.annotations Persistent Volume Claim annotations
+  ##
+  annotations: {}
+## @param podAffinityPreset Pod affinity preset
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+## Allowed values: soft, hard
+##
+podAffinityPreset: ""
+## @param podAntiAffinityPreset Pod anti-affinity preset
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+## Allowed values: soft, hard
+##
+podAntiAffinityPreset: soft
+## Node affinity preset
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+## Allowed values: soft, hard
+##
+nodeAffinityPreset:
+  ## @param nodeAffinityPreset.type Node affinity type
+  ## Allowed values: soft, hard
+  ##
+  type: ""
+  ## @param nodeAffinityPreset.key Node label key to match
+  ## E.g.
+  ## key: "kubernetes.io/e2e-az-name"
+  ##
+  key: ""
+  ## @param nodeAffinityPreset.values Node label values to match
+  ## E.g.
+  ## values:
+  ##   - e2e-az1
+  ##   - e2e-az2
+  ##
+  values: []
+## @param affinity Map of node/pod affinities
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+## Note: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
+##
+affinity: {}
+## @param nodeSelector Node labels for pod assignment
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+##
+# nodeSelector:
+#   topology.kubernetes.io/zone: ap-southeast-1a
+## Configure resource requests and limits
+## ref: http://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+## @param resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if resources is set (resources is recommended for production).
+## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+##
+# resourcesPreset: "xlarge"
+## @param resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+## Example:
+# resources: {}
+resources:
+  limits:
+    cpu: '3'
+    ephemeral-storage: 6Gi
+    memory: 6Gi
+  requests:
+    cpu: '1'
+    ephemeral-storage: 6Gi
+    memory: 3Gi
+
+
+## Configure Pods Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+## @param podSecurityContext.enabled Enable Moodle&trade; pods' Security Context
+## @param podSecurityContext.fsGroupChangePolicy Set filesystem group change policy
+## @param podSecurityContext.sysctls Set kernel settings using the sysctl interface
+## @param podSecurityContext.supplementalGroups Set filesystem extra groups
+## @param podSecurityContext.fsGroup Moodle&trade; pods' group ID
+##
+podSecurityContext:
+  enabled: false
+  fsGroupChangePolicy: Always
+  sysctls: []
+  supplementalGroups: []
+  fsGroup: 1001
+## Configure Container Security Context (only main container)
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+## @param containerSecurityContext.enabled Enabled containers' Security Context
+## @param containerSecurityContext.seLinuxOptions [object,nullable] Set SELinux options in container
+## @param containerSecurityContext.runAsUser Set containers' Security Context runAsUser
+## @param containerSecurityContext.runAsGroup Set containers' Security Context runAsGroup
+## @param containerSecurityContext.runAsNonRoot Set container's Security Context runAsNonRoot
+## @param containerSecurityContext.privileged Set container's Security Context privileged
+## @param containerSecurityContext.readOnlyRootFilesystem Set container's Security Context readOnlyRootFilesystem
+## @param containerSecurityContext.allowPrivilegeEscalation Set container's Security Context allowPrivilegeEscalation
+## @param containerSecurityContext.capabilities.drop List of capabilities to be dropped
+## @param containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
+##
+containerSecurityContext:
+  enabled: false
+  seLinuxOptions: {}
+  runAsUser: 1001
+  runAsGroup: 0
+  runAsNonRoot: true
+  privileged: false
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: "RuntimeDefault"
+
+## Configure extra options for liveness and readiness probes
+## Moodle&trade; core exposes /user/login to unauthenticated requests, making it a good
+## default startup and readiness path. However, that may not always be the
+## case. For example, if the image value is overridden to an image containing a
+## module that alters that route, or an image that does not auto-install Moodle&trade;.
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+## @param startupProbe.enabled Enable startupProbe
+## @param startupProbe.path Request path for startupProbe
+## @param startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
+## @param startupProbe.periodSeconds Period seconds for startupProbe
+## @param startupProbe.timeoutSeconds Timeout seconds for startupProbe
+## @param startupProbe.failureThreshold Failure threshold for startupProbe
+## @param startupProbe.successThreshold Success threshold for startupProbe
+##
+startupProbe:
+  enabled: false
+  path: /login/index.php
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 60
+  successThreshold: 1
+## @param livenessProbe.enabled Enable livenessProbe
+## @param livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+## @param livenessProbe.periodSeconds Period seconds for livenessProbe
+## @param livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+## @param livenessProbe.failureThreshold Failure threshold for livenessProbe
+## @param livenessProbe.successThreshold Success threshold for livenessProbe
+##
+livenessProbe:
+  enabled: false
+  initialDelaySeconds: 600
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+## Configure extra options for readiness probe
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+## @param readinessProbe.enabled Enable readinessProbe
+## @param readinessProbe.path Request path for readinessProbe
+## @param readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+## @param readinessProbe.periodSeconds Period seconds for readinessProbe
+## @param readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+## @param readinessProbe.failureThreshold Failure threshold for readinessProbe
+## @param readinessProbe.successThreshold Success threshold for readinessProbe
+##
+readinessProbe:
+  enabled: false
+  path: /login/index.php
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 6
+  successThreshold: 1
+## @param customStartupProbe Override default startup probe
+##
+customStartupProbe: {}
+## @param customLivenessProbe Override default liveness probe
+##
+customLivenessProbe: {}
+## @param customReadinessProbe Override default readiness probe
+##
+customReadinessProbe: {}
+## @param lifecycleHooks LifecycleHook to set additional configuration at startup Evaluated as a template
+##
+lifecycleHooks: ""
+## @param podAnnotations Pod annotations
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+##
+podAnnotations: {}
+## @param podLabels Add additional labels to the pod (evaluated as a template)
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+##
+podLabels: {}
+## Service Account
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+##
+serviceAccount:
+  ## @param serviceAccount.create Enable creation of ServiceAccount for Moodle pod
+  ##
+  create: true
+  ## @param serviceAccount.name The name of the ServiceAccount to use.
+  ## If not set and create is true, a name is generated using the common.names.fullname template
+  ##
+  name: "moodle-job-sa"
+  ## @param serviceAccount.automountServiceAccountToken Allows auto mount of ServiceAccountToken on the serviceAccount created
+  ## Can be set to false if pods using this serviceAccount do not need to use K8s API
+  ##
+  automountServiceAccountToken: true
+  ## @param serviceAccount.annotations Additional custom annotations for the ServiceAccount
+  ##
+  annotations: {}
+## @section Traffic Exposure Parameters
+
+## Kubernetes configuration
+## For minikube, set this to NodePort, for ingress ClusterIP, elsewhere use LoadBalancer
+##
+service:
+  ## @param service.type Service type
+  ##
+  type: ClusterIP
+  ## @param service.ports.http Service HTTP port
+  ## @param service.ports.https Service HTTPS port
+  ##
+  ports:
+    http: 80
+    https: 443
+  ## @param service.nodePorts.http Kubernetes HTTP node port
+  ## @param service.nodePorts.https Kubernetes HTTPS node port
+  ## nodePorts:
+  ##   http: <to set explicitly, choose port between 30000-32767>
+  ##   https: <to set explicitly, choose port between 30000-32767>
+  ##
+  nodePorts:
+    http: ""
+    https: ""
+  ## @param service.clusterIP Service Cluster IP
+  ##
+  clusterIP: ""
+  ## @param service.loadBalancerSourceRanges Service load balancer source ranges
+  ## Control hosts connecting to "LoadBalancer" only
+  ## loadBalancerSourceRanges:
+  ##   - 0.0.0.0/0
+  ##
+  loadBalancerSourceRanges: []
+  ## @param service.loadBalancerIP loadBalancerIP for the Moodle&trade; Service (optional, cloud specific)
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer
+  ##
+  loadBalancerIP: ""
+  ## @param service.externalTrafficPolicy Enable client source IP preservation
+  ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  ##
+  externalTrafficPolicy: Cluster
+  ## @param service.extraPorts Extra ports to expose (normally used with the `sidecar` value)
+  ##
+  extraPorts: []
+  ## @param service.annotations Additional custom annotations for Moodle&trade; service
+  ##
+  annotations: {}
+  ## @param service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+  ## If "ClientIP", consecutive client requests will be directed to the same Pod
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+  ##
+  sessionAffinity: None
+  ## @param service.sessionAffinityConfig Additional settings for the sessionAffinity
+  ## sessionAffinityConfig:
+  ##   clientIP:
+  ##     timeoutSeconds: 300
+  ##
+  sessionAffinityConfig: {}
+## Configure the ingress resource that allows you to access the
+## Moodle&trade; installation. Set up the URL
+## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
+##
+ingress:
+  ## @param ingress.enabled Set to true to enable ingress record generation
+  ##
+  enabled: true
+  ## DEPRECATED: Use ingress.annotations instead of ingress.certManager
+  ## certManager: false
+  ##
+
+  ## @param ingress.pathType Ingress Path type
+  ##
+  pathType: ImplementationSpecific
+  ## @param ingress.apiVersion Override API Version (automatically detected if not set)
+  ##
+  apiVersion: ""
+  ## @param ingress.hostname When the ingress is enabled, a host pointing to this will be created
+  ##
+  # hostname: moodle.phl-imcite.net (specified in environment values file)
+  hostname: moodle.onprem.phl-imcite.net
+  ## @param ingress.path The Path to Moodle&trade;. You may need to set this to '/*' in order to use this with ALB ingress controllers.
+  ##
+  path: /
+  ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+  ## For a full list of possible ingress annotations, please see
+  ## ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md
+  ## Use this parameter to set the required annotations for cert-manager, see
+  ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  ##
+  ## e.g:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+  ##
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: ca-issuer
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/client-max-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
+    #nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+  ## @param ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter
+  ## TLS certificates will be retrieved from a TLS secret with name: {{- printf "%s-tls" .Values.ingress.hostname }}
+  ## You can use the ingress.secrets parameter to create this TLS secret or relay on cert-manager to create it
+  ##
+  tls: true
+  ## @param ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
+  ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
+  ## extraHosts:
+  ## - name: minio.local
+  ##   path: /
+  ##
+  extraHosts: []
+  ## @param ingress.extraPaths Any additional arbitrary paths that may need to be added to the ingress under the main host.
+  ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
+  ## extraPaths:
+  ## - path: /*
+  ##   backend:
+  ##     serviceName: ssl-redirect
+  ##     servicePort: use-annotation
+  ##
+  extraPaths: []
+  ## @param ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
+  ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+  ## extraTls:
+  ## - hosts:
+  ##     - minio.local
+  ##   secretName: minio.local-tls
+  ##
+  extraTls: []
+  ## @param ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
+  ## key and certificate should start with -----BEGIN CERTIFICATE----- or
+  ## -----BEGIN RSA PRIVATE KEY-----
+  ##
+  ## name should line up with a tlsSecret set further up
+  ## If you're using cert-manager, this is unneeded, as it will create the secret for you if it is not set
+  ##
+  ## It is also possible to create and manage the certificates outside of this helm chart
+  ## Please see README.md for more information
+  ## e.g:
+  ## - name: minio.local-tls
+  ##   key:
+  ##   certificate:
+  ##
+  secrets: []
+  ## @param ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+  ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+  ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+  ##
+  ingressClassName: nginx
+  ## @param ingress.extraRules Additional rules to be covered with this ingress record
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+  ## e.g:
+  ## extraRules:
+  ## - host: example.local
+  ##     http:
+  ##       path: /
+  ##       backend:
+  ##         service:
+  ##           name: example-svc
+  ##           port:
+  ##             name: http
+  ##
+  extraRules: []
+## @section Database parameters
+
+## MariaDB chart configuration
+## https://github.com/bitnami/charts/blob/main/bitnami/mariadb/values.yaml
+##
+mariadb:
+  #containerSecurityContext:
+  #  runAsGroup: 1001
+  #  runAsNonRoot: true
+  #  runAsUser: 1001
+  ## @param mariadb.enabled Whether to deploy a mariadb server to satisfy the applications database requirements
+  ## To use an external database set this to false and configure the externalDatabase parameters
+  ##
+  enabled: false
+  ## @param mariadb.architecture MariaDB architecture (`standalone` or `replication`)
+  ##
+  architecture: standalone
+  ## MariaDB Authentication parameters
+  ##
+  auth:
+    ## @param mariadb.auth.rootPassword Password for the MariaDB `root` user
+    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mariadb#setting-the-root-password-on-first-run
+    ##
+    rootPassword: ""
+    ## @param mariadb.auth.database Database name to create
+    ## ref: https://github.com/bitnami/containers/blob/main/bitnami/mariadb/README.md#creating-a-database-on-first-run
+    ##
+    database: bitnami_moodle
+    ## @param mariadb.auth.username Database user to create
+    ## ref: https://github.com/bitnami/containers/blob/main/bitnami/mariadb/README.md#creating-a-database-user-on-first-run
+    ##
+    username: bn_moodle
+    ## @param mariadb.auth.password Password for the database
+    ##
+    password: ""
+  primary:
+    ## Enable persistence using Persistent Volume Claims
+    ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+    ##
+    persistence:
+      ## @param mariadb.primary.persistence.enabled Enable database persistence using PVC
+      ##
+      enabled: false
+      ## @param mariadb.primary.persistence.storageClass MariaDB primary persistent volume storage Class
+      ## If defined, storageClassName: <storageClass>
+      ## If set to "-", storageClassName: "", which disables dynamic provisioning
+      ## If undefined (the default) or set to null, no storageClassName spec is
+      ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+      ##   GKE, AWS & OpenStack)
+      ##
+      storageClass: ""
+      ## @param mariadb.primary.persistence.accessModes PVC Access Modes for Moodle&trade; volume
+      ##
+      accessModes:
+        - ReadWriteOnce
+      ## @param mariadb.primary.persistence.size Database Persistent Volume Size
+      ##
+      size: 8Gi
+      ## @param mariadb.primary.persistence.hostPath Set path in case you want to use local host path volumes (not recommended in production)
+      ##
+      hostPath: ""
+      ## @param mariadb.primary.persistence.existingClaim Name of an existing `PersistentVolumeClaim` for MariaDB primary replicas
+      ##
+      existingClaim: ""
+      subPath: "mariadb"
+    ## MariaDB primary container's resource requests and limits
+    ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+    ## We usually recommend not to specify default resources and to leave this as a conscious
+    ## choice for the user. This also increases chances charts run on environments with little
+    ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+    ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    ## @param mariadb.primary.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, small, medium, large, xlarge, 2xlarge). This is ignored if primary.resources is set (primary.resources is recommended for production).
+    ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+    ##
+    resourcesPreset: "micro"
+    ## @param mariadb.primary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+    ## Example:
+    ## resources:
+    ##   requests:
+    ##     cpu: 2
+    ##     memory: 512Mi
+    ##   limits:
+    ##     cpu: 3
+    ##     memory: 1024Mi
+    ##
+    resources: {}
+## External database configuration
+##
+externalDatabase:
+  ## @param externalDatabase.type Type of the existing database
+  ##
+  type: "pgsql"
+  ## @param externalDatabase.host Host of the existing database
+  ##
+  host: "appliance-postgresql.postgres.svc.cluster.local"
+  ## @param externalDatabase.port Port of the existing database
+  ##
+  port: 5432
+  ## @param externalDatabase.user Existing username in the external db
+  ##
+  user: moodle_dbo
+  ## @param externalDatabase.password Password for the above username
+  ##
+  password: "<path:fortress-prod/data/moodle#db-password>"
+  ## @param externalDatabase.database Name of the existing database
+  ##
+  database: moodle_db
+  ## @param externalDatabase.existingSecret Name of an existing secret resource containing the DB password
+  ##
+  existingSecret: ""
+## @section Volume Permissions parameters
+
+## Init containers parameters:
+## volumePermissions: Change the owner and group of the persistent volume mountpoint to runAsUser:fsGroup values from the securityContext section.
+##
+volumePermissions:
+  ## @param volumePermissions.enabled Enable init container that changes volume permissions in the data directory (for cases where the default k8s `runAsUser` and `fsUser` values do not work)
+  ##
+  enabled: false
+  ## @param volumePermissions.image.registry [default: REGISTRY_NAME] Init container volume-permissions image registry
+  ## @param volumePermissions.image.repository [default: REPOSITORY_NAME/os-shell] Init container volume-permissions image repository
+  ## @skip volumePermissions.image.tag Init container volume-permissions image tag (immutable tags are recommended)
+  ## @param volumePermissions.image.digest Init container volume-permissions image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param volumePermissions.image.pullPolicy Init container volume-permissions image pull policy
+  ## @param volumePermissions.image.pullSecrets Specify docker-registry secret names as an array
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/os-shell
+    tag: 12-debian-12-r28
+    digest: ""
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ##
+    pullSecrets: []
+    ##   - myRegistryKeySecretName
+  ## Init containers' resource requests and limits
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ## We usually recommend not to specify default resources and to leave this as a conscious
+  ## choice for the user. This also increases chances charts run on environments with little
+  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  ## @param volumePermissions.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if volumePermissions.resources is set (volumePermissions.resources is recommended for production).
+  ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+  ##
+  resourcesPreset: "nano"
+  ## @param volumePermissions.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Example:
+  ## resources:
+  ##   requests:
+  ##     cpu: 2
+  ##     memory: 512Mi
+  ##   limits:
+  ##     cpu: 3
+  ##     memory: 1024Mi
+  ##
+  resources: {}
+## @section Metrics parameters
+metrics:
+  ## @param metrics.enabled Start a side-car prometheus exporter
+  ##
+  enabled: false
+  ## @param metrics.image.registry [default: REGISTRY_NAME] Apache exporter image registry
+  ## @param metrics.image.repository [default: REPOSITORY_NAME/apache-exporter] Apache exporter image repository
+  ## @skip metrics.image.tag Apache exporter image tag (immutable tags are recommended)
+  ## @param metrics.image.digest Apache exporter image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param metrics.image.pullPolicy Apache exporter image pull policy
+  ## @param metrics.image.pullSecrets Specify docker-registry secret names as an array
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/apache-exporter
+    tag: 1.0.8-debian-12-r8
+    digest: ""
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+  ## Prometheus Exporter service configuration
+  ##
+  service:
+    ## @param metrics.service.type Prometheus metrics service type
+    ##
+    type: LoadBalancer
+    ## @param metrics.service.port Prometheus metrics service port
+    ##
+    port: 9117
+    ## @param metrics.service.loadBalancerIP Load Balancer IP if the Prometheus metrics server type is `LoadBalancer`, otherwise leave blank
+    ##
+    loadBalancerIP: ""
+    ## @param metrics.service.loadBalancerSourceRanges Prometheus metrics service service Load Balancer sources
+    ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    ## e.g:
+    ## loadBalancerSourceRanges:
+    ##   - 10.10.10.0/24
+    ##
+    loadBalancerSourceRanges: []
+    ## @param metrics.service.clusterIP Prometheus metrics service Cluster IP
+    ## e.g.:
+    ## clusterIP: None
+    ##
+    clusterIP: ""
+    ## @param metrics.service.externalTrafficPolicy Prometheus metrics service service external traffic policy
+    ## ref http://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    ##
+    externalTrafficPolicy: Cluster
+    ## @param metrics.service.annotations [object] Annotations for Prometheus Exporter pods. Evaluated as a template.
+    ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+    ##
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.metrics.service.port }}"
+    ## @param metrics.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+    ## If "ClientIP", consecutive client requests will be directed to the same Pod
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    ##
+    sessionAffinity: None
+    ## @param metrics.service.sessionAffinityConfig Additional settings for the sessionAffinity
+    ## sessionAffinityConfig:
+    ##   clientIP:
+    ##     timeoutSeconds: 300
+    ##
+    sessionAffinityConfig: {}
+  ## @param metrics.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if metrics.resources is set (metrics.resources is recommended for production).
+  ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+  ##
+  resourcesPreset: "nano"
+  ## @param metrics.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Example:
+  ## resources:
+  ##   requests:
+  ##     cpu: 2
+  ##     memory: 512Mi
+  ##   limits:
+  ##     cpu: 3
+  ##     memory: 1024Mi
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ##
+  resources: {}
+  ## @param metrics.podAnnotations [object] Metrics exporter pod Annotation and Labels
+  ##
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ .Values.metrics.service.port }}"
+## @section Certificate injection parameters
+
+## Add custom certificates and certificate authorities to Moodle&trade; container
+##
+certificates:
+  ## @param certificates.customCertificate.certificateSecret Secret containing the certificate and key to add
+  ## @param certificates.customCertificate.chainSecret.name Name of the secret containing the certificate chain
+  ## @param certificates.customCertificate.chainSecret.key Key of the certificate chain file inside the secret
+  ## @param certificates.customCertificate.certificateLocation Location in the container to store the certificate
+  ## @param certificates.customCertificate.keyLocation Location in the container to store the private key
+  ## @param certificates.customCertificate.chainLocation Location in the container to store the certificate chain
+  ##
+  customCertificate:
+    certificateSecret: ""
+    chainSecret:
+      name: ""
+      key: ""
+    certificateLocation: /etc/ssl/certs/ssl-cert-snakeoil.pem
+    keyLocation: /etc/ssl/private/ssl-cert-snakeoil.key
+    chainLocation: /etc/ssl/certs/mychain.pem
+  ## @param certificates.customCAs Defines a list of secrets to import into the container trust store
+  ##
+  # customCAs:
+  #   - secret: root-ca-generic
+  ## @param certificates.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param certificates.args Override default container args (useful when using custom images)
+  ## e.g:
+  ## - secret: custom-CA
+  ## - secret: more-custom-CAs
+  ##
+  args: []
+  ## @param certificates.extraEnvVarsCM ConfigMap with extra environment variables
+  ##
+  extraEnvVarsCM: ""
+  ## @param certificates.extraEnvVarsSecret Secret with extra environment variables
+  ##
+  extraEnvVarsSecret: ""
+  ## @param certificates.image.registry [default: REGISTRY_NAME] Container sidecar registry
+  ## @param certificates.image.repository [default: REPOSITORY_NAME/os-shell] Container sidecar image repository
+  ## @skip certificates.image.tag Container sidecar image tag (immutable tags are recommended)
+  ## @param certificates.image.digest Container sidecar image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param certificates.image.pullPolicy Container sidecar image pull policy
+  ## @param certificates.image.pullSecrets Container sidecar image pull secrets
+  ##
+  image:
+    registry: docker.io
+    repository: bitnami/os-shell
+    tag: 12-debian-12-r28
+    digest: ""
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+## @section NetworkPolicy parameters
+
+## Network Policy configuration
+## ref: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+##
+networkPolicy:
+  ## @param networkPolicy.enabled Specifies whether a NetworkPolicy should be created
+  ##
+  enabled: true
+  ## @param networkPolicy.allowExternal Don't require server label for connections
+  ## The Policy model to apply. When set to false, only pods with the correct
+  ## server label will have network access to the ports server is listening
+  ## on. When true, server will accept connections from any source
+  ## (with the correct destination port).
+  ##
+  allowExternal: true
+  ## @param networkPolicy.allowExternalEgress Allow the pod to access any range of port and all destinations.
+  ##
+  allowExternalEgress: true
+  ## @param networkPolicy.extraIngress [array] Add extra ingress rules to the NetworkPolicy
+  ## e.g:
+  ## extraIngress:
+  ##   - ports:
+  ##       - port: 1234
+  ##     from:
+  ##       - podSelector:
+  ##           - matchLabels:
+  ##               - role: frontend
+  ##       - podSelector:
+  ##           - matchExpressions:
+  ##               - key: role
+  ##                 operator: In
+  ##                 values:
+  ##                   - frontend
+  extraIngress: []
+  ## @param networkPolicy.extraEgress [array] Add extra ingress rules to the NetworkPolicy
+  ## e.g:
+  ## extraEgress:
+  ##   - ports:
+  ##       - port: 1234
+  ##     to:
+  ##       - podSelector:
+  ##           - matchLabels:
+  ##               - role: frontend
+  ##       - podSelector:
+  ##           - matchExpressions:
+  ##               - key: role
+  ##                 operator: In
+  ##                 values:
+  ##                   - frontend
+  ##
+  extraEgress: []
+  ## @param networkPolicy.ingressNSMatchLabels [object] Labels to match to allow traffic from other namespaces
+  ## @param networkPolicy.ingressNSPodMatchLabels [object] Pod labels to match to allow traffic from other namespaces
+  ##
+  ingressNSMatchLabels: {}
+  ingressNSPodMatchLabels: {}
+

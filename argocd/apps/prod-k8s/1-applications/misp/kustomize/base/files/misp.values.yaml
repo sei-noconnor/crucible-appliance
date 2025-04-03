@@ -1,0 +1,59 @@
+mispPersistentVolumes:
+  misp:
+    existing: misp-pvc
+mariadb:
+  external: true
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: ca-issuer
+    nginx.ingress.kubernetes.io/proxy-body-size: 8g
+  hosts:
+    - host: misp.onprem.phl-imcite.net
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: misp.onprem.phl-imcite.net-tls
+      hosts:
+        - misp.onprem.phl-imcite.net
+
+resources:
+  limits:
+    memory: 4Gi
+  requests:
+    memory: 4Gi
+
+externalSecrets:
+  mysql:
+    dbPassword:
+      enabled: false
+  keycloak:
+    clientSecret:
+      enabled: false
+  redis:
+    password:
+      enabled: false
+
+env:
+  MYSQL_HOST: mariadb.mariadb.svc.cluster.local
+  MYSQL_PASSWORD: "<path:fortress-prod/data/mariadb#misp-password>"
+  MYSQL_DATABASE: "<path:fortress-prod/data/mariadb#misp-database>"
+  MYSQL_ROOT_PASSWORD: "<path:fortress-prod/data/mariadb#root-password>"
+  REDIS_PASSWORD: redispassword
+  OIDC_ENABLE: true
+  OIDC_CLIENT_ID: "misp"
+  OIDC_ROLES_MAPPING: "{\"misp-admin\": \"1\", \"misp-user\": \"3\"}"
+  OIDC_SCOPES: "[\"email\", \"openid\", \"roles\", \"profile\"]"
+  OIDC_ROLES_PROPERTY: "roles"
+  OIDC_DEFAULT_ORG: "1"
+  DEBUG: 1
+  BASE_URL: https://misp.onprem.phl-imcite.net
+  OIDC_PROVIDER_URL: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
+  OIDC_CLIENT_SECRET: "54so1FTkHVzxZDqED9Tz1RIRgQc49Nuz"
+  OIDC_ISSUER: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible

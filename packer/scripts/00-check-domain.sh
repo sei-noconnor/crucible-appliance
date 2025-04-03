@@ -6,13 +6,13 @@ else
     source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
 fi
 
-if [ ${DOMAIN} != crucible.io ]; then
-    echo "Changing domain from crucible.io to ${DOMAIN}"
-    find . -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} \;
+if [ ${DOMAIN} != onprem.phl-imcite.net ]; then
+    echo "Changing domain from onprem.phl-imcite.net to ${DOMAIN}"
+    find . -type f -exec sed -i "s//${DOMAIN}/g" {} \;
     echo "Changing legacy appliance domains"
-    find . -type f -exec sed -i "s/crucible.local/${DOMAIN}/g" {} \;
     find . -type f -exec sed -i "s/crucible.dev/${DOMAIN}/g" {} \;
+    find . -type f -exec sed -i "s/crucible.local/${DOMAIN}/g" {} \;
     # commit the code
     git add --all
-    git commit -m "Change domain from crucible.io to ${DOMAIN}"    
+    git commit -m " to ${DOMAIN}"    
 fi

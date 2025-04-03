@@ -42,15 +42,15 @@ player-api:
       cert-manager.io/cluster-issuer: ca-issuer
 
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: player.onprem.phl-imcite.net
         paths:
-          - path: /player/(hubs|swagger|api)
-            pathType: Prefix
+          - path: /(hubs|swagger|api)
+            pathType: ImplementationSpecific
 
     tls:
-      - secretName: <path:fortress-prod/data/shared#domain>-tls
+      - secretName: player.onprem.phl-imcite.net-tls
         hosts:
-          - <path:fortress-prod/data/shared#domain>
+          - player.onprem.phl-imcite.net
 
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
@@ -60,10 +60,7 @@ player-api:
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   # this is used to store uploaded files
   storage:
-    existing: ""
-    size: "5G"
-    mode: "ReadWriteOnce"
-    class: "nfs"
+    existing: "player-pvc"
 
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,
@@ -78,27 +75,26 @@ player-api:
     # no_proxy: .local
 
     ## If hosting in virtual directory, specify path base
-    PathBase: "/player"
-    Logging__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__LogLevel__System: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__LogLevel__Microsoft: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__Console__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__Console__LogLevel__System: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__Console__LogLevel__Microsoft: "<path:fortress-prod/data/shared#crucible-log-level>"
+    PathBase: ""
+    Logging__LogLevel__Default: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__System: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__Microsoft: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__Default: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__System: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__Microsoft: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
     # CORS policy settings.
     # The first entry should be the URL to player
     # The second entry should be the URL to VM App
     # Subsequent entries can be other integrated apps, such as OSTicket
-    CorsPolicy__Origins__0: "https://<path:fortress-prod/data/shared#domain>"
-    CorsPolicy__Origins__1: "http://localhost:4301"
-    CorsPolicy__Origins__2: "http://localhost:4303"
+    CorsPolicy__Origins__0: "https://player.onprem.phl-imcite.net"
+    CorsPolicy__Origins__1: "https://vm.onprem.phl-imcite.net"
+    CorsPolicy__Origins__2: "https://<path:fortress-prod/data/shared#domain>"
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
     # CorsPolicy__SupportsCredentials: false
     # Connection String to database
     # database requires the 'uuid-ossp' extension installed
     ConnectionStrings__PostgreSQL: "<path:fortress-prod/data/player#player-api-db-connection-string>"
-    
     # OAuth2 Identity Client for Application
     Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
@@ -131,37 +127,37 @@ player-ui:
       nginx.ingress.kubernetes.io/use-regex: "true"
       cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: player.onprem.phl-imcite.net
         paths:
-          - path: "/player(/|$)(.*)"
-            pathType: Prefix
+          - path: "/"
+            pathType: ImplementationSpecific
     tls:
-      - secretName: <path:fortress-prod/data/shared#domain>-tls
+      - secretName: player.onprem.phl-imcite.net-tls
         hosts:
-          - <path:fortress-prod/data/shared#domain>
+          - player.onprem.phl-imcite.net
 
   env:
     ## basehref is path to the app
-    APP_BASEHREF: "/player"
+    APP_BASEHREF: ""
 
   # Config app settings with a JSON file.
   # These values correspond to an OpenID connect client and
   # some basic configuration
   settings: |-
     {
-      "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/player",
+      "ApiUrl": "https://player.onprem.phl-imcite.net",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
         "client_id": "player-ui",
-        "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/player/auth-callback",
-        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/player",
+        "redirect_uri": "https://player.onprem.phl-imcite.net/auth-callback",
+        "post_logout_redirect_uri": "https://player.onprem.phl-imcite.net",
         "response_type": "code",
-        "scope": "openid profile player-api",
+        "scope": "openid profile player-api roles",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/player/auth-callback-silent.html"
+        "silent_redirect_uri": "https://player.onprem.phl-imcite.net/auth-callback-silent"
       },
       "NotificationsSettings": {
-        "url": "https://<path:fortress-prod/data/shared#domain>/player/hubs",
+        "url": "https://player.onprem.phl-imcite.net/hubs",
         "number_to_display": 4
       },
       "AppTitle": "Player",
@@ -177,9 +173,11 @@ vm-api:
     repository: cmusei/vm-api
     pullPolicy: IfNotPresent
     tag: "3.6.2"
-  
+
+  command: ["bash", "-c", "update-ca-certificates && dotnet Player.Vm.Api.dll"]
+
   affinity: {}
-    
+
   # iso - an NFS volume mount for ISO uploads
   iso:
     enabled: false
@@ -199,16 +197,19 @@ vm-api:
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
       nginx.ingress.kubernetes.io/use-regex: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: 8G
+      cert-manager.io/cluster-issuer: ca-issuer
 
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: vm.onprem.phl-imcite.net
         paths:
-          - path: /vm/(notifications|hubs|api|swagger)
-            pathType: Prefix
+          - path: /(notifications|hubs|swagger|api)
+            pathType: ImplementationSpecific
     tls:
-      - secretName: appliance-cert
+      - secretName: vm.onprem.phl-imcite.net-tls
         hosts:
-          - <path:fortress-prod/data/shared#domain>
+          - vm.onprem.phl-imcite.net
+    consoleIngress:
+      deployConsoleProxy: true
 
   # VM-API deployment adds a second ingress
   # - This ingress is used as a proxy for getting a websocket
@@ -219,47 +220,32 @@ vm-api:
   #   connections will go directly from the UI to the vCenter hosts themselves
   # - The host value here corresponds to RewriteHost__RewriteHostUrl below
   consoleIngress:
-    deployConsoleProxy: true
     name: player-connect
     annotations:
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      cert-manager.io/cluster-issuer: ca-issuer
       nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
-      nginx.ingress.kubernetes.io/use-regex: "true"
+      # nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
       nginx.ingress.kubernetes.io/server-snippet: |
-        location ~ /connect/ticket/(.+) {
-          #resolver 127.0.0.11 ipv6=off valid=60;
-          proxy_pass https://$arg_vmhost/ticket/$1;
-          proxy_http_version 1.1;
-          proxy_request_buffering off;
-          proxy_buffering off;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection "upgrade";
-          proxy_ssl_session_reuse on;
+        location /ticket {
+            proxy_pass https://$arg_vmhost$uri;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_request_buffering off;
+            proxy_buffering off;
+            proxy_ssl_session_reuse on;
         }
-
-        location ~ /connect/api2/json/nodes/(.+)/qemu/(.+)/vncwebsocket.* {
-          #resolver 127.0.0.11 ipv6=off valid=60s;
-          proxy_pass https://$arg_vmhost/api2/json/nodes/$1/qemu/$2/vncwebsocket?port=$arg_port&vncticket=$arg_vncticket;
-          proxy_http_version 1.1;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection "upgrade";
-          proxy_request_buffering off;
-          proxy_buffering off;
-          proxy_ssl_session_reuse on;
-        }
-
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: console.onprem.phl-imcite.net
         paths:
-          - path: "/console/ticket(/|$)(.*)"
-            pathType: Prefix
+          - path: /foo
+            pathType: ImplementationSpecific
 
     tls:
-      - secretName: appliance-cert
+      - secretName: console.onprem.phl-imcite.net-tls
         hosts:
-          - <path:fortress-prod/data/shared#domain>
+          - console.onprem.phl-imcite.net
 
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
@@ -280,7 +266,7 @@ vm-api:
     # no_proxy: .local
 
     ## If hosting in virtual directory, specify path base
-    PathBase: "/vm"
+    PathBase: ""
 
     # Connection String to database
     # database requires the 'uuid-ossp' extension installed
@@ -289,19 +275,19 @@ vm-api:
     # CORS policy settings.
     # The first entry should be the URL to VM App
     # The second entry should be the URL to Console App
-    CorsPolicy__Origins__0: "https://<path:fortress-prod/data/shared#domain>"
-    CorsPolicy__Origins__1: "http://localhost:4303"
-    CorsPolicy__Origins__2: "https://code.<path:fortress-prod/data/shared#domain>"
+    CorsPolicy__Origins__0: "https://vm.onprem.phl-imcite.net"
+    CorsPolicy__Origins__1: "https://console.onprem.phl-imcite.net"
+    CorsPolicy__Origins__2: "https://<path:fortress-prod/data/shared#domain>"
     # CorsPolicy__AllowAnyOrigin: true
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
     # CorsPolicy__SupportsCredentials: false
-    Logging__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__LogLevel__System: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__LogLevel__Microsoft: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__Console__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__Console__LogLevel__System: "<path:fortress-prod/data/shared#crucible-log-level>"
-    Logging__Console__LogLevel__Microsoft: "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__Default: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__System: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__LogLevel__Microsoft: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__Default: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__System: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
+    Logging__Console__LogLevel__Microsoft: Debug # "<path:fortress-prod/data/shared#crucible-log-level>"
 
     # OAuth2 Identity Client for Application
     Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
@@ -313,13 +299,13 @@ vm-api:
 
     # OAuth2 Identity Client /w Password
     IdentityClient__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
-    IdentityClient__ClientId: player-admin
-    IdentityClient__Scope: "player-api vm-api"
+    IdentityClient__ClientId: vm-admin
+    IdentityClient__Scope: "openid profile player-api vm-api"
     IdentityClient__UserName: "<path:fortress-prod/data/shared#crucible-admin-user>"
     IdentityClient__Password: "<path:fortress-prod/data/shared#crucible-admin-pass>"
 
     # Crucible Player URL
-    ClientSettings__urls__playerApi: "https://<path:fortress-prod/data/shared#domain>/player/api"
+    ClientSettings__urls__playerApi: "https://player.onprem.phl-imcite.net/api"
 
     # VCenter settings
     #
@@ -337,18 +323,12 @@ vm-api:
     Vsphere__Hosts__0__DsName: "iso"
     Vsphere__Hosts__0__BaseFolder: "/player-player-api/isos"
 
-    #Proxmox settings
-    Proxmox__Enabled: true
-    Proxmox__Host: g14.cwd.cert.org
-    Proxmox__Port: 443
-    Proxmox__Token: <path:fortress-prod/data/player#proxmox-token>
-
     # Rewrite Host settings
     # See "consoleIngress" section above for usage
     RewriteHost__RewriteHost: true
-    RewriteHost__RewriteHostUrl: "<path:fortress-prod/data/shared#domain>/connect"
+    RewriteHost__RewriteHostUrl: "console.onprem.phl-imcite.net"
     RewriteHost__RewriteHostQueryParam: "vmhost"
-    ConsoleUrls__DefaultUrl: "https://<path:fortress-prod/data/shared#domain>/console"
+    ConsoleUrls__DefaultUrl: "https://console.onprem.phl-imcite.net"
 
     VmUsageLogging__Enabled: true
     VmUsageLogging__PostgreSQL: "<path:fortress-prod/data/player#player-vm-api-logging-connection-string>"
@@ -360,7 +340,6 @@ vm-ui:
     pullPolicy: IfNotPresent
     tag: "3.4.8"
   affinity: {}
-  
   # Ingress configuration example for NGINX
   # TLS and Host URLs need configured
   ingress:
@@ -372,38 +351,39 @@ vm-ui:
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
       nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: vm.onprem.phl-imcite.net
         paths:
-          - path: "/vm(/|$)(.*)"
-            pathType: Prefix
+          - path: /
+            pathType: ImplementationSpecific
     tls:
-      - secretName: appliance-cert
+      - secretName: vm.onprem.phl-imcite.net-tls
         hosts:
-          - <path:fortress-prod/data/shared#domain>
+          - vm.onprem.phl-imcite.net
 
   env:
     ## basehref is path to the app
-    APP_BASEHREF: "vm"
+    APP_BASEHREF: ""
 
   # Config app settings with a JSON file.
   # These values correspond to an OpenID connect client
   settings: |-
     {
-       "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/vm/api",
+       "ApiUrl": "https://vm.onprem.phl-imcite.net/api",
        "DeployApiUrl": "",
-       "ApiPlayerUrl": "https://<path:fortress-prod/data/shared#domain>/player/api",
+       "ApiPlayerUrl": "https://player.onprem.phl-imcite.net/api",
        "WelderUrl": "",
-       "UserFollowUrl": "https://<path:fortress-prod/data/shared#domain>/console/user/{userId}/view/{viewId}/console",
+       "UserFollowUrl": "https://console.onprem.phl-imcite.net/user/{userId}/view/{viewId}/console",
        "OIDCSettings": {
            "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
            "client_id": "vm-ui",
-           "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/vm/auth-callback",
-           "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/vm",
+           "redirect_uri": "https://vm.onprem.phl-imcite.net/auth-callback",
+           "post_logout_redirect_uri": "https://vm.onprem.phl-imcite.net",
            "response_type": "code",
            "scope": "openid profile player-api vm-api",
            "automaticSilentRenew": true,
-           "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/vm/auth-callback-silent.html"
+           "silent_redirect_uri": "https://vm.onprem.phl-imcite.net/auth-callback-silent"
        },
        "UseLocalAuthStorage": true
      }
@@ -425,35 +405,35 @@ console-ui:
       nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
-      nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: console.onprem.phl-imcite.net
         paths:
-          - path: "/console(/|$)(.*)"
-            pathType: Prefix
+          - path: /
+            pathType: ImplementationSpecific
     tls:
-      - secretName: appliance-cert
+      - secretName: console.onprem.phl-imcite.net-tls
         hosts:
-          - <path:fortress-prod/data/shared#domain>
+          - console.onprem.phl-imcite.net
 
   env:
     ## basehref is path to the app
-    APP_BASEHREF: "/console"
+    APP_BASEHREF: ""
 
   # Config app settings with a JSON file.
   # These values correspond to an OpenID connect client and some basic settings
   settings: |-
     {
-      "ConsoleApiUrl": "https://<path:fortress-prod/data/shared#domain>/vm/api",
+      "ConsoleApiUrl": "https://vm.onprem.phl-imcite.net/api/",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
-        "client_id": "vm-console-ui",
-        "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/console/auth-callback",
-        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/console",
+        "client_id": "console-ui",
+        "redirect_uri": "https://console.onprem.phl-imcite.net/auth-callback",
+        "post_logout_redirect_uri": "https://console.onprem.phl-imcite.net",
         "response_type": "code",
         "scope": "openid profile player-api vm-api",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/console/auth-callback-silent.html"
+        "silent_redirect_uri": "https://console.onprem.phl-imcite.net/auth-callback-silent"
       },
       "UseLocalAuthStorage": true,
       "DebugLogging": true,

@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
     nginx.ingress.kubernetes.io/server-snippet: |
-      location ~ /connect/ticket/(.+) {
+      location ~ /console/ticket/(.+) {
           #resolver 127.0.0.11 ipv6=off valid=60;
           proxy_pass https://$arg_vmhost/ticket/$1;
           proxy_http_version 1.1;
@@ -37,20 +37,17 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: crucible.io
+  - host: onprem.phl-imcite.net
     http:
       paths:
       - backend:
           service:
-            name: player-console
+            name: player-connect
             port:
               number: 80
-        path: /console/ticket(/|$)(.*)
+        path: /console(/|$)(.*)
         pathType: Prefix
   tls:
   - hosts:
     - <path:fortress-prod/data/shared#domain>
     secretName: <path:fortress-prod/data/shared#domain>-tls
-status:
-  loadBalancer:
-    

@@ -12,23 +12,26 @@ steamfitter-api:
       nginx.ingress.kubernetes.io/use-regex: "true"
       cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: steamfitter.onprem.phl-imcite.net
         paths:
-          - path: /steamfitter/(api|swagger|hubs)
-            pathType: Prefix
+          - path: /(api|swagger|hubs)
+            pathType: ImplementationSpecific
     tls:
-      - secretName: <path:fortress-prod/data/shared#domain>-tls
+      - secretName: steamfitter.onprem.phl-imcite.net-tls
         hosts:
-         - <path:fortress-prod/data/shared#domain>
+         - steamfitter.onprem.phl-imcite.net
   certificateMap: "root-ca"
 
-  
   env:
-    PathBase: "/steamfitter"
+    PathBase: ""
     # Connection String to database
     ConnectionStrings__PostgreSQL: "<path:fortress-prod/data/steamfitter#steamfitter-api-connection-string>"
 
-    CorsPolicy__Origins__0: https://<path:fortress-prod/data/shared#domain>
+    CorsPolicy__Origins__0: https://steamfitter.onprem.phl-imcite.net
+    CorsPolicy__Origins__1: https://onprem.phl-imcite.net
+    CorsPolicy__Origins__2: https://player.onprem.phl-imcite.net
+    CorsPolicy__Origins__3: https://gallery.onprem.phl-imcite.net
+    CorsPolicy__Origins__4: https://cite.onprem.phl-imcite.net
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
     Logging__LogLevel__Default: "<path:fortress-prod/data/shared#crucible-log-level>"
@@ -41,19 +44,20 @@ steamfitter-api:
     Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
-    Authorization__AuthorizationScope: "steamfitter-api vm-api"
+    Authorization__AuthorizationScope: "player-api steamfitter-api vm-api"
     Authorization__ClientId: steamfitter-api
     Authorization__ClientName: "Steamfitter API"
 
     # OAuth2 Identity Client /w Password
-    ResourceOwnerAuthorization__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
+    ResourceOwnerAuthorization__Authority: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
     ResourceOwnerAuthorization__ClientId: steamfitter-admin
-    ResourceOwnerAuthorization__UserName: <path:fortress-prod/data/shared#crucible-admin-user> #TODO
-    ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass> #TODO
-    ResourceOwnerAuthorization__Scope: "vm-api"
+    ResourceOwnerAuthorization__UserName: "steamfitter.admin"
+    ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass>
+    ResourceOwnerAuthorization__Scope: "openid cite-api gallery-api player-api vm-api"
 
-    ClientSettings__urls__steamfitterApi: https://<path:fortress-prod/data/shared#domain>/steamfitter
-    ClientSettings__urls__vmApi: https://<path:fortress-prod/data/shared#domain>/vm
+    ClientSettings__urls__playerApi: https://player.onprem.phl-imcite.net
+    ClientSettings__urls__steamfitterApi: https://steamfitter.onprem.phl-imcite.net
+    ClientSettings__urls__vmApi: https://vm.onprem.phl-imcite.net
 
     # Stackstorm Configuration
     # TODO - Document Stackstorm dependencies
@@ -61,7 +65,7 @@ steamfitter-api:
     VmTaskProcessing__ApiUsername: "administrator"
     VmTaskProcessing__ApiPassword: "<path:fortress-prod/data/steamfitter#steamfitter-api-vm-task-api-pass>"
     VmTaskProcessing__ApiBaseUrl: "https://<path:fortress-prod/data/shared#domain>/stackstorm"
-    VmTaskProcessing__ApiParameters__clusters: domain-c3283495
+    VmTaskProcessing__ApiParameters__clusters: domain-c9
 
     # Basic seed data to jumpstart deployement
     # TODO - Document Seed data
@@ -91,35 +95,35 @@ steamfitter-ui:
       nginx.ingress.kubernetes.io/use-regex: "true"
       cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: steamfitter.onprem.phl-imcite.net
         paths:
-          - path: "/steamfitter(/|$)(.*)"
-            pathType: Prefix
+          - path: /
+            pathType: ImplementationSpecific
     tls:
-      - secretName: <path:fortress-prod/data/shared#domain>-tls
+      - secretName: steamfitter.onprem.phl-imcite.net-tls
         hosts:
-        - <path:fortress-prod/data/shared#domain>
+        - steamfitter.onprem.phl-imcite.net
 
-  env: 
+  env:
     ## basehref is path to the app
-    APP_BASEHREF: "/steamfitter"
+    APP_BASEHREF: ""
 
   # Config app settings with a JSON file.
   # These values correspond to an OpenID connect client
   settings: |- 
     {
-      "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/steamfitter",
-      "VmApiUrl": "https://<path:fortress-prod/data/shared#domain>/vm",
-      "ApiPlayerUrl": "https://<path:fortress-prod/data/shared#domain>/player",
+      "ApiUrl": "https://steamfitter.onprem.phl-imcite.net",
+      "VmApiUrl": "https://vm.onprem.phl-imcite.net",
+      "ApiPlayerUrl": "https://player.onprem.phl-imcite.net",
       "OIDCSettings": {
           "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
           "client_id": "steamfitter-ui",
-          "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/steamfitter/auth-callback",
-          "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/steamfitter",
+          "redirect_uri": "https://steamfitter.onprem.phl-imcite.net/auth-callback",
+          "post_logout_redirect_uri": "https://steamfitter.onprem.phl-imcite.net",
           "response_type": "code",
           "scope": "openid profile steamfitter-api vm-api player-api",
           "automaticSilentRenew": true,
-          "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/steamfitter/auth-callback-silent"
+          "silent_redirect_uri": "https://steamfitter.onprem.phl-imcite.net/auth-callback-silent"
       },
       "AppTitle": "Steamfitter",
       "AppTopBarHexColor": "#EF3A47",

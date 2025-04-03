@@ -1,0 +1,14 @@
+{
+    "app": {
+        "project_name" : "gameboard",
+        "project_branch" : "HEAD",
+        "namespace" : "default",
+        "manifest_type": "helm",
+        "helm_repo" : "https://helm.cmusei.dev/charts",
+        "helm_chart" : "gameboard",
+        "helm_chart_version" : "0.4.8",
+        "values_file" : "gameboard.values.yaml",
+        "helm_args" : "",
+        "kustomize_dir" : ""
+    }
+}

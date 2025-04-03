@@ -1,0 +1,15 @@
+
+{{- if not .Values.mispPersistentVolumes.misp.existing }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "misp.fullname" . }}-pvc
+  namespace: {{ .Values.mispPersistentVolumes.misp.namespace | default "default" }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.mispPersistentVolumes.misp.size }}
+  storageClassName: longhorn-retain
+{{- end }}

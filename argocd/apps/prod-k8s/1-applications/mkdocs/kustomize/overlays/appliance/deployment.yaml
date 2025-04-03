@@ -4,7 +4,8 @@
     name: appliance-mkdocs-material-entry
     configMap:
       name: appliance-mkdocs-material-entry
-      defaultMode: 0775
+      defaultMode: 0775 
+
 # - op: replace
 #   path: /spec/template/spec/volumes/
 
@@ -14,10 +15,10 @@
 #     name: appliance-mkdocs-material-files
 #     configMap:
 #       name: appliance-mkdocs-material-files
-
+      
 # - op: replace
 #   path: /spec/template/spec/initContainers/0/volumeMounts/1
 #   value:
 #     name: mkdocs-material-files
 #     mountPath: /docs/docs
-
+        

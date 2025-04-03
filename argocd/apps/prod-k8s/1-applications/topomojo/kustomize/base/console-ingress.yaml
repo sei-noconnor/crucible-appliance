@@ -1,12 +1,13 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: console-ingress
+  name: topomojo-console-ingress
   annotations:
     cert-manager.io/cluster-issuer: ca-issuer
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/server-snippet: |
-      location ~ /console/ticket/(.*) {
+      location ~ /connect/ticket/(.+) {
         proxy_pass https://$arg_vmhost/ticket/$1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -18,18 +19,20 @@ metadata:
       }
 spec:
   rules:
-  - host: crucible.io
+  - host: onprem-phl-imcite.net
     http:
       paths:
-      - path: /console
-        pathType: Prefix
+      - path: /dummy(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: appliance-topomojo-api
             port:
               number: 80
+
+    
   tls:
-  - secretName: topomojo-tls
+  - secretName: topomojo-console-tls
     hosts:
-      - crucible.io
+      - onprem.phl-imcite.net
     

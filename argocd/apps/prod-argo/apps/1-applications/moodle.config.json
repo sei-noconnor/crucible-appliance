@@ -1,0 +1,14 @@
+{
+    "app": {
+        "project_name" : "moodle",
+        "project_branch" : "main",
+        "namespace" : "moodle",
+        "manifest_type": "kustomize",
+        "helm_repo" : "https://charts.bitnami.com/bitnami",
+        "helm_chart" : "moodle",
+        "helm_chart_version" : "23.0.7",
+        "values_file" : "moodle.values.yaml",
+	    "helm_args" : "",
+        "kustomize_dir" : "moodle/kustomize/overlays/appliance"
+    }
+}

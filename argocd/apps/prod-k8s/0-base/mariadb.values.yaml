@@ -1,0 +1,147 @@
+clusterDomain: cluster.local
+
+diagnosticMode:
+  enabled: false
+
+image:
+  registry: docker.io
+  repository: bitnami/mariadb
+  tag: 10.11
+  pullPolicy: IfNotPresent
+
+architecture: standalone
+## MariaDB Authentication parameters
+##
+auth:
+  ## @param auth.rootPassword Password for the `root` user. Ignored if existing secret is provided.
+  ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mariadb#setting-the-root-password-on-first-run
+  ##
+  rootPassword: "<path:fortress-prod/data/mariadb#root-password>"
+  ## @param auth.database Name for a custom database to create
+  ## ref: https://github.com/bitnami/containers/blob/main/bitnami/mariadb/README.md#creating-a-database-on-first-run
+  ##
+  database: "<path:fortress-prod/data/mariadb#misp-database>"
+  ## @param auth.username Name for a custom user to create
+  ## ref: https://github.com/bitnami/containers/blob/main/bitnami/mariadb/README.md#creating-a-database-user-on-first-run
+  ##
+  username: "<path:fortress-prod/data/mariadb#misp-user>"
+  ## @param auth.password Password for the new user. Ignored if existing secret is provided
+  ##
+  password: "<path:fortress-prod/data/mariadb#misp-password>"
+  ## @param auth.replicationUser MariaDB replication user
+  ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mariadb#setting-up-a-replication-cluster
+  ##
+  replicationUser: replicator
+  ## @param auth.replicationPassword MariaDB replication user password. Ignored if existing secret is provided
+  ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mariadb#setting-up-a-replication-cluster
+  ##
+  replicationPassword: "<path:fortress-prod/data/mariadb#replication-password>"
+  forcePassword: false
+  usePasswordFiles: true
+tls:
+  enabled: false
+tde:
+  enabled: false
+primary:
+  name: primary
+  containerPorts:
+    mysql: 3306
+  configuration: |-
+    [mysqld]
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/opt/bitnami/mariadb
+    datadir=/bitnami/mariadb/data
+    plugin_dir=/opt/bitnami/mariadb/plugin
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    tmpdir=/opt/bitnami/mariadb/tmp
+    max_allowed_packet=16M
+    bind-address=*
+    pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+    log-error=/opt/bitnami/mariadb/logs/mysqld.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+    slow_query_log=0
+    long_query_time=10.0
+    binlog_expire_logs_seconds=2592000
+
+    [client]
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    default-character-set=UTF8
+    plugin_dir=/opt/bitnami/mariadb/plugin
+
+    [manager]
+    port=3306
+    socket=/opt/bitnami/mariadb/tmp/mysql.sock
+    pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+
+  updateStrategy:
+    type: RollingUpdate
+  podAntiAffinityPreset: soft
+  podSecurityContext:
+    enabled: true
+    fsGroupChangePolicy: Always
+    sysctls: []
+    supplementalGroups: []
+    fsGroup: 1001
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 2Gi
+
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 3
+    successThreshold: 1
+  persistence:
+    enabled: true
+    existingClaim: mariadb-pvc
+  service:
+    type: ClusterIP
+    ports:
+      mysql: 3306
+    externalTrafficPolicy: Cluster
+  pdb:
+    create: true
+
+serviceAccount:
+  create: true
+rbac:
+  create: false
+
+passwordUpdateJob:
+  enabled: false
+
+volumePermissions:
+  enabled: false
+metrics:
+  enabled: false
+networkPolicy:
+  enabled: true
+  allowExternal: true
+  allowExternalEgress: true

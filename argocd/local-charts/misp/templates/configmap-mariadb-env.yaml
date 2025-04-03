@@ -1,0 +1,13 @@
+{{- if not .Values.mariadb.external -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "misp.fullname" . }}-mariadb-env
+  labels:
+    {{- include "misp.labels" . | nindent 4 }}
+data:
+  MYSQL_USER: {{ .Values.env.MYSQL_USER | quote }}
+  MYSQL_PASSWORD: {{ .Values.env.MYSQL_PASSWORD | quote }}
+  MYSQL_ROOT_PASSWORD: {{ .Values.env.MYSQL_ROOT_PASSWORD | quote }}
+  MYSQL_DATABASE: {{ .Values.env.MYSQL_DATABASE | quote }}
+{{- end }}

@@ -1,0 +1,14 @@
+{
+    "app": {
+        "project_name" : "misp",
+        "project_branch" : "main",
+        "namespace" : "default",
+        "manifest_type": "kustomize",
+        "helm_chart" : "misp",
+        "helm_chart_version" : "0.1.0",
+        "helm_repo": "",
+        "values_file" : "misp.values.yaml",
+        "helm_args" : "",
+        "kustomize_dir" : "misp/kustomize/overlays/appliance"
+    }
+}

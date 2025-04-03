@@ -12,49 +12,60 @@ gallery-api:
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
       nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
       nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
-      nginx.ingress.kubernetes.io/use-regex: "true"
       cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: gallery.<path:fortress-prod/data/shared#domain>
         paths:
-          - path: /gallery/(api|swagger|hubs)
-            pathType: Prefix
+          - path: /(api|swagger|hubs)
+            pathType: ImplementationSpecific
     tls:
-      - secretName: <path:fortress-prod/data/shared#domain>-tls
+      - secretName: gallery.<path:fortress-prod/data/shared#domain>-tls
         hosts:
-         - <path:fortress-prod/data/shared#domain>
+         - gallery.<path:fortress-prod/data/shared#domain>
 
   resources:
     requests:
       cpu: 500m
       memory: 1024Mi
 
+  certificateMap: "root-ca"
+
   env:
-    PathBase: "/gallery"
+    PathBase: ""
     # CORS policy settings.
     # The first entry should be the URL to Gallery
-    CorsPolicy__Origins__0: https://<path:fortress-prod/data/shared#domain>
+    CorsPolicy__Origins__0: https://gallery.<path:fortress-prod/data/shared#domain>
+    CorsPolicy__Origins__1: https://<path:fortress-prod/data/shared#domain>
+    CorsPolicy__Origins__2: https://player.<path:fortress-prod/data/shared#domain>
+    CorsPolicy__Origins__3: https://cite.<path:fortress-prod/data/shared#domain>
+    CorsPolicy__Origins__4: https://blueprint.<path:fortress-prod/data/shared#domain>
 
+
+    CorsPolicy__AllowAnyHeader: true
     # Connection String to database
     # database requires the 'uuid-ossp' extension installed
-    ConnectionStrings__PostgreSQL: <path:fortress-prod/data/gallery#gallery-db-connection-string> 
+    ConnectionStrings__PostgreSQL: <path:fortress-prod/data/gallery#gallery-db-connection-string>
 
     # OAuth2 Identity Client for Application
     Authorization__Authority: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
     Authorization__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/auth
     Authorization__TokenUrl: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible/protocol/openid-connect/token
-    Authorization__AuthorizationScope: "gallery-api"
+    Authorization__AuthorizationScope: "openid gallery-api cite-api"
     Authorization__ClientId: "gallery-api"
     Authorization__ClientName: Gallery API
 
+    Database__SeedFile: seed-data.json
+    Database__AutoMigrate: true
+    Database__DevModeRecreate: false
+
     # OAuth2 Identity Client /w Password
     ResourceOwnerAuthorization__Authority: https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible
-    ResourceOwnerAuthorization__ClientId: gallery-admin"
-    ResourceOwnerAuthorization__UserName: <path:fortress-prod/data/shared#crucible-admin-user>
+    ResourceOwnerAuthorization__ClientId: gallery-admin
+    ResourceOwnerAuthorization__UserName: "gallery.admin"
     ResourceOwnerAuthorization__Password: <path:fortress-prod/data/shared#crucible-admin-pass>
-    ResourceOwnerAuthorization__Scope: "steamfitter-api player-api vm-api"
+    ResourceOwnerAuthorization__Scope: "openid vm-api steamfitter-api cite-api gallery-api"
 
-    ClientSettings__SteamfitterApiUrl: https://<path:fortress-prod/data/shared#domain>/steamfitter/api
+    ClientSettings__SteamfitterApiUrl: https://steamfitter.<path:fortress-prod/data/shared#domain>/api
     ClientSettings__IsEmailActive: "true"
 
     Logging__Debug__LogLevel__System: "Warning"
@@ -87,14 +98,14 @@ gallery-ui:
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
       cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: gallery.<path:fortress-prod/data/shared#domain>
         paths:
-          - path: /gallery
+          - path: /
             pathType: Prefix
     tls:
-      - secretName: <path:fortress-prod/data/shared#domain>-tls
+      - secretName: gallery.<path:fortress-prod/data/shared#domain>-tls
         hosts:
-         - <path:fortress-prod/data/shared#domain>
+         - gallery.<path:fortress-prod/data/shared#domain>
 
   resources:
     requests:
@@ -102,28 +113,28 @@ gallery-ui:
       memory: 10Mi
 
   env:
-    APP_BASEHREF: "/gallery"
+    APP_BASEHREF: ""
   # Config app settings with a JSON file.
   # These values correspond to an OpenID connect client and
   # some basic configuration
   settings: |-
     {
-      "ApiUrl": "https://<path:fortress-prod/data/shared#domain>/gallery",
+      "ApiUrl": "https://gallery.<path:fortress-prod/data/shared#domain>",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/keycloak/realms/crucible",
         "client_id": "gallery-ui",
-        "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/gallery/auth-callback",
-        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/gallery",
+        "redirect_uri": "https://gallery.<path:fortress-prod/data/shared#domain>/auth-callback",
+        "post_logout_redirect_uri": "https://gallery.<path:fortress-prod/data/shared#domain>",
         "response_type": "code",
-        "scope": "openid profile gallery-api",
+        "scope": "openid profile gallery-api cite-api",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/gallery/auth-callback-silent"
+        "silent_redirect_uri": "https://gallery.<path:fortress-prod/data/shared#domain>/auth-callback-silent"
       },
       "AppTitle": "Gallery",
       "AppTopBarHexColor": "#2d69b4",
       "AppTopBarHexTextColor": "#FFFFFF",
       "AppTopBarText": "Gallery  -  Keeping you in the know!",
-      "AppTopBarImage": "/gallery/assets/img/monitor-dashboard-white.png",
+      "AppTopBarImage": "/assets/img/monitor-dashboard-white.png",
       "UseLocalAuthStorage": false,
       "IsEmailActive": false,
       "useAccessTokenExpirtationRedirect": true

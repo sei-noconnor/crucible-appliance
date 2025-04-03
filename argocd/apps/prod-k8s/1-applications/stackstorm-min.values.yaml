@@ -2,7 +2,7 @@ image:
   # Image pull policy
   pullPolicy: IfNotPresent
   repository: ""
-  tag: "{{ .Chart.AppVersion }}"
+  tag: "3.5"
 
 serviceAccount:
   # Whether the Chart should create the service account or not
@@ -38,22 +38,6 @@ st2:
 
   packs:
     configs:
-      # azure.yaml: |
-      #   ---
-      #   compute:
-      #     subscription_id: "$AZURE_COMPUTE_SUBSCRIPTION_ID"
-      #     cert_file: "$AZURE_COMPUTE_CERT_FILE"
-      #   storage:
-      #     name: "$AZURE_STORAGE_NAME"
-      #     access_key: "$AZURE_STORAGE_ACCESS_KEY"
-      #   resource_manager:
-      #     client_id: '$AZURE_RESOURCE_CLIENT_ID'
-      #     secret: '$AZURE_RESOURCE_SECRET'
-      #     tenant: '$AZURE_RESOURCE_TENANT'
-      #     default_resource_group: '$AZURE_RESOURCE_DEFAULT_GROUP'
-      #   user:
-      #     username: '$AZURE_USER'
-      #     password: '$AZURE_PASS'
       vsphere.yaml: |
         ---
         ssl_verify: false
@@ -62,7 +46,7 @@ st2:
             host: "<path:fortress-prod/data/vsphere#vsphere-server>"
             port: 443
             user: "<path:fortress-prod/data/vsphere#vsphere-user>"
-            passwd: "<path:fortress-prod/data/vsphere#vsphere-pass>"
+            passwd: '<path:fortress-prod/data/vsphere#vsphere-pass>'
     images:
       - repository: cmusei
         name: st2packs

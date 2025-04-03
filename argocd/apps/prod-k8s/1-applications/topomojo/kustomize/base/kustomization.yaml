@@ -5,13 +5,13 @@ namespace: topomojo
 helmCharts:
 - name: topomojo
   includeCRDs: true
-  version: 0.3.8
+  version: 0.4.6
   repo: https://helm.cmusei.dev/charts
   releaseName: appliance
   valuesFile: files/topomojo-0-4-3.values.yaml
 resources: 
-- namespace.yaml
-- console-ingress.yaml
+# - console-service.yaml
+# - console-ingress.yaml
 # - topomojo-pv.yaml
 # - topomojo-pvc.yaml
 

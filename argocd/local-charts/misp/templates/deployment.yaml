@@ -1,0 +1,184 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "misp.fullname" . }}
+  labels:
+    {{- include "misp.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "misp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "misp.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "misp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "misp.fullname" . }}-misp
+              mountPath: /var/www/MISP/app/Config/
+              subPath: {{ include "misp.fullname" . }}/config
+            - name: {{ include "misp.fullname" . }}-misp
+              mountPath: /var/www/MISP/app/tmp/logs/
+              subPath: {{ include "misp.fullname" . }}/logs
+            - name: {{ include "misp.fullname" . }}-misp
+              mountPath: /var/www/MISP/app/files/
+              subPath: {{ include "misp.fullname" . }}/files
+            - name: {{ include "misp.fullname" . }}-misp
+              mountPath: /etc/nginx/certs/
+              subPath: {{ include "misp.fullname" . }}/ssl
+            - name: {{ include "misp.fullname" . }}-misp
+              mountPath: /var/www/MISP/.gnupg/
+              subPath: {{ include "misp.fullname" . }}/gnupg
+            - name: {{ include "misp.fullname" $ }}-cacert
+              mountPath: /usr/local/share/ca-certificates
+          env:
+          {{- if .Values.externalSecrets.mysql.dbPassword.enabled }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .Values.externalSecrets.mysql.dbPassword.key }}
+                  name: {{ .Values.externalSecrets.mysql.dbPassword.name }}
+          {{- end }}
+          {{- if .Values.externalSecrets.keycloak.clientSecret.enabled }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .Values.externalSecrets.keycloak.clientSecret.key }}
+                  name: {{ .Values.externalSecrets.keycloak.clientSecret.name }}
+          {{- end }}
+          {{- if .Values.externalSecrets.redis.password.enabled }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .Values.externalSecrets.redis.password.key }}
+                  name: {{ .Values.externalSecrets.redis.password.name }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "misp.fullname" . }}-env
+      # Sidecar Containers
+      initContainers:
+        - name: misp-modules
+          image: ghcr.io/misp/misp-docker/misp-modules:{{ .Values.env.MODULES_TAG }}
+          restartPolicy: Always
+          {{- if .Values.externalSecrets.redis.password.enabled }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .Values.externalSecrets.redis.password.key }}
+                  name: {{ .Values.externalSecrets.redis.password.name }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "misp.fullname" . }}-modules-env
+        - name: mail
+          image: ixdotai/smtp
+          restartPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: {{ include "misp.fullname" . }}-mail-env
+      {{- if not .Values.redis.external }}
+        - name: redis
+          image: valkey/valkey:7.2
+          restartPolicy: Always
+          ### TODO: This should be changed so that the password can come from a secret
+          ### or an environment variables as with the services above.
+          ### We can probably do this by injecting an environment variable and then
+          ### referencing it in the command to be expanded by the shell.
+          ### If so, then this command will have to be executed by a shell.
+          command: ["valkey-server", "--requirepass '{{ .Values.env.REDIS_PASSWORD }}'"]
+      {{- end }}
+      {{- if not .Values.mariadb.external }}
+          ### TODO: This code path should be tested. I did not test it.
+        - name: mariadb
+          image: mariadb:10.11
+          restartPolicy: Always
+          {{- if .Values.externalSecrets.mysql.dbPassword.enabled }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .Values.externalSecrets.mysql.dbPassword.key }}
+                  name: {{ .Values.externalSecrets.mysql.dbPassword.name }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "misp.fullname" . }}-mariadb-env
+          command: |-
+            --innodb-buffer-pool-size={{- .Values.env.INNODB_BUFFER_POOL_SIZE }}
+            --innodb-change-buffering={{- .Values.env.INNODB_CHANGE_BUFFERING }}
+            --innodb-io-capacity={{- .Values.env.INNODB_IO_CAPACITY }}
+            --innodb-io-capacity-max={{- .Values.env.INNODB_IO_CAPACITY_MAX }}
+            --innodb-log-file-size={{- .Values.env.INNODB_LOG_FILE_SIZE }}
+            --innodb-read-io-threads={{- .Values.env.INNODB_READ_IO_THREADS }}
+            --innodb-stats-persistent={{- .Values.env.INNODB_STATS_PERSISTENT }}
+            --innodb-write-io-threads={{- .Values.env.INNODB_WRITE_IO_THREADS }}
+          volumeMounts:
+            - name: {{ include "misp.fullname" . }}-misp
+              mountPath: /var/lib/mysql
+              subPath: {{ include "misp.fullname" . }}/mysql
+          livenessProbe:
+                exec:
+                  command: ["mysqladmin --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD status"]
+                initialDelaySeconds: 5
+                periodSeconds: 5
+          readinessProbe:
+                exec:
+                  command: ["mysqladmin --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD status"]
+                initialDelaySeconds: 5
+                periodSeconds: 5
+      {{- end }}
+      volumes:
+      - name: {{ include "misp.fullname" $ }}-misp
+      {{- if .Values.mispPersistentVolumes.misp.existing }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.mispPersistentVolumes.misp.existing }}
+      {{- else if .Values.mispPersistentVolumes.misp.size }}
+        persistentVolumeClaim:
+          claimName: {{ include "misp.fullname" $ }}-pvc
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
+      - name: {{ include "misp.fullname" $ }}-cacert
+        configMap:
+          name: root-ca
+          items:
+            - key: root-ca.crt
+              path: root-ca.crt
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

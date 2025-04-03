@@ -125,7 +125,7 @@
         INSTALL_K3S_VERSION: "v1.31.3+k3s1"
         K3S_KUBECONFIG_MODE: "644"
         INSTALL_K3S_SKIP_DOWNLOAD: "true"
-        INSTALL_K3S_EXEC: "agent --server https://crucible.io:6443 --prefer-bundled-bin --token-file /home/crucible/node-token"
+        INSTALL_K3S_EXEC: "agent --server https://onprem.phl-imcite.net:6443 --prefer-bundled-bin --token-file /home/crucible/node-token"
       args:
         chdir: /home/crucible/
 
@@ -141,16 +141,15 @@
         INSTALL_K3S_VERSION: "v1.31.3+k3s1"
         K3S_KUBECONFIG_MODE: "644"
         INSTALL_K3S_SKIP_DOWNLOAD: "true"
-        INSTALL_K3S_EXEC: "server --server https://crucible.io:6443 --disable traefik --embedded-registry --etcd-expose-metrics --prefer-bundled-bin --tls-san crucible.io --prefer-bundled-bin --token-file /home/crucible/node-token"
-      args:
-        chdir: /home/crucible/
+        INSTALL_K3S_EXEC: "server --server https://onprem.phl-imcite.net:6443 --disable traefik --embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --tls-san onprem.phl-imcite.net --token-file /home/crucible/node-token"
+      
     
     # - name: Run K3s install script
     #   shell: >
     #     INSTALL_K3S_VERSION="v1.31.3+k3s1"
     #     K3S_KUBECONFIG_MODE="644"
     #     INSTALL_K3S_SKIP_DOWNLOAD=true
-    #     INSTALL_K3S_EXEC="agent --server https://crucible.io:6443 --disable traefik --embedded-registry --etcd-expose-metrics --prefer-bundled-bin --tls-san crucible.io --token-file /home/crucible/node_token"
+    #     INSTALL_K3S_EXEC="agent --server https://onprem.phl-imcite.net:6443 --disable traefik --embedded-registry --etcd-expose-metrics --prefer-bundled-bin --tls-san  --token-file /home/crucible/node_token"
     #     /home/crucible/k3s-install.sh
     #   args:
     #     chdir: /home/crucible/

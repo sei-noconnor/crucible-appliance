@@ -9,7 +9,7 @@ topomojo-api:
     repository: cmusei/topomojo-api
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.3.4"
+    tag: "2.3.7"
 
   imagePullSecrets: []
   nameOverride: ""
@@ -38,7 +38,8 @@ topomojo-api:
 
   podAnnotations: {}
 
-  podSecurityContext: {}
+  podSecurityContext:
+    {}
     # fsGroup: 2000
 
   securityContext:
@@ -49,35 +50,63 @@ topomojo-api:
     runAsNonRoot: false
     runAsUser: 0
 
-  service: 
+  service:
     type: ClusterIP
     port: 8080
 
   ingress:
     enabled: true
-    annotations: 
-      nginx.ingress.kubernetes.io/rewrite-target: /topomojo/$1$2$3
+    annotations:
       cert-manager.io/cluster-issuer: ca-issuer
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
       kubernetes.io/ingress.class: nginx
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: topomojo.onprem.phl-imcite.net
         paths:
-          - path: /topomojo/(api|hub|docs)(/|$)(.*)
+          - path: /api
             pathType: ImplementationSpecific
-    tls: 
-     - secretName: <path:fortress-prod/data/shared#domain>-tls
-       hosts:
-         - <path:fortress-prod/data/shared#domain>
+          - path: /hub
+            pathType: ImplementationSpecific
+          - path: /docs
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: topomojo.onprem.phl-imcite.net-tls
+        hosts:
+          - topomojo.onprem.phl-imcite.net
+
+  consoleIngress:
+    deployConsoleProxy: true
+    className: nginx
+    name: topomojo-consoles
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/server-snippet: |
+        # Adding proxy configuration for consoles
+        location ~ /connect/ticket/(.*) {
+          proxy_pass https://$arg_vmhost/ticket/$1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+          proxy_request_buffering off;
+          proxy_buffering off;
+          proxy_read_timeout 86400s;
+          proxy_send_timeout 86400s;
+          proxy_ssl_session_reuse on;
+        }
+    hosts:
+      - host: topomojo.onprem.phl-imcite.net
+        paths: []
+    tls:
+      - secretName: topomojo.onprem.phl-imcite.net-tls
+        hosts:
+          - topomojo.onprem.phl-imcite.net
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
-    existing: ""
-    size: 20Gi
-    mode: ReadWriteOnce
-    class: nfs
+    existing: "topomojo-pvc-nfs"
 
-  resources: {}
+  resources:
+    {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -118,14 +147,14 @@ topomojo-api:
     env: {}
 
   ## customStart overrides the default start process.  Files are mounted in `/start`
-  customStart: 
-    command: ['/bin/sh']
-    args: ['/start/start.sh']
+  customStart:
+    command: ["/bin/sh"]
+    args: ["/home/app/start/start.sh"]
     binaryFiles: {}
-    files: 
+    files:
       start.sh: |
         #!/bin/sh
-        cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
+        cp /home/app/start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
         cd /home/app && dotnet TopoMojo.Api.dll
       cacert.crt: |-
         <path:fortress-prod/data/shared#fortress-tls-fullchain>
@@ -137,44 +166,46 @@ topomojo-api:
   # Those most likely needing values are listed. For others,
   # see https://github.com/cmu-sei/TopoMojo/blob/master/src/TopoMojo.Api/appsettings.conf
   env:
-    PathBase: "/topomojo"
     Database__Provider: PostgreSQL
     Database__ConnectionString: <path:fortress-prod/data/topomojo#topomojo-api-connection-string>
     Database__AdminId: <path:fortress-prod/data/shared#oauth-admin-guid>
     Database__AdminName: Administrator
     Cache__SharedFolder: ""
+    FileUpload__TopoRoot: /mnt/tm
     FileUpload__IsoRoot: /mnt/tm/iso
-    FileUpload__TopoRoot: /mnt/tm/files
     FileUpload__DocRoot: /mnt/tm/_docs
+    #FileUpload__DocRoot: /mnt/tm/_docs
     # FileUpload__MaxFileBytes: 0
     Oidc__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
     OpenApi__Client__ClientId: topomojo-api
     Oidc__Audience: "topomojo-api"
     OpenApi__Client__AuthorizationUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
     OpenApi__Client__TokenUrl: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
-    
     ApiKeyClients__0__Id: gameengine
     ApiKeyClients__0__Key: crucible
     ApiKeyClients__0__Scope: gameboard
-    Core__ConsoleHost: https://<path:fortress-prod/data/shared#domain>/console
+    Core__ConsoleHost: topomojo.onprem.phl-imcite.net/connect
+    Pod__ConsoleUrl: topomojo.onprem.phl-imcite.net/connect
+    Pod__Host: topomojo.onprem.phl-imcite.net
     Pod__Url: https://<path:fortress-prod/data/vsphere#vsphere-server>
+    Pod__IgnoreCertificateErrors: true
     Pod__User: <path:fortress-prod/data/vsphere#vsphere-user>
     Pod__Password: <path:fortress-prod/data/vsphere#vsphere-pass>
-    Pod__PoolPath: <path:fortress-prod/data/vsphere#vsphere-datacenter>/<path:fortress-prod/data/vsphere#vsphere-cluster>
+    Pod__PoolPath: <path:fortress-prod/data/vsphere#vsphere-datacenter>/<path:fortress-prod/data/vsphere#vsphere-cluster>/Topomojo-Pool
     Pod__Uplink: <path:fortress-prod/data/vsphere#vsphere-dv-switch>
-    Pod__VmStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/vmstore"
-    Pod__IsoStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/iso"
-    Pod__DiskStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/diskstore"
-    Pod__TicketUrlHandler: "none"
-    Pod__Vlan__Range: [100-399]
-    # Pod__Vlan__Reservations__0__Id: 
-    # Pod__Vlan__Reservations__0__Name: 
+    Pod__VmStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] CMU/topomojo"
+    Pod__IsoStore: "[<path:fortress-prod/data/vsphere#vsphere-iso-datastore>] appliance-topomojo-api/iso"
+    Pod__DiskStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] CMU/topomojo"
+    Pod__TicketUrlHandler: "querystring"
+    Pod__Vlan__Range: "[2000-2999]"
+    Pod__Vlan__Reservations__0__Id: "2001"
+    Pod__Vlan__Reservations__0__Name: "dummy-net"
     Pod__KeepAliveMinutes: 30
     # Pod__ExcludeNetworkMask: topomojo
     Logging__Console__DisableColors: false
     Logging__LogLevel__Default: Debug
     # Headers__LogHeaders: false
-    Headers__Cors__Origins__0: https://<path:fortress-prod/data/shared#domain>
+    Headers__Cors__Origins__0: https://topomojo.onprem.phl-imcite.net
     # Headers__Cors__Methods__[0]: ""
     # Headers__Cors__Headers__[0]: ""
     # Headers__Cors__AllowAnyOrigin: false
@@ -190,7 +221,6 @@ topomojo-api:
     # Headers__Security__XFrame: SAMEORIGIN
     APP_UID: 0
 
-
 topomojo-ui:
   # Default values for topomojo-ui.
   # This is a YAML-formatted file.
@@ -202,7 +232,7 @@ topomojo-ui:
     repository: cmusei/topomojo-ui
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.3.2"
+    tag: "2.3.6"
 
   imagePullSecrets: []
   nameOverride: ""
@@ -219,10 +249,12 @@ topomojo-ui:
 
   podAnnotations: {}
 
-  podSecurityContext: {}
+  podSecurityContext:
+    {}
     # fsGroup: 2000
 
-  securityContext: {}
+  securityContext:
+    {}
     # capabilities:
     #   drop:
     #   - ALL
@@ -230,27 +262,28 @@ topomojo-ui:
     # runAsNonRoot: true
     # runAsUser: 1000
 
-  service: 
+  service:
     type: ClusterIP
     port: 80
 
   ingress:
     enabled: true
-    annotations: 
+    annotations:
       cert-manager.io/cluster-issuer: ca-issuer
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
     hosts:
-      - host: <path:fortress-prod/data/shared#domain>
+      - host: topomojo.onprem.phl-imcite.net
         paths:
           - path: /
             pathType: ImplementationSpecific
-    tls: 
-     - secretName: <path:fortress-prod/data/shared#domain>-tls
-       hosts:
-         - <path:fortress-prod/data/shared#domain>
+    tls:
+      - secretName: topomojo.onprem.phl-imcite.net-tls
+        hosts:
+          - topomojo.onprem.phl-imcite.net
 
-  resources: {}
+  resources:
+    {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -276,7 +309,7 @@ topomojo-ui:
   affinity: {}
 
   ## basehref is path to the app
-  basehref: "/topomojo"
+  basehref: "/"
 
   ## openGraph is string of html head metadata (single line!)
   # openGraph: >-
@@ -297,12 +330,13 @@ topomojo-ui:
       "appname": "TopoMojo",
       "apphost": "",
       "mkshost": "",
+      "enable_upload": true,
       "oidc": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
         "client_id": "topomojo-ui",
-        "redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo/oidc",
-        "silent_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo/oidc-silent.html",
-        "post_logout_redirect_uri": "https://<path:fortress-prod/data/shared#domain>/topomojo",
+        "redirect_uri": "https://topomojo.onprem.phl-imcite.net/oidc",
+        "silent_redirect_uri": "https://topomojo.onprem.phl-imcite.net/oidc-silent.html",
+        "post_logout_redirect_uri": "https://topomojo.onprem.phl-imcite.net",
         "response_type": "code",
         "scope": "openid profile topomojo-api",
         "automaticSilentRenew": true,
@@ -310,4 +344,3 @@ topomojo-ui:
         "useLocalStorage": true
       }
     }
-

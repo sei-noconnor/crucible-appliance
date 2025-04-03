@@ -96,11 +96,11 @@ topomojo-api:
     Pod__Password: <path:fortress-prod/data/vsphere#vsphere-pass>
     Pod__PoolPath: <path:fortress-prod/data/vsphere#vsphere-datacenter>/<path:fortress-prod/data/vsphere#vsphere-cluster>
     Pod__Uplink: <path:fortress-prod/data/vsphere#vsphere-dv-switch>
-    Pod__VmStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/vmstore"
-    Pod__IsoStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/iso"
-    Pod__DiskStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] topomojo/diskstore"
+    Pod__VmStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] CMU/topomojo"
+    Pod__IsoStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] CMU/topomojo/iso"
+    Pod__DiskStore: "[<path:fortress-prod/data/vsphere#vsphere-datastore>] CMU/topomojo"
     Pod__TicketUrlHandler: "none"
-    Pod__Vlan__Range: [100-399]
+    Pod__Vlan__Range: [2000-2999]
     # Pod__Vlan__Reservations__0__Id: 
     # Pod__Vlan__Reservations__0__Name: 
     Pod__KeepAliveMinutes: 30
@@ -136,7 +136,7 @@ topomojo-ui:
     repository: cmusei/topomojo-ui
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.2.4"
+    tag: "2.3.6"
 
   imagePullSecrets: []
   nameOverride: ""

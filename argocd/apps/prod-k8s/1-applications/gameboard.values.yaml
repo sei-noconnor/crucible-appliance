@@ -1,0 +1,366 @@
+gameboard-api:
+  # Default values for gameboard-api.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+
+  replicaCount: 1
+
+  image:
+    repository: cmusei/gameboard-api
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "3.30.0"
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '86400'
+      nginx.ingress.kubernetes.io/proxy-send-timeout: '86400'
+      nginx.ingress.kubernetes.io/proxy-body-size: 30m
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
+    hosts:
+      - host: gameboard.<path:fortress-prod/data/shared#domain>
+        paths:
+          - path: /(api|hub|img|docs|supportfiles)
+            pathType: Prefix
+    tls:
+      - secretName: gameboard.<path:fortress-prod/data/shared#domain>-tls
+        hosts:
+         - gamebboard.<path:fortress-prod/data/shared#domain>
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  cacert: |-
+    -----BEGIN CERTIFICATE-----
+    MIIFNzCCAx+gAwIBAgIICzl3K+1YbDgwDQYJKoZIhvcNAQELBQAwJTEjMCEGA1UE
+    AwwaQ3J1Y2libGUgQXBwbGlhbmNlIFJvb3QgQ0EwHhcNMjQxMjExMDEwMzQ2WhcN
+    MzUwMTI4MDEwMzQ2WjAtMSswKQYDVQQDDCJDcnVjaWJsZSBBcHBsaWFuY2UgSW50
+    ZXJtZWRpYXRlIENBMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAnmhS
+    TrP/tYy6aqkn1zaEOgH1WZGfjTjI/aH+sq3HQBMRJ/uax9ZZp2jYdXCZflCuxTX2
+    5EBb669iHPCn0c8+AwPVYCWNbtD4ey9X3eaPg0lyo3eV+x56kvcArnQMy8wpCaau
+    q8EahEuVXxir0PPcOtx41dGyf36qzAt6Bc43MsMj6/xZRJ+oMtzRCU02lcnIUBIr
+    u6E2x0L2Zv18iWXHSoUPh9s1X8MCWDI6YcZlSdtV1TxFOCpfHm3imHBNH9nWkQbJ
+    vTK5fuhizntfIAjZY+WyMvsVX3waxL7QwSJv2WyCa3dTU+ltSIZANSfulQjQum2X
+    OoD9K6YLTu9SHA0k+jDlfrGiAeOmqRj+ddAay/lGKhoEnP8IwQcmmm/maNQWrE3l
+    zQPzaScgj7VsXBiQvk7MReQcVMCABy62C5HIL2MUlXBymuUqXvzaGaD17pIXcDic
+    2xh/TisAJxrcRGxzfVex7FiaKlI/nxJjmrFoNWuVllTfSfs8u3pNF/dy+VHqS+2g
+    UxVC7vk4n37IRnB8o2/Wq0E/ES9e7APePmg1k+mQ30TbMXm5BEA+/ZHeEkjweulq
+    1yv3DfkZnEYz1j0qAeqGRy2JVDiztIb5kUJv2xWA3gHZPnBL4F+6jBOGj4Z8fMdU
+    8HWk1BWZBELHM/Hxh19BggXKypYJFpEWk/CWD+kCAwEAAaNjMGEwHQYDVR0OBBYE
+    FARrZqhnLyYEzKVLaQoaBkSfkNZBMB8GA1UdIwQYMBaAFHw2PqJv/WeQMWNmj8bs
+    9eDQNcu+MA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgKkMA0GCSqGSIb3
+    DQEBCwUAA4ICAQCZj4ju1OEQR4Dhnyqd2/NvXfC0R2zyGoWAqnJ1OCCnLJJm4v0K
+    fy34SgUqM3ezpA1zCEvZu7+eyjwOtxOqIsuD8wqlrAJJ8q0q7Iv11SUa9lIcaJlc
+    NG5DdnHIlNooeRtcvO5mES/wW9dQXfHQ2dA1b6qzJ9usX5Tkiqta6VwNqlnHRi9P
+    wVMH19HtiyM9PsfoDikacuBBIqWAa5USrUscsv40mU9GFfWdUOfTzIK3coxZJZXF
+    JzOV1KEDyQHJ9CPJJ6IElJ7oqHibWzNOn7YV670Eegn61/i3YvjOHVSMt4jVRQPd
+    Zucwp9yyVZmHJTxrWkLkWTO+YRzOkqk0rzGhGs4V/ezJCnD2tJGuuOF2LW4b7dEx
+    dOtZFHxI1n04UhcWjnVXmb+ZiqUFJjJ+DEYlmQUYyBE8d9vwhQ2TEyq2kfo1rnb5
+    RmPpJnxnDtuatQpQT9WeqzU4Rcay37PozNRzPtFRlxYNnpBcZKBx7rYbu700wNf3
+    F4cx68vRNge2OfgnGLtc+76CkHKeLBI1I/KFvKnP3whIXJTocH+P15bGE9T79h70
+    WR4G1ymVzgkSoJRacrQB0sZn52U2uN86H10ogZsW2zRkDBI8LXvGGMqERYcLGCC4
+    xH0RBBAhC+ZqGhgxAzqzh4WRZfuGjILtPIqgBLfXkPmZ2kFLqjhs5jiKag==
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    MIIFOzCCAyOgAwIBAgIUB/DDxJs8bCJLWE0JQToFRIWyGZwwDQYJKoZIhvcNAQEL
+    BQAwJTEjMCEGA1UEAwwaQ3J1Y2libGUgQXBwbGlhbmNlIFJvb3QgQ0EwHhcNMjQx
+    MjExMDEwMzQ1WhcNNDQxMjA2MDEwMzQ1WjAlMSMwIQYDVQQDDBpDcnVjaWJsZSBB
+    cHBsaWFuY2UgUm9vdCBDQTCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIB
+    APneTex4SV0g/PAepHs+58RoQaXYlr+wwqkx5oOYh16MniZIYcfjvEv2LDu3BZHn
+    z7nsZQauPmlM/yMZPONeOBXc1u9U6pgNEE6w1BpAMqM+Fg8nKux6MHR4RZYXsXSw
+    QPDcSrh4SGsS+Kt3Y9o9ID0LxkjpSQN5OK5DpYMrWsTcE5mo/URejr2SaQcHKXu8
+    QhV+0sPt3NTW5AQyHO1C66wD5kdeukUOfQ4S0KwlTxlMBrGdNVRNN8J5KtWBpBnt
+    8PKwJad0/5yme34MoGYiQnzpj48njQba9gimMUFFues5XL9sTbGGTh5Uzjjo50k6
+    AAdX8pjQlLRtQQp7l/TG227m3Jvf0Xoc95bOADv2JGcASeMMAHk/fNGcX6n1ZDnb
+    TMLAdpy3k34oHC6r19qaktDNKlISrVoEKC72YqgpPcBFYArjlz06X07TaO0N0fjQ
+    yrOjlgHnRQJYMk/CkyNq0TRTOxtrzqRZbFt6E8CWHgyg223pWiPPAobJnORKG//d
+    bB7VKZ0ApfHSoudR9SY6rbgXojFrql3iypvy3gYRDKsw3qdF/NcpKWn5DP0s9kci
+    HID/qpbB5BxgdTgzBOOhbPvcpLqoLNGFwnV6Q1kJ/WQyD3wY6i6dK7ANaz9kt+PC
+    /yaZdTj7LhDoqg3pbulhaCOacgYvNL07W0Ir4KXLx1pbAgMBAAGjYzBhMB0GA1Ud
+    DgQWBBR8Nj6ib/1nkDFjZo/G7PXg0DXLvjAfBgNVHSMEGDAWgBR8Nj6ib/1nkDFj
+    Zo/G7PXg0DXLvjAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwICpDANBgkq
+    hkiG9w0BAQsFAAOCAgEATcDZfFKtKOEejnmtOkyHRux47ThdbPX3BPZgPT2Ft+1o
+    0LcHVSuZlyJCAdidQPz5W8ftwOTu2pZapduSkjjUBOzw3mpmQMV1OBf6LG3/Vmw6
+    +h7/iw5ptvtHYf0/OnUxwdMOyLo4HNBIUrZVTLj0fAPwZyFYfRe8aM70go6w4YLt
+    SUlz9Eeu2qi6VoYHAGxjOUYJHnlLeIERcE/N2PioYNeT1L8WGYgl+n/KqCtJW4l0
+    zUEb99kCiRK41outixeLojFhjkHh5fltgJqnXduCnkibEPhjD5eASSqTj6t8Tcl6
+    QD68L5awbE0J+xQUtOKGVPUmxIQkQMKm7Aomi6ALy/vGRivVASFXYo5FhE35q3WO
+    FSXBDffNpJQxfN5x7N7UBwr0tspBteLfNM1HNfjTqosX5WQkW424XFJCcJt/uYGd
+    C1mN9CcExzmHI3W/o1SjGNqchGMdRKQL9yTMVjz1mCB4srSjaMiAPR3yF8D5VgkB
+    FzCh9gWXXpjmvbfPnL3S3XhxqVZUSD7uu96+N2fBFQN2tZp6QDcbnUKqFaT/LAsW
+    OkdCYNSLwewBC7wKvmgDKqL25UoWiOF67ahjy2cnj/4ROFGg6qRF14CQpSFRttGZ
+    4AMUFKQY+vQoudYgzgLBBtbcdVbtBQgGmXCmj4fkR3WoK4/bR1EtzOsCgcYob3c=
+    -----END CERTIFICATE-----
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  health: {}
+    # livenessProbe:
+    #   initialDelaySeconds: 10
+    #   httpGet:
+    #     path: /api/version
+    #     port: http
+    # startupProbe:
+    #   initialDelaySeconds: 30
+    #   httpGet:
+    #     path: /api/version
+    #     port: http
+    #   failureThreshold: 9
+    #   periodSeconds: 10
+
+  # storage - either an existing pvc, the size for a new pvc, or emptyDir
+  storage:
+    existing: gameboard-pvc
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 200m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  ## migrations sets how data migrations run
+  ## If enabled, all replicas will wait until a single migration job runs.
+  ## this is important if running multiple replicas or if you use different
+  ## connection strings (permissions) for building the database versus using it.
+  ## If using a single connection string, no need to specify here. It will use values
+  ## from `env` below.
+  ## NOTE: the serviceAccount must have permission to `get batch.jobs`.
+  ## If you create the serviceAccount above, it will get a RoleBinding to a Role with that allowed.
+  migrations:
+    enabled: false
+    restartPolicy: Never
+    Database__Provider: ""
+    Database__ConnectionString: ""
+    env: {}
+
+  # Config app settings with environment vars.
+  # Those most likely needing values are listed. For others,
+  # see https://github.com/cmu-sei/gameboard/blob/master/src/Gameboard.Api/appsettings.conf
+
+  ## giturl is the url of the git repository of static markdown
+  giturl: ""
+  ## gitbranch sets which repo branch to publish
+  gitbranch: ""
+  ## pollInterval sets minutes between git pull
+  pollInterval: 5
+
+  env:
+    PathBase: ""
+    Oidc__Audience: gameboard-api
+    Oidc__Authority: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>
+    OpenApi__Client__ClientId: gameboard-api
+    OpenApi__Client__AuthorizationURL: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authorization-url>
+    OpenApi__Client__TokenURL: https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-token-url>
+    OpenApi__Enabled: true
+
+    Database__Provider: PostgreSQL
+    Database__ConnectionString: <path:fortress-prod/data/gameboard#gameboard-db-connection-string>
+
+    Core__GameEngineUrl: https://topomojo.<path:fortress-prod/data/shared#domain>
+    Core__GameEngineClientName: bot-gameboard
+    Core__GameEngineClientSecret: dUtapghdvXySO9zTYPZbM1JExuB9Lc59
+    Core__ChallengeDocUrl: https://topomojo.<path:fortress-prod/data/shared#domain>
+    Core__SafeNamesFile: conf/safenames.json
+    Core__KeyPrefix: PHL-OP
+
+    Headers__Cors__Origins__0: gameboard.<path:fortress-prod/data/shared#domain>
+    Headers__Cors__Methods__0: "*"
+    Headers__Cors__Headers__0: "*"
+    Headers__Cors__AllowCredentials: true
+    Logging__LogLevel__Microsoft.Hosting.Lifetime: Information
+    Logging__LogLevel__Microsoft: Information
+    Logging__LogLevel__Microsoft.EntityFrameworkCore: Warning
+    Logging__LogLevel__Microsoft.AspNetCore.Routing: Warning
+    Logging__LogLevel__System.Net.Http.HttpClient.ITopoMojoApiClient: Warning
+    Logging__LogLevel__Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor: Warning
+    Logging__LogLevel__Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker: Warning
+    Logging__LogLevel__Gameboard.Api.JobService: Warning
+
+gameboard-ui:
+  # Default values for gameboard-ui.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+
+  replicaCount: 1
+
+  image:
+    repository: cmusei/gameboard-ui
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "3.30.0"
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
+    hosts:
+      - host: gameboard.<path:fortress-prod/data/shared#domain>
+        paths:
+          - path: "/(.*)"
+            pathType: Prefix
+    tls:
+      - secretName: gameboard.<path:fortress-prod/data/shared#domain>-tls
+        hosts:
+          - gameboard.<path:fortress-prod/data/shared#domain>
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  resources:
+    limits:
+      cpu: 20m
+      memory: 20Mi
+    requests:
+      cpu: 10m
+      memory: 10Mi
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 20m
+    #   memory: 20Mi
+    # requests:
+    #   cpu: 10m
+    #   memory: 10Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  ## basehref is path to the app
+  basehref: ""
+
+  ## faviconsUrl is a url to tgz of icon bundle. If bundle has favicon.html,
+  ## its contents will be merged into index.html head element.
+  # faviconsUrl: "https://some.url/favs.tgz"
+
+    ## openGraph is string of html head metadata (single line!)
+  openGraph: >-
+    <!-- Open Graph info for link previews -->
+    <meta property="og:title" content="PHL-OP Gameboard" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gameboard.<path:fortress-prod/data/shared#domain>" />
+    <meta property="og:image" content="" />
+    <meta property="og:description" content="PHL-OP Gameboard" />
+
+  ## settings is stringified json that gets included as assets/settings.json
+  settings: |
+    {
+      "appname": "PHL-OP Gameboard",
+      "apphost": "",
+      "mkshost": "",
+      "tocfile": "",
+      "oidc": {
+        "client_id": "gameboard-ui",
+        "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
+        "redirect_uri": "https://gameboard.<path:fortress-prod/data/shared#domain>/oidc",
+        "silent_redirect_uri": "https://gameboard.<path:fortress-prod/data/shared#domain>/oidc-silent.html",
+        "response_type": "code",
+        "scope": "openid profile gameboard-api topomojo-api",
+        "automaticSilentRenew": true,
+        "includeIdTokenInSilentRenew": false,
+        "filterProtocolClaims": true,
+        "loadUserInfo": true,
+        "checkSessionInterval": 30000,
+        "accessTokenExpiringNotificationTime": 120,
+        "monitorSession": false,
+        "loadUserInfo": true,
+        "useLocalStorage": true,
+        "autoLogin": true,
+        "autoLogout": false
+      }
+    }

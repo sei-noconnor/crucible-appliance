@@ -1,0 +1,14 @@
+{
+    "app": {
+        "project_name" : "oauth",
+        "project_branch" : "main",
+        "namespace" : "default",
+        "manifest_type": "helm",
+        "helm_chart" : "oauth2-proxy",
+        "helm_chart_version" : "7.10.2",
+        "helm_repo": "https://oauth2-proxy.github.io/manifests",
+        "values_file" : "oauth.values.yaml",
+        "helm_args" : "",
+        "kustomize_dir" : ""
+    }
+}

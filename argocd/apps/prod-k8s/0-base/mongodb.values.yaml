@@ -16,7 +16,6 @@ auth:
     - <path:fortress-prod/data/stackstorm#stackstorm-mongo-pass>
   databases:
     - st2
-  
 service:
   nameOverride: "mongodb"
   type: ClusterIP
@@ -25,10 +24,7 @@ service:
 
 persistence:
   enabled: true
-  storageClass: "longhorn"
-  accessModes:
-    - ReadWriteOnce
-  size: 8Gi
+  existingClaim: "mongodb-pvc"
   annotations: {}
   mountPath: /bitnami/mongodb
-  
+
