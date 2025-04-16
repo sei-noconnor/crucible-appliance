@@ -10,8 +10,8 @@ if [ ${DOMAIN} != onprem.phl-imcite.net ]; then
     echo "Changing domain from onprem.phl-imcite.net to ${DOMAIN}"
     find . -type f -exec sed -i "s//${DOMAIN}/g" {} \;
     echo "Changing legacy appliance domains"
-    find . -type f -exec sed -i "s/crucible.dev/${DOMAIN}/g" {} \;
-    find . -type f -exec sed -i "s/crucible.local/${DOMAIN}/g" {} \;
+    find . -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} \;
+    find . -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} \;
     # commit the code
     git add --all
     git commit -m " to ${DOMAIN}"    

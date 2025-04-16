@@ -18,10 +18,10 @@ spec:
   sources:
   - path: argocd/install/cert-manager/manifests
     repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: main
+    targetRevision: onprem-sync
     directory:
       recurse: true
   - path: argocd/install/cert-manager/kustomize/overlays/appliance
     repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git/
-    targetRevision: main
+    targetRevision: onprem-sync
 

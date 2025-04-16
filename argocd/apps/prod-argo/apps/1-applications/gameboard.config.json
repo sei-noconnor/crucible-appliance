@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "gameboard",
-        "project_branch" : "HEAD",
+        "project_branch" : "onprem-sync",
         "namespace" : "default",
         "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",

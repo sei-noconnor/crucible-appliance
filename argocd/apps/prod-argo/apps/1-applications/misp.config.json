@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "misp",
-        "project_branch" : "main",
+        "project_branch" : "onprem-sync",
         "namespace" : "default",
         "manifest_type": "kustomize",
         "helm_chart" : "misp",

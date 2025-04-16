@@ -9,7 +9,7 @@ spec:
   generators:
   - git:
       repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
-      revision: main
+      revision: onprem-sync
       files:
       - path: "argocd/apps/prod-argo/apps/0-base/*.json"
   template:
@@ -19,7 +19,7 @@ spec:
       project: default
       source:
         repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
-        targetRevision: main
+        targetRevision: onprem-sync
         path: "argocd/apps/prod-k8s/0-base"
         plugin:
           name: argocd-vault-plugin

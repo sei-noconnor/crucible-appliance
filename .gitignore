@@ -56,3 +56,5 @@ appliance.yaml
 !**/*/issuers-dod-certs.crt
 !**/*/root-ca.pem
 !**/*/root-ca.key
+!**/*/root-ca.pem
+!**/*/root-ca.key

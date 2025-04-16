@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "mongodb",
-        "project_branch" : "main",
+        "project_branch" : "onprem-sync",
         "namespace" : "default",
         "manifest_type": "helm-oci",
         "helm_chart" : "oci://registry-1.docker.io/bitnamicharts/mongodb",

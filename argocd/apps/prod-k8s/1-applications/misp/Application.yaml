@@ -18,4 +18,4 @@ spec:
   source:
     path: argocd/apps/misp/kustomize/overlays/appliance
     repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: main
+    targetRevision: onprem-sync

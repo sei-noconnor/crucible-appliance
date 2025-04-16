@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "moodle",
-        "project_branch" : "main",
+        "project_branch" : "onprem-sync",
         "namespace" : "moodle",
         "manifest_type": "kustomize",
         "helm_repo" : "https://charts.bitnami.com/bitnami",

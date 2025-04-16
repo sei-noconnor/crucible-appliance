@@ -13,7 +13,7 @@ spec:
   source:
     path: argocd/apps/prod-argo
     repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: main
+    targetRevision: onprem-sync
     directory:
       recurse: false
   sources: []
