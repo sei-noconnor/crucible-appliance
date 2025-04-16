@@ -9,6 +9,6 @@
         "helm_chart_version" : "0.2.2",
         "values_file" : "",
         "helm_args" : "",
-        "kustomize_dir" : ""
+        "kustomize_dir" : "mkdocs/kustomize/overlays/appliance"
     }
 }
