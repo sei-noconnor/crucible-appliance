@@ -8,8 +8,8 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/sei-noconnor/crucible-appliance.git
-      revision: HEAD
+      repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
+      revision: main
       files:
       - path: "argocd/apps/prod-argo/apps/0-base/*.json"
   template:
@@ -18,7 +18,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/sei-noconnor/crucible-appliance.git
+        repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
         targetRevision: main
         path: "argocd/apps/prod-k8s/0-base"
         plugin:

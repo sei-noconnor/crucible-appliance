@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "kube-prometheus-stack",
-        "project_branch" : "HEAD",
+        "project_branch" : "main",
         "namespace" : "monitoring",
         "manifest_type": "helm",
         "helm_repo" : "https://prometheus-community.github.io/helm-charts",

@@ -17,6 +17,6 @@ spec:
     - CreateNamespace=true
   source:
     path: argocd/install/postgres/kustomize/overlays/appliance
-    repoURL: file:///crucible-repo/crucible-appliance
+    repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
     targetRevision: main
 
