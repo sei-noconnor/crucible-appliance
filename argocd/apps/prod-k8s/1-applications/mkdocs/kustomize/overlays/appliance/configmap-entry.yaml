@@ -4,7 +4,7 @@
     #!/bin/sh
     echo "Nic Test!"
     update-ca-certificates
-    
+
     giturl=$GITURL
     branch=$GITBRANCH
 
@@ -22,7 +22,7 @@
 
     git reset --hard
     git clean -f
-    
+
     if [ -n "$branch" ]; then 
         gitcheckoutoutput=`git checkout $branch 2>&1`
         echo "$gitcheckoutoutput" | grep "Switch*" > /dev/null 2>&1
@@ -48,7 +48,7 @@
   path: /data/mkdocs-build.sh
   value: |-
     #!/bin/sh
-    
+
     if [ -f "/docs/.dirty" ]; then
         echo "Building docs..."
 

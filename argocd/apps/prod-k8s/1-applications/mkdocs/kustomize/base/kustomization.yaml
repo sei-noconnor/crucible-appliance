@@ -5,9 +5,10 @@ resources:
   - namespace.yaml
 
 secretGenerator:
-- name: crucible-certs
-  files:
-  - crucible-ca.crt=files/root-ca.crt
+  - name: crucible-certs
+
+    files:
+      - crucible-ca.crt=files/root-ca.crt
 
 generatorOptions:
   disableNameSuffixHash: true
@@ -20,16 +21,3 @@ helmCharts:
     releaseName: appliance
     namespace: mkdocs
     valuesFile: files/mkdocs-material-0-2-2.values.yaml
-
-
-
-
-
-
-
-
-
-
-
-
-
