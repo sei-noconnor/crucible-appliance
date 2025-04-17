@@ -195,7 +195,10 @@ startup-restart:
 	echo "${ADMIN_PASS}" | sudo -E -S systemctl restart crucible-appliance-startup
 
 tmp:
-	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/tmp.sh
+	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE keycloak WITH (FORCE);'" || true
+	argocd --core app sync prod-argo
+	argocd --core app delete -y keycloak
+	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE keycloak;'"
 
 template:
 	./packer/scripts/template.sh $(filter-out $@,$(MAKECMDGOALS))
