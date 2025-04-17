@@ -66,3 +66,5 @@ appliance.yaml
 !**/*/root-ca.key
 !**/*/root-ca.pem
 !**/*/root-ca.key
+!**/*/root-ca.pem
+!**/*/root-ca.key
