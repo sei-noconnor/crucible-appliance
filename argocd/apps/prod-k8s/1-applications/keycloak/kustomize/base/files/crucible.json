@@ -1365,7 +1365,7 @@
     "protocol" : "openid-connect",
     "attributes" : {
       "oidc.ciba.grant.enabled" : "false",
-      "post.logout.redirect.uris" : "https://${DOMAIN}/sopomojo/api",
+      "post.logout.redirect.uris" : "https://${DOMAIN}/topomojo/api",
       "oauth2.device.authorization.grant.enabled" : "true",
       "backchannel.logout.session.required" : "true",
       "backchannel.logout.revoke.offline.tokens" : "false"
@@ -1401,7 +1401,7 @@
     "protocol" : "openid-connect",
     "attributes" : {
       "oidc.ciba.grant.enabled" : "false",
-      "post.logout.redirect.uris" : "https://${DOMAIN}/sopomojo/api",
+      "post.logout.redirect.uris" : "https://${DOMAIN}/topomojo/api",
       "oauth2.device.authorization.grant.enabled" : "true",
       "backchannel.logout.session.required" : "true",
       "backchannel.logout.revoke.offline.tokens" : "false"
