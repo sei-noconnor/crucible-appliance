@@ -7,27 +7,5 @@ resources:
   - pv.yaml
   - pvc.yaml
 
-# patches:
-#   - patch: |-
-#       apiVersion: apps/v1
-#       kind: Deployment
-#       metadata:
-#         name: appliance-topomojo-api
-#         namespace: default
-#       spec:
-#         template:
-#           spec:
-#             # securityContext:
-#             #   fsGroup: 999
-#             volumes:
-#             - name: topomojo-api-vol-nfs
-#               persistentVolumeClaim:
-#                 claimName: topomojo-pvc-nfs
-#             containers:
-#             - name: topomojo-api
-#               volumeMounts:
-#                 - name: topomojo-api-vol-nfs
-#                   mountPath: /home/app/data
-
 generatorOptions:
   disableNameSuffixHash: true

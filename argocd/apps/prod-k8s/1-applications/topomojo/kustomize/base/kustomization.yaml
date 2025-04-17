@@ -9,24 +9,7 @@ helmCharts:
   repo: https://helm.cmusei.dev/charts
   releaseName: appliance
   valuesFile: files/topomojo-0-4-3.values.yaml
-resources: 
-# - console-service.yaml
-# - console-ingress.yaml
-# - topomojo-pv.yaml
-# - topomojo-pvc.yaml
 
-# replacements:
-# - source:
-#     version: v1
-#     kind: PersistentVolume
-#     name: topomojo-pv
-#     fieldPath: spec.nfs.server
-#   targets:
-#   - select:
-#       version: v1
-#       name: topomojo-pv
-#       kind: PersistentVolume
-      
 
 
 
