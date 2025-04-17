@@ -125,7 +125,7 @@ externalDatabase:
   host: "appliance-postgresql.postgres.svc.cluster.local"
   port: 5432
   user: "postgres"
-  database: keycloak_db
+  database: keycloak
   password: "crucible"
   existingSecret: ""
   existingSecretPasswordKey: ""
