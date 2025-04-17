@@ -60,7 +60,10 @@ player-api:
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   # this is used to store uploaded files
   storage:
-    existing: "player-pvc"
+    existing: ""
+    size: "5G"
+    mode: "ReadWriteOnce"
+    class: "nfs"
 
   # Config app settings with environment vars.
   # Those most likely needing values are listed. For others,

@@ -58,7 +58,7 @@ persistence:
   storageClass: "longhorn"
 
   accessMode: ReadWriteOnce
-  size: 250Gi
+  size: 30Gi
 
 ## For creating the StorageClass automatically:
 storageClass:

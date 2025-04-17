@@ -18,7 +18,7 @@ VG_NAME="longhorn-vg"
 LV_NAME="longhorn-lv"
 MOUNT_POINT="/var/lib/longhorn"
 TEMP_DIR=$(mktemp -d)
-MIN_DISK_SIZE_MB=10240  # Minimum disk size for LVM (10GB)
+MIN_DISK_SIZE_MB=51200  # Minimum disk size for LVM (10GB)
 
 # Usage information
 usage() {

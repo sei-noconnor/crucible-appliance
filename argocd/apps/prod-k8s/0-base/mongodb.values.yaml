@@ -24,7 +24,10 @@ service:
 
 persistence:
   enabled: true
-  existingClaim: "mongodb-pvc"
+  storageClass: "longhorn"
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
   annotations: {}
   mountPath: /bitnami/mongodb
 
