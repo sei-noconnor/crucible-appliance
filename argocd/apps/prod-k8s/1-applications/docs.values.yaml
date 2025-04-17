@@ -40,7 +40,9 @@ service:
 
 # storage - either an existing pvc, the size for a new pvc, or emptyDir (git requires a pvc)
 storage:
-  existing: docs-pvc
+    size: "5G"
+    mode: "ReadWriteOnce"
+    class: "longhorn"
 
 autoscaling:
   enabled: false
