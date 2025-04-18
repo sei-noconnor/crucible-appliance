@@ -1707,22 +1707,22 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass: ""
+  storageClass: "longhorn"
   ## @param persistence.accessModes PVC Access Mode for Moodle
   ## Requires persistence.enabled: true
   ## If defined, and no customStorageClass is defined, then
   ## PVC must be created manually before volume will be bound
   ##
   accessModes:
-    -
+    - ReadWriteOnce
   ## @param persistence.size PVC Storage Request for Moodle
   ##
-  size: ""
+  size: "50Gi"
   ## @param persistence.existingClaim An Existing PVC name
   ## Requires persistence.enabled: true
   ## If defined, PVC must be created manually before volume will be bound
   ##
-  existingClaim: "moodledata-pvc"
+  existingClaim: ""
 
   ## @param persistence.hostPath Host mount path for Moodle
   ## Requires persistence.enabled: true

@@ -138,7 +138,9 @@ gameboard-api:
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
-    existing: gameboard-pvc
+    size: "10Gi"
+    mode: ReadWriteOnce
+    class: longhorn
 
   resources:
     limits:

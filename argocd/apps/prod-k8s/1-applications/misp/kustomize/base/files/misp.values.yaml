@@ -1,6 +1,8 @@
 mispPersistentVolumes:
   misp:
-    existing: misp-pvc
+    size: "10Gi"
+    mode: ReadWriteOnce
+    class: longhorn
 mariadb:
   external: true
 
