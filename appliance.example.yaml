@@ -18,6 +18,7 @@ vars:
   default_gateway:
   dns_01:
   dns_02:
+  docs_repo_secret: ~
   
 cluster:
   crucible-ctrl-02:
