@@ -48,11 +48,10 @@ mariadb:
   misp-user: admin
   misp-password: ${ADMIN_PASS}
   replication-password: ${ADMIN_PASS}
-moodle-admin:
+moodle:
   username: moodle.admin@phl-imcite.net
-  password: ${ADMIN_PASS}
-moodle-db:
-  password: ${ADMIN_PASS}
+  admin-password: ${ADMIN_PASS}
+  db-password: ${ADMIN_PASS}
 player:
   player-api-db-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=player_db;Username=player_dbo;Password=${ADMIN_PASS};
   player-vm-api-db-connection-string: Server=appliance-postgresql.postgres.svc.cluster.local;Port=5432;Database=vm_db;Username=vm_dbo;Password=${ADMIN_PASS};
