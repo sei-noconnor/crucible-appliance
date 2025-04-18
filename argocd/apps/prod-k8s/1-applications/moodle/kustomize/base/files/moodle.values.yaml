@@ -2192,8 +2192,8 @@ externalDatabase:
   port: 5432
   ## @param externalDatabase.user Existing username in the external db
   ##
-  user: moodle_dbo
-  ## @param externalDatabase.password Password for the above username
+  user: postgres
+  ## @param externalDatbase.password Password for the above username
   ##
   password: "<path:fortress-prod/data/moodle#db-password>"
   ## @param externalDatabase.database Name of the existing database
