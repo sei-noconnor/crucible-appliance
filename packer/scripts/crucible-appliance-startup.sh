@@ -25,7 +25,7 @@ DOMAIN=${DOMAIN:-onprem.phl-imcite.net}
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 
 # Expand Volume
-sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/expand-all-lvms.sh
+sudo /home/${SSH_USERNAME}/crucible-appliance/packer/scripts/01-build-extend-lvms.sh
 #sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/add-longhorn-lvm.sh
 # Add coredns entry
 sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r alloy.${DOMAIN},auth.${DOMAIN},blueprint.${DOMAIN},caster.${DOMAIN},cd.${DOMAIN},cite.${DOMAIN},console.${DOMAIN},docs.${DOMAIN},gallery.${DOMAIN},gameboard.${DOMAIN},keystore.${DOMAIN},misp.${DOMAIN},moodle.${DOMAIN},player.${DOMAIN},steamfitter.${DOMAIN},topomojo.${DOMAIN},topomojo.${DOMAIN},vm.${DOMAIN} -a upsert
