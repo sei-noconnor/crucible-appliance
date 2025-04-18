@@ -11,5 +11,5 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mispPersistentVolumes.misp.size }}
-  storageClassName: longhorn-retain
+  storageClassName: {{ .Values.mispPersistentVolumes.misp.storageClassName }}
 {{- end }}

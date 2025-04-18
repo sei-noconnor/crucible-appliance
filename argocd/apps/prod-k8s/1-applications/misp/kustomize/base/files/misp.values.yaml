@@ -1,8 +1,7 @@
 mispPersistentVolumes:
   misp:
-    size: "10Gi"
-    mode: ReadWriteOnce
-    class: longhorn
+    size: 10Gi
+    storageClassName: longhorn
 mariadb:
   external: true
 
