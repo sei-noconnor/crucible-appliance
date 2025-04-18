@@ -162,21 +162,21 @@ extraDeploy:
           KEYCLOAKAPPURL="https://onprem.phl-imcite.net/keycloak/realms/crucible"
           KEYCLOAKGROUPS="training-managers"
           SHOWGAMEBOARD="1"
-          GAMEBOARDAPIURL="https://gameboard.onprem.phl-imcite.net/api"
-          GAMEBOARDAPPURL="https://gameboard.onprem.phl-imcite.net/practice"
+          GAMEBOARDAPIURL="https://onprem.phl-imcite.net/gameboard/api"
+          GAMEBOARDAPPURL="https://onprem.phl-imcite.net/gameboard/practice"
           SHOWMISP="1"
           MISPAPPURL="https://misp.onprem.phl-imcite.net/dashboards"
           SHOWTOPOMOJO="1"
-          TOPOMOJOAPIURL="https://topomojo.onprem.phl-imcite.net/api"
-          TOPOMOJOAPPURL="https://topomojo.onprem.phl-imcite.net"
+          TOPOMOJOAPIURL="https://onprem.phl-imcite.net/topomojo/api"
+          TOPOMOJOAPPURL="https://onprem.phl-imcite.net/topomojo"
 
           #===============================================LANGUAGE PACK INSTALLATION CONFIGS==============================================================
           LANG_CODES="en_us,zh_cn,zh_cn_wp"
           MOODLE_VERSION="4.4"
 
           #===============================================MOD TOPOMOJO CONFIGS==============================================================
-          TOPOMOJOAPIURL='https://topomojo.onprem.phl-imcite.net/api'
-          TOPOMOJOBASEURL='https://topomojo.onprem.phl-imcite.net'
+          TOPOMOJOAPIURL='https://onprem.phl-imcite.net/topomojo/api'
+          TOPOMOJOBASEURL='https://onprem.phl-imcite.net/topomojo'
           MANAGERNAME='bot-moodle-prod'
           TAGIMPORT='1'
 
