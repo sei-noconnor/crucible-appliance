@@ -20,9 +20,8 @@ generate_certs:
 	./scripts/distribute_certs.sh $(SSL_DIR)
 	
 sudo-deps: generate_certs 
-	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/01-build-expand-volume.sh && \
 	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-vars.sh
-	make add-hosts-entry -- -f /etc/hosts -r ${DOMAIN},cd.${DOMAIN},keystore.${DOMAIN} -a upsert
+	make add-hosts-entry -- -f /etc/hosts -r ${DOMAIN} -a upsert
 	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
 	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
 	make snapshot -- -n "BEFORE-CRUCIBLE-BASE" -c 

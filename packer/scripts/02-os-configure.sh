@@ -6,6 +6,8 @@
 #
 
 # Get vars from appliamce.yaml
+
+
 source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
 
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
@@ -26,7 +28,7 @@ rm -rf /swap.img
 ###### Update OS #####
 ######################
 if $IS_ONLINE; then
-    sudo apt-get update -y && sudo NONINTERACTIVE=1 apt-get dist-upgrade --yes && sudo apt-get autoremove -y
+    sudo apt-get update -y && sudo NONINTERACTIVE=1 apt-get upgrade --yes && sudo apt-get autoremove -y
     sudo NONINTERACTIVE=1 apt-get install -y build-essential jq nfs-common sshpass postgresql-client make logrotate git unzip apache2-utils
 fi
 ########################
