@@ -136,9 +136,9 @@ kubectl apply -f new-ingress.yaml
 
 
 # add coredns-custom hosts entries
-./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $NEW_DOMAIN,cd.$NEW_DOMAIN,keystore.$NEW_DOMAIN,id.$NEW_DOMAIN,code.$NEW_DOMAIN -a upsert
-./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $DOMAIN,cd.$DOMAIN,keystore.$DOMAIN,id.$DOMAIN,code.$DOMAIN -a upsert
-./scripts/add-hosts-entry.sh -f /etc/hosts -r $NEW_DOMAIN,cd.$NEW_DOMAIN,keystore.$NEW_DOMAIN,id.$NEW_DOMAIN,code.$NEW_DOMAIN -a upsert
+./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $NEW_DOMAIN,alloy.${NEW_DOMAIN},auth.${NEW_DOMAIN},blueprint.${NEW_DOMAIN},caster.${NEW_DOMAIN},cd.${NEW_DOMAIN},cite.${NEW_DOMAIN},console.${NEW_DOMAIN},docs.${NEW_DOMAIN},gallery.${NEW_DOMAIN},gameboard.${NEW_DOMAIN},keystore.${NEW_DOMAIN},misp.${NEW_DOMAIN},moodle.${NEW_DOMAIN},player.${NEW_DOMAIN},steamfitter.${NEW_DOMAIN},topomojo.${NEW_DOMAIN},topomojo.${NEW_DOMAIN},vm.${NEW_DOMAIN} -a upsert
+./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r ${DOMAIN},alloy.${DOMAIN},auth.${DOMAIN},blueprint.${DOMAIN},caster.${DOMAIN},cd.${DOMAIN},cite.${DOMAIN},console.${DOMAIN},docs.${DOMAIN},gallery.${DOMAIN},gameboard.${DOMAIN},keystore.${DOMAIN},misp.${DOMAIN},moodle.${DOMAIN},player.${DOMAIN},steamfitter.${DOMAIN},topomojo.${DOMAIN},topomojo.${DOMAIN},vm.${DOMAIN} -a upsert
+./scripts/add-hosts-entry.sh -f /etc/hosts -r ${NEW_DOMAIN},alloy.${NEW_DOMAIN},auth.${NEW_DOMAIN},blueprint.${NEW_DOMAIN},caster.${NEW_DOMAIN},cd.${NEW_DOMAIN},cite.${NEW_DOMAIN},console.${NEW_DOMAIN},docs.${NEW_DOMAIN},gallery.${NEW_DOMAIN},gameboard.${NEW_DOMAIN},keystore.${NEW_DOMAIN},misp.${NEW_DOMAIN},moodle.${NEW_DOMAIN},player.${NEW_DOMAIN},steamfitter.${NEW_DOMAIN},topomojo.${NEW_DOMAIN},topomojo.${NEW_DOMAIN},vm.${NEW_DOMAIN} -a upsert
 
 # # add tls-san to k3s-service
 # echo "Updating K3s tls san "

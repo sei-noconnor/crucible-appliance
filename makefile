@@ -47,7 +47,7 @@ init:
 	
 init-argo: 
 	make ca-check-trusted -- -f $(SSL_DIR)/server/tls/root-ca.crt
-	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN},cd.${DOMAIN},keystore.${DOMAIN},help.${DOMAIN},id.${DOMAIN} -a upsert
+	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN},alloy.${DOMAIN},auth.${DOMAIN},blueprint.${DOMAIN},caster.${DOMAIN},cd.${DOMAIN},cite.${DOMAIN},console.${DOMAIN},docs.${DOMAIN},gallery.${DOMAIN},gameboard.${DOMAIN},keystore.${DOMAIN},misp.${DOMAIN},moodle.${DOMAIN},player.${DOMAIN},steamfitter.${DOMAIN},topomojo.${DOMAIN},topomojo.${DOMAIN},vm.${DOMAIN} -a upsert
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault

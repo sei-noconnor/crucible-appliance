@@ -28,7 +28,7 @@ IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo fal
 sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/expand-all-lvms.sh
 #sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/add-longhorn-lvm.sh
 # Add coredns entry
-sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/add-coredns-entry.sh
+sudo /home/${SSH_USERNAME}/crucible-appliance/scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r alloy.${DOMAIN},auth.${DOMAIN},blueprint.${DOMAIN},caster.${DOMAIN},cd.${DOMAIN},cite.${DOMAIN},console.${DOMAIN},docs.${DOMAIN},gallery.${DOMAIN},gameboard.${DOMAIN},keystore.${DOMAIN},misp.${DOMAIN},moodle.${DOMAIN},player.${DOMAIN},steamfitter.${DOMAIN},topomojo.${DOMAIN},topomojo.${DOMAIN},vm.${DOMAIN} -a upsert
 #Set if the appliance is on the internet
 sudo sed -i "/IS_ONLINE=/c\export IS_ONLINE=\\$IS_ONLINE" /etc/profile.d/crucible-env.sh
 
@@ -67,7 +67,7 @@ if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
         echo "export APPLIANCE_IP=$CURRENT_IP" >> /etc/profile.d/crucible-env.sh
     fi
     # Add NodeHosts entry to coredns
-    /home/$SSH_USERNAME/crucible-appliance/scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $DOMAIN,cd.$DOMAIN,keystore.$DOMAIN,id.$DOMAIN,code.$DOMAIN -a upsert
+    /home/${SSH_USERNAME}/crucible-appliance/scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $DOMAIN,cd.$DOMAIN,keystore.$DOMAIN,id.$DOMAIN,code.$DOMAIN,topomojo.$DOMAIN,caster.$DOMAIN,player.$DOMAIN,vm.$DOMAIN,console.$DOMAIN,gameboard.$DOMAIN,cite.$DOMAIN -a upsert
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
     k3s kubectl wait deployment \
     --all \
