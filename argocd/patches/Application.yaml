@@ -14,7 +14,7 @@ spec:
       prune: true
   source:
     path: argocd/patches
-    repoURL: https://onprem.phl-imcite.net/gitea/fortress-manifests/crucible-appliance.git
+    repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
     targetRevision: onprem-sync
     directory:
       recurse: true

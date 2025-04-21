@@ -13,11 +13,11 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-buffer-size: 256k
     nginx.ingress.kubernetes.io/proxy-busy-buffers-size: 256k
   hosts:
-    - auth.onprem.phl-imcite.net
+    - auth.crucible.io
   tls:
-    - secretName: auth.onprem.phl-imcite.net-tls
+    - secretName: auth.crucible.io-tls
       hosts:
-        - auth.onprem.phl-imcite.net
+        - auth.crucible.io
 
 service:
   type: ClusterIP
@@ -136,16 +136,16 @@ config:
   configFile: |
     provider = "keycloak-oidc"
     provider_display_name = "Keycloak"
-    redirect_url = "https://auth.onprem.phl-imcite.net/oauth2/callback"
+    redirect_url = "https://auth.crucible.io/oauth2/callback"
     oidc_issuer_url = "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>"
     provider_ca_files = "/data/ca-certificates/root-ca.crt"
     client_id = "oauth2-proxy"
     client_secret = "Pho1tJJYZEYuOAOZ33uqblppMyYwVieM"
     cookie_secret = "UGhvMXRKSllaRVl1T0FPWjMzdXFibHBwTXlZd1ZpZU0"
     code_challenge_method = "S256"
-    whitelist_domains = ["*.onprem.phl-imcite.net"]
+    whitelist_domains = ["*.crucible.io"]
     email_domains = ["*"]
-    cookie_domains = [".onprem.phl-imcite.net"]
+    cookie_domains = [".crucible.io"]
     cookie_expire = "1h"
     session_cookie_minimal = "true"
     insecure_oidc_allow_unverified_email = "true"

@@ -80,7 +80,7 @@ fi
 
 CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
-DOMAIN=${DOMAIN:-onprem.phl-imcite.net}
+DOMAIN=${DOMAIN:-crucible.io}
 
 # Delete Ubuntu machine ID for proper DHCP operation on deploy
 #echo -n > /etc/machine-id

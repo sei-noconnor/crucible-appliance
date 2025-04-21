@@ -1,6 +1,6 @@
 # VARS
 SHELL := /bin/bash
-DOMAIN ?= onprem.phl-imcite.net
+DOMAIN ?= crucible.io
 SSH_USERNAME ?= crucible
 ADMIN_PASS ?= crucible
 SSL_DIR ?= /home/crucible/crucible-appliance/dist/ssl

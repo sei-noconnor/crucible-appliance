@@ -1,6 +1,6 @@
 vars:
-  domain: onprem.phl-imcite.net
-  vsphere_server: vcsa.onprem.phl-imcite.net
+  domain: crucible.io
+  vsphere_server: vcsa.crucible.io
   vsphere_user: administrator@vsphere.local
   vsphere_password:
   vsphere_template:

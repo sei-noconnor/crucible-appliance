@@ -12,8 +12,9 @@ else
     source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
 fi
 
-if [ ${DOMAIN} != onprem.phl-imcite.net ]; then
+if [ ${DOMAIN} != crucible.io ]; then
     echo "Changing domain from crucible.io to ${DOMAIN}"
+    find . -path ./.git -prune -o -type f -exec sed -i "s/onprem.phl-imcite.net/${DOMAIN}/g" {} +
     find . -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} \;
     echo "Changing legacy appliance domains"
     find . -type f -exec sed -i "s/crucible.dev/${DOMAIN}/g" {} \;

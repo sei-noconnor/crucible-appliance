@@ -159,40 +159,40 @@ extraDeploy:
           BLOCKTITLE="1"
           CUSTOMWELCOMEMESSAGE="IMCITE Applications"
           SHOWKEYCLOAK="1"
-          KEYCLOAKAPPURL="https://onprem.phl-imcite.net/keycloak/realms/crucible"
+          KEYCLOAKAPPURL="https://crucible.io/keycloak/realms/crucible"
           KEYCLOAKGROUPS="training-managers"
           SHOWGAMEBOARD="1"
-          GAMEBOARDAPIURL="https://onprem.phl-imcite.net/gameboard/api"
-          GAMEBOARDAPPURL="https://onprem.phl-imcite.net/gameboard/practice"
+          GAMEBOARDAPIURL="https://crucible.io/gameboard/api"
+          GAMEBOARDAPPURL="https://crucible.io/gameboard/practice"
           SHOWMISP="1"
-          MISPAPPURL="https://misp.onprem.phl-imcite.net/dashboards"
+          MISPAPPURL="https://misp.crucible.io/dashboards"
           SHOWTOPOMOJO="1"
-          TOPOMOJOAPIURL="https://onprem.phl-imcite.net/topomojo/api"
-          TOPOMOJOAPPURL="https://onprem.phl-imcite.net/topomojo"
+          TOPOMOJOAPIURL="https://crucible.io/topomojo/api"
+          TOPOMOJOAPPURL="https://crucible.io/topomojo"
 
           #===============================================LANGUAGE PACK INSTALLATION CONFIGS==============================================================
           LANG_CODES="en_us,zh_cn,zh_cn_wp"
           MOODLE_VERSION="4.4"
 
           #===============================================MOD TOPOMOJO CONFIGS==============================================================
-          TOPOMOJOAPIURL='https://onprem.phl-imcite.net/topomojo/api'
-          TOPOMOJOBASEURL='https://onprem.phl-imcite.net/topomojo'
+          TOPOMOJOAPIURL='https://crucible.io/topomojo/api'
+          TOPOMOJOBASEURL='https://crucible.io/topomojo'
           MANAGERNAME='bot-moodle-prod'
           TAGIMPORT='1'
 
           #===============================================SMTP CONFIG==============================================================
           SMTPSECURE="tls"
           SMTPMAXBULK="1"
-          NOREPLYADDRESS="noreply@onprem.phl-imcite.net"
+          NOREPLYADDRESS="noreply@crucible.io"
 
           #===============================================OAUTH2 CONFIGS==============================================================
-          KEYCLOAK_URL="https://onprem.phl-imcite.net/keycloak/realms/crucible"
+          KEYCLOAK_URL="https://crucible.io/keycloak/realms/crucible"
           KEYCLOAK_CLIENTID="moodle-client"
           KEYCLOAK_CLIENTSECRET="Fxo5evJO7DKaAzvzwTx8uaP4kVoeeiyf"
           KEYCLOAK_LOGINSCOPES="openid profile email"
           KEYCLOAK_LOGINSCOPESOFFLINE="openid profile email offline_access"
           KEYCLOAK_NAME="PHL ONPREM Keycloak"
-          KEYCLOAK_IMAGE="https://onprem.phl-imcite.net/keycloak/resources/q4326/admin/keycloak.v2/icon.svg"
+          KEYCLOAK_IMAGE="https://crucible.io/keycloak/resources/q4326/admin/keycloak.v2/icon.svg"
 
           #===============================================BOOST UNION THEME SETTINGS==============================================================
           SCSSPRE=$(cat <<'EOF'
@@ -1556,7 +1556,7 @@ extraEnvVars:
   - name: PGSSLCERT
     value: /tmp/postgresql.crt
   - name: MOODLE_HOST
-    value: "moodle.onprem.phl-imcite.net"
+    value: "moodle.crucible.io"
   - name: MOODLE_USERNAME
     value: "<path:fortress-prod/data/moodle#username>"
   - name: MOODLE_PASSWORD
@@ -2006,7 +2006,7 @@ ingress:
   ## @param ingress.hostname When the ingress is enabled, a host pointing to this will be created
   ##
   # hostname: moodle.phl-imcite.net (specified in environment values file)
-  hostname: moodle.onprem.phl-imcite.net
+  hostname: moodle.crucible.io
   ## @param ingress.path The Path to Moodle&trade;. You may need to set this to '/*' in order to use this with ALB ingress controllers.
   ##
   path: /

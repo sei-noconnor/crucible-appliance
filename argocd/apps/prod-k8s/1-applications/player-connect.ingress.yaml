@@ -37,7 +37,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: onprem.phl-imcite.net
+  - host: crucible.io
     http:
       paths:
       - backend:
