@@ -179,6 +179,7 @@ uninstall:
 	rm -rf ./argocd/install/vault/kustomize/base/files/vault-keys*
 	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-role-id
 	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-secret-id
+	./scripts/reset-root-certs.sh
 	
 startup-logs:
 	journalctl --unit crucible-appliance-startup
