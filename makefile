@@ -171,7 +171,7 @@ uninstall:
 	kubectl create -f ./argocd/install/longhorn/kustomize/base/files/uninstall-longhorn.yaml || true
 	sleep 60
 	echo "${ADMIN_PASS}" | sudo -E -S k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance || true
-	sudo rm -rf /var/lib/longhorn
+	sudo rm -rf /var/lib/longhorn/*
 	sudo rm -rf /dev/longhorn
 	rm -rf ./argocd/install/argocd/kustomize/base/files/argo-*-id
 	rm -rf ./argocd/install/argocd/kustomize/appliance/files/argo-*-id
