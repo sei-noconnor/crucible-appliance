@@ -16,70 +16,9 @@ patches:
         spec:
           securityContext:
             fsGroup: 999
-          volumes:
-          - name: argocd-crucible-repo
-            persistentVolumeClaim:
-              claimName: argocd-crucible-repo
-          containers:
-          - name: repo-server
-            env:
-              - name: ARGOCD_EXEC_TIMEOUT
-                value: "300"
-            volumeMounts:
-              - name: argocd-crucible-repo
-                mountPath: /crucible-repo
-          # initContainers:
-          # - name: crucible-repo-permissions
-          #   image: busybox
-          #   command: ["sh", "-c", "chown -R 999:999 /crucible-repo"]
-          #   volumeMounts:
-          #   - name: argocd-crucible-repo
-          #     mountPath: /crucible-repo
-# - patch: |-
-#     apiVersion: apps/v1
-#     kind: Deployment
-#     metadata:
-#       name: appliance-argocd-server
-#       namespace: argocd
-#       labels:
-#         app.kubernetes.io/name: argocd-server
-#     spec:
-#       template:
-#         spec:
-#           volumes:
-#           - name: crucible-root-ca
-#             secret:
-#               defaultMode: 420
-#               secretName: crucible-root-ca
-#           containers:
-#           - name: server
-#             volumeMounts:
-#               - name: crucible-root-ca
-#                 mountPath: /etc/ssl/certs/crucible-root-ca.crt
-#                 subPath: crucible-root-ca.crt
-# - patch: |-
-#     apiVersion: apps/v1
-#     kind: Deployment
-#     metadata:
-#       name: appliance-argocd-applicationset-controller
-#       namespace: argocd
-#       labels:
-#         app.kubernetes.io/name: argocd-repo-server
-#     spec:
-#       template:
-#         spec:
-#           volumes:
-#           - name: crucible-root-ca
-#             secret:
-#               defaultMode: 420
-#               secretName: crucible-root-ca
-#           containers:
-#           - name: applicationset-controller
-#             volumeMounts:
-#               - name: crucible-root-ca
-#                 mountPath: /etc/ssl/certs/crucible-root-ca.crt
-#                 subPath: crucible-root-ca.crt
           
+          
+
 secretGenerator:
 - name: custom-ca-certificates
   files:
@@ -97,10 +36,3 @@ generatorOptions:
 
 resources:
 - ../../base
-- argocd-repo-pvc.yaml
-
-
-
-
-
-
