@@ -18,5 +18,5 @@ spec:
   source:
     path: argocd/install/nginx/kustomize/overlays/appliance
     repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: onprem-sync
+    targetRevision: main
 

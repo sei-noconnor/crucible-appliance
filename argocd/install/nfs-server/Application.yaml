@@ -18,5 +18,5 @@ spec:
   sources:
   - path: argocd/install/nfs-server/kustomize/overlays/appliance
     repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: onprem-sync
+    targetRevision: main
 

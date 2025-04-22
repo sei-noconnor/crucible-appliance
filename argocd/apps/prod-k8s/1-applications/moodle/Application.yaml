@@ -16,5 +16,5 @@ spec:
   source:
     path: argocd/apps/moodle/kustomize/overlays/appliance
     repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: onprem-sync
+    targetRevision: main
 

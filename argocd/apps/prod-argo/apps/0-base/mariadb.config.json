@@ -1,7 +1,7 @@
 {
     "app": {
         "project_name" : "mariadb",
-        "project_branch" : "onprem-sync",
+        "project_branch" : "main",
         "namespace" : "mariadb",
         "manifest_type": "helm-oci",
         "helm_chart" : "oci://registry-1.docker.io/bitnamicharts/mariadb",

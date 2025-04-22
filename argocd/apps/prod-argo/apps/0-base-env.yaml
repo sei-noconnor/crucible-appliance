@@ -19,7 +19,7 @@ spec:
       project: default
       source:
         repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
-        targetRevision: onprem-sync
+        targetRevision: main
         path: "argocd/apps/prod-k8s/0-base"
         plugin:
           name: argocd-vault-plugin

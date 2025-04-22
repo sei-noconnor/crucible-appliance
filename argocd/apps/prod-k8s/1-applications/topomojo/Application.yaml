@@ -18,5 +18,5 @@ spec:
   sources:
   - path: argocd/apps/topomojo/kustomize/overlays/appliance
     repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
-    targetRevision: onprem-sync
+    targetRevision: main
 
