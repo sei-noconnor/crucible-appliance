@@ -46,7 +46,7 @@ spec:
             port:
               number: 80
         path: /console(/|$)(.*)
-        pathType: Prefix
+        pathType: ImplementationSpecific
   tls:
   - hosts:
     - <path:fortress-prod/data/shared#domain>

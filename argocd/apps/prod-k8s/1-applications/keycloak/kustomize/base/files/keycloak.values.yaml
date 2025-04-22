@@ -87,7 +87,7 @@ extraVolumeMounts: |-
 ingress:
   enabled: true
   ingressClassName: "nginx"
-  pathType: Prefix
+  pathType: ImplementationSpecific
   hostname: crucible.io
   path: "/(keycloak)(/|$)(.*)"
   servicePort: http

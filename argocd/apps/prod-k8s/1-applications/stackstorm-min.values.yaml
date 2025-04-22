@@ -66,7 +66,7 @@ ingress:
     - host: <path:fortress-prod/data/shared#domain>
       paths:
         - path: "/stackstorm/(.*)"
-          pathType: Prefix
+          pathType: ImplementationSpecific
           serviceName: stackstorm-st2web
           servicePort: 80
   tls:

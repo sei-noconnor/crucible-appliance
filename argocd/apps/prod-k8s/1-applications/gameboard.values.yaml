@@ -28,7 +28,7 @@ gameboard-api:
       - host: gameboard.<path:fortress-prod/data/shared#domain>
         paths:
           - path: /(api|hub|img|docs|supportfiles)
-            pathType: Prefix
+            pathType: ImplementationSpecific
     tls:
       - secretName: gameboard.<path:fortress-prod/data/shared#domain>-tls
         hosts:
@@ -260,7 +260,7 @@ gameboard-ui:
       - host: gameboard.<path:fortress-prod/data/shared#domain>
         paths:
           - path: "/(.*)"
-            pathType: Prefix
+            pathType: ImplementationSpecific
     tls:
       - secretName: gameboard.<path:fortress-prod/data/shared#domain>-tls
         hosts:

@@ -17,7 +17,7 @@ blueprint-api:
       - host: blueprint.<path:fortress-prod/data/shared#domain>
         paths:
           - path: /(api|swagger|hubs)
-            pathType: Prefix
+            pathType: ImplementationSpecific
     tls:
       - secretName: blueprint.<path:fortress-prod/data/shared#domain>-tls
         hosts:
@@ -91,7 +91,7 @@ blueprint-ui:
       - host: "blueprint.<path:fortress-prod/data/shared#domain>"
         paths:
           - path: /
-            pathType: Prefix
+            pathType: ImplementationSpecific
     tls:
       - secretName: blueprint.<path:fortress-prod/data/shared#domain>-tls
         hosts:
