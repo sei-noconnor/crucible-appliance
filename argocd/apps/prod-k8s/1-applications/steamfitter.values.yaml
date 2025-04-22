@@ -64,7 +64,7 @@ steamfitter-api:
     VmTaskProcessing__ApiType: st2
     VmTaskProcessing__ApiUsername: "administrator"
     VmTaskProcessing__ApiPassword: "<path:fortress-prod/data/steamfitter#steamfitter-api-vm-task-api-pass>"
-    VmTaskProcessing__ApiBaseUrl: "https://<path:fortress-prod/data/shared#domain>/stackstorm"
+    VmTaskProcessing__ApiBaseUrl: "https://stackstorm.<path:fortress-prod/data/shared#domain>"
     VmTaskProcessing__ApiParameters__clusters: domain-c9
 
     # Basic seed data to jumpstart deployement

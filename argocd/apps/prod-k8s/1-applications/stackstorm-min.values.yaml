@@ -24,7 +24,7 @@ st2:
   password: <path:fortress-prod/data/shared#crucible-admin-pass>
   config: |
     [api]
-    allow_origin = 'https://<path:fortress-prod/data/shared#domain>'
+    allow_origin = 'https://stackstorm.<path:fortress-prod/data/shared#domain>'
     [database]
     host = <path:fortress-prod/data/stackstorm#stackstorm-mongo-server>
     port = 27017
@@ -57,22 +57,20 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
-    nginx.ingress.kubernetes.io/use-regex: "true"
     cert-manager.io/cluster-issuer: ca-issuer
   hosts:
-    - host: <path:fortress-prod/data/shared#domain>
+    - host: stackstorm.<path:fortress-prod/data/shared#domain>
       paths:
-        - path: "/stackstorm/(.*)"
-          pathType: ImplementationSpecific
+        - path: "/"
+          pathType: Prefix
           serviceName: stackstorm-st2web
           servicePort: 80
   tls:
-    - secretName: <path:fortress-prod/data/shared#domain>-tls
+    - secretName: stackstorm.<path:fortress-prod/data/shared#domain>-tls
       hosts:
-        - <path:fortress-prod/data/shared#domain>
+        - stackstorm.<path:fortress-prod/data/shared#domain>
 
 st2web:
   # Minimum 2 replicas are recommended to run st2web in HA mode
@@ -97,7 +95,7 @@ st2web:
     # type can be one of "ClusterIP", "NodePort", "LoadBalancer" or "ExternalName"
     type: "ClusterIP"
     # The hostname associated with st2web service (externalName, added to external DNS, etc.)
-    hostname: <path:fortress-prod/data/shared#domain>
+    hostname: stackstorm.<path:fortress-prod/data/shared#domain>
     # For more information regarding annotations, see
     # https://kubernetes.io/docs/concepts/services-networking/service/#ssl-support-on-aws
     annotations: {}
@@ -113,9 +111,9 @@ st2web:
         hosts: [
           {
             name: 'test',
-            url: 'https://<path:fortress-prod/data/shared#domain>/stackstorm/api',
-            auth: 'https://<path:fortress-prod/data/shared#domain>/stackstorm/auth',
-            stream: 'https://<path:fortress-prod/data/shared#domain>/stackstorm/stream',
+            url: 'https://stackstorm.<path:fortress-prod/data/shared#domain>/api',
+            auth: 'https://stackstorm.<path:fortress-prod/data/shared#domain>/auth',
+            stream: 'https://stackstorm.<path:fortress-prod/data/shared#domain>/stream',
           }
         ]
       });
