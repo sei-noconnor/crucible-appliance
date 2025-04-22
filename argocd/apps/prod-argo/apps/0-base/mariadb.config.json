@@ -2,7 +2,7 @@
     "app": {
         "project_name" : "mariadb",
         "project_branch" : "main",
-        "namespace" : "default",
+        "namespace" : "mariadb",
         "manifest_type": "helm-oci",
         "helm_chart" : "oci://registry-1.docker.io/bitnamicharts/mariadb",
         "helm_chart_version" : "20.4.1",
