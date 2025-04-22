@@ -92,7 +92,7 @@ gitea-reset:
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
 
 gitea-export-images:
-	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/package-export-images.sh
+	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/package-export-images.sh 
 
 gitea-import-images:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-import-images.sh
@@ -179,7 +179,7 @@ uninstall:
 	rm -rf ./argocd/install/vault/kustomize/base/files/vault-keys*
 	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-role-id
 	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-secret-id
-	./scripts/reset-root-certs.sh
+	sudo ./scripts/reset-root-certs.sh
 	
 startup-logs:
 	journalctl --unit crucible-appliance-startup

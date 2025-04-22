@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 ## This script exports ALL container images from an existing containerd installation, 
 ## in our case k3s. We save the images in a tar.zst file with nerdctl, nertctl was 
 ## more reliable then the built in `k3s ctr` command
@@ -17,14 +17,18 @@ PLATFORM_DEFAULT=linux/amd64
 ARCH_DEFAULT=amd64
 DIST_DIR_DEFAULT=dist/containers
 
+# Add a flag to toggle between exporting individual files or a single file
+USE_INDIVIDUAL_FILES=true
+
 # Function to display usage information
 usage() {
-    echo "Usage: $0 [-a|--arch <arch>] [-d|--directory <path>] [-p|--platform <platform>]"
+    echo "Usage: $0 [-a|--arch <arch>] [-d|--directory <path>] [-p|--platform <platform>] [--single-file|-s]"
     echo
     echo "Options:"
-    echo "  -a, --arch       archatechure of the images (default: $ARCH_DEFAULT)"
+    echo "  -a, --arch       Architecture of the images (default: $ARCH_DEFAULT)"
     echo "  -d, --directory  Directory to place output  (default: $DIST_DIR_DEFAULT)"
-    echo "  -p, --platform   Gateway ip of the cluster  (default: $PLATFORM_DEFAULT)"
+    echo "  -p, --platform   Platform of the images     (default: $PLATFORM_DEFAULT)"
+    echo "  --single-file, -s Export all images into a single file instead of individual files"
     exit 1
 }
 
@@ -34,6 +38,7 @@ while [[ "$#" -gt 0 ]]; do
         -a|--arch) ARCH="$2"; shift ;;
         -d|--directory) DIST_DIR="$2"; shift ;;
         -p|--platform) PLATFORM="$2"; shift ;;
+        --single-file|-s) USE_INDIVIDUAL_FILES=false ;;
         -h|--help) usage ;;
         *) echo "Unknown parameter passed: $1"; usage ;;
     esac
@@ -60,7 +65,20 @@ if [ ! -d $DIST_DIR ]; then
     mkdir -p $DIST_DIR
 fi
 
-sudo k3s ctr -n=k8s.io images ls -q | awk '!/sha256/ {print}' > $image_list_file
+sudo k3s ctr -n=k8s.io images ls -q | awk '!/sha256/ {print}' | sort | uniq > $image_list_file
 images=$(cat "${image_list_file}")
-sudo k3s ctr -n=k8s.io images export --platform=$PLATFORM $DIST_DIR/images-${ARCH}.tar.zst ${images}
-# sudo nerdctl -n=k8s.io --address /run/k3s/containerd/containerd.sock save --platform=$PLATFORM -o $DIST_DIR/images-${ARCH}.tar.zst ${images}
+
+# Check the flag and perform the appropriate action
+if [ "$USE_INDIVIDUAL_FILES" = true ]; then
+    for image in ${images}; do
+        image_name=$(echo $image | tr '/' '_' | tr ':' '_')
+        # sudo k3s ctr -n=k8s.io images export --platform=$PLATFORM $DIST_DIR/${image_name}-${ARCH}.tar.zst $image
+        # Uncomment the line below to use nerdctl instead of k3s ctr
+        sudo nerdctl -n=k8s.io --address /run/k3s/containerd/containerd.sock save --platform=$PLATFORM -o $DIST_DIR/${image_name}-${ARCH}.tar.zst $image
+    done
+else
+    #sudo k3s ctr -n=k8s.io images export --platform=$PLATFORM $DIST_DIR/images-${ARCH}.tar.zst $images
+    sudo nerdctl -n=k8s.io --address /run/k3s/containerd/containerd.sock save --platform=$PLATFORM -o $DIST_DIR/images-${ARCH}.tar.zst $images
+    #zstd --no-progress -T0 -16 -f --long=25 $DIST_DIR/images-${ARCH}.tar -o $DIST_DIR/images-${ARCH}.tar.zst
+    #rm -f $DIST_DIR/images-${ARCH}.tar
+fi
