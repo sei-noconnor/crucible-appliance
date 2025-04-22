@@ -37,7 +37,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: crucible.io
+  - host: console.crucible.io
     http:
       paths:
       - backend:
@@ -45,9 +45,9 @@ spec:
             name: player-connect
             port:
               number: 80
-        path: /console(/|$)(.*)
-        pathType: ImplementationSpecific
+        path: /
+        pathType: Prefix
   tls:
   - hosts:
-    - <path:fortress-prod/data/shared#domain>
-    secretName: <path:fortress-prod/data/shared#domain>-tls
+    - console.<path:fortress-prod/data/shared#domain>
+    secretName: console.<path:fortress-prod/data/shared#domain>-tls
