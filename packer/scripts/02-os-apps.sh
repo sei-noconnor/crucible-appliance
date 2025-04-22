@@ -70,7 +70,7 @@ mkdir ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i "s/default/crucible-appliance/g" ~/.kube/config
 sed -i "s/127.0.0.1/${DOMAIN}/g" ~/.kube/config
-sudo chown -R $SUDO_USERNAME:$SUDO_USERNAME ~/.kube
+sudo chown -R $USER:$USER ~/.kube
 chmod go-r ~/.kube/config
 
 # Install Kubectl

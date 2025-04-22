@@ -42,7 +42,7 @@ externalSecrets:
       enabled: false
 
 env:
-  MYSQL_HOST: mariadb.mariadb.svc.cluster.local
+  MYSQL_HOST: mariadb.default.svc.cluster.local
   MYSQL_PASSWORD: "<path:fortress-prod/data/mariadb#misp-password>"
   MYSQL_DATABASE: "<path:fortress-prod/data/mariadb#misp-database>"
   MYSQL_ROOT_PASSWORD: "<path:fortress-prod/data/mariadb#root-password>"
