@@ -8,6 +8,6 @@
         "helm_chart_version" : "20.4.1",
         "helm_repo": "",
         "values_file" : "mariadb.values.yaml",
-        "helm_args" : ""
+        "helm_args" : "--create-namespace"
     }
 }
