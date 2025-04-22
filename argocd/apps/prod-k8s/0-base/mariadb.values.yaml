@@ -119,8 +119,12 @@ primary:
     failureThreshold: 3
     successThreshold: 1
   persistence:
+    storageClass: "longhorn"
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
     enabled: true
-    existingClaim: mariadb-pvc
+    existingClaim: ~
   service:
     type: ClusterIP
     ports:
