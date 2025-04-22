@@ -9,7 +9,7 @@ spec:
   generators:
   - git:
       repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
-      revision: onprem-sync
+      revision: main
       files:
       - path: "argocd/apps/prod-argo/apps/0-base/*.json"
   template:
