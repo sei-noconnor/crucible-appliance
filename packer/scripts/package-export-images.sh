@@ -28,7 +28,7 @@ usage() {
     echo "  -a, --arch       Architecture of the images (default: $ARCH_DEFAULT)"
     echo "  -d, --directory  Directory to place output  (default: $DIST_DIR_DEFAULT)"
     echo "  -p, --platform   Platform of the images     (default: $PLATFORM_DEFAULT)"
-    echo "  --single-file, -s Export all images into a single file instead of individual files"
+    echo "  -s, --single-file, Export all images into a single file instead of individual files"
     exit 1
 }
 
@@ -38,7 +38,7 @@ while [[ "$#" -gt 0 ]]; do
         -a|--arch) ARCH="$2"; shift ;;
         -d|--directory) DIST_DIR="$2"; shift ;;
         -p|--platform) PLATFORM="$2"; shift ;;
-        --single-file|-s) USE_INDIVIDUAL_FILES=false ;;
+        -s|--single-file) USE_INDIVIDUAL_FILES=false ;;
         -h|--help) usage ;;
         *) echo "Unknown parameter passed: $1"; usage ;;
     esac
