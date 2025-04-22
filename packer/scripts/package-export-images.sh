@@ -71,7 +71,7 @@ images=$(cat "${image_list_file}")
 # Check the flag and perform the appropriate action
 if [ "$USE_INDIVIDUAL_FILES" = true ]; then
     for image in ${images}; do
-        image_name=$(echo $image | tr '/' '_' | tr ':' '_')
+        image_name=$(echo $image | tr '/' '_' | tr ':' '__')
         # sudo k3s ctr -n=k8s.io images export --platform=$PLATFORM $DIST_DIR/${image_name}-${ARCH}.tar.zst $image
         # Uncomment the line below to use nerdctl instead of k3s ctr
         sudo nerdctl -n=k8s.io --address /run/k3s/containerd/containerd.sock save --platform=$PLATFORM -o $DIST_DIR/${image_name}-${ARCH}.tar.zst $image
