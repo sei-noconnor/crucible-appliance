@@ -16,7 +16,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
   sources:
-  - path: argocd/prod-k8s/1-applications/mkdocs/kustomize/overlays/appliance
+  - path: argocd/prod-k8s/1-applications/docs-appliance/kustomize/overlays/appliance
     repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
     targetRevision: main
     
