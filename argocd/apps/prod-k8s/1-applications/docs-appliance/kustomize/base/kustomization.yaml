@@ -14,7 +14,7 @@ helmCharts:
 secretGenerator:
 - name: crucible-certs
   files:
-  - crucible-ca.crt=files/root-ca.crt
+  - crucible-ca.crt=files/root-ca.pem
 
 generatorOptions:
   disableNameSuffixHash: true
