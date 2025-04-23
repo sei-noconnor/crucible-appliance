@@ -1,6 +1,6 @@
 {
     "app": {
-        "project_name" : "mkdocs",
+        "project_name" : "docs-appliance",
         "project_branch" : "main",
         "namespace" : "mkdocs",
         "manifest_type": "kustomize",
@@ -9,6 +9,6 @@
         "helm_chart_version" : "",
         "values_file" : "",
         "helm_args" : "",
-        "kustomize_dir" : "mkdocs/kustomize/overlays/appliance"
+        "kustomize_dir" : "docs-appliance/kustomize/overlays/appliance"
     }
 }

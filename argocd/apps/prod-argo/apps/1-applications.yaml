@@ -20,7 +20,7 @@ spec:
       project: default
       source:
         repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
-        targetRevision: '{{app.project_branch}}'
+        targetRevision: 'main'
         path: "argocd/apps/prod-k8s/1-applications"
         plugin:
           name: argocd-vault-plugin

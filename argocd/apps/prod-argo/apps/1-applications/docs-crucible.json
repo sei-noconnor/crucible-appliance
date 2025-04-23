@@ -1,13 +1,13 @@
 {
     "app": {
-        "project_name" : "docs",
+        "project_name" : "docs-crucible",
         "project_branch" : "main",
         "namespace" : "default",
         "manifest_type": "helm",
         "helm_repo" : "https://helm.cmusei.dev/charts",
         "helm_chart" : "mkdocs-material",
         "helm_chart_version" : "0.2.3",
-        "values_file" : "docs.values.yaml",
+        "values_file" : "docs-crucible.values.yaml",
         "helm_args" : "",
         "kustomize_dir" : ""
     }
