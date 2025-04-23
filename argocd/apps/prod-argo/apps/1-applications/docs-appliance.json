@@ -2,7 +2,7 @@
     "app": {
         "project_name" : "docs-appliance",
         "project_branch" : "main",
-        "namespace" : "mkdocs",
+        "namespace" : "default",
         "manifest_type": "kustomize",
         "helm_repo" : "",
         "helm_chart" : "",
