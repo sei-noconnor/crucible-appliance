@@ -15,11 +15,11 @@ generatorOptions:
 helmCharts:
   - name: mkdocs-material
     includeCRDs: true
-    version: 0.2.2
+    version: 0.2.3
     repo: https://helm.cmusei.dev/charts
     releaseName: appliance
     namespace: mkdocs
-    valuesFile: files/mkdocs-material-0-2-2.values.yaml
+    valuesFile: files/mkdocs-appliance.values.yaml
 
 
 

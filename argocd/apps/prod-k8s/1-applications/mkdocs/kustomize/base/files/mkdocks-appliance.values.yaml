@@ -7,7 +7,9 @@ replicaCount: 1
 image:
   repository: squidfunk/mkdocs-material
   pullPolicy: IfNotPresent
-  
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
 service:
   type: ClusterIP
   port: 80
@@ -21,22 +23,35 @@ ingress:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/start)$ $1/ redirect;
     cert-manager.io/cluster-issuer: ca-issuer
-  hosts:
-    - host: crucible.io
-      paths:
+  paths:
         - path: /start(/|$)(.*)
           pathType: ImplementationSpecific
   tls:
-    - secretName: mkdocs-material-tls
+    - secretName: mkdocs-crucible-tls
       hosts:
         - crucible.io
 
 # storage - either an existing pvc, the size for a new pvc, or emptyDir (git requires a pvc)
 storage:
   existing: ""
+  existingSubpathPrefix: false  # If true, then volume mounts will use mkdocs-material.name as a subpath prefix.
+  overrideSubpathPrefix: # If set then this is the value used for the subpath prefix if above property is true
   size: "1Gi"
   mode: ReadWriteOnce
   class: longhorn
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
 
 ##################
 # Git deployment #
@@ -44,9 +59,9 @@ storage:
 
 ## giturl is the url of an MkDocs git repository
 giturl: "https://crucible.io/gitea/fortress-manifests/crucible-appliance"
-# giturl: ""
+
 ## gitbranch sets which repo branch to publish
-gitbranch: "upgrades"
+gitbranch: "main"
 
 ## Secret that stores the values of a git credential store helper file
 ## See https://git-scm.com/docs/git-credential-store
@@ -56,16 +71,24 @@ gitCredentialsSecret: ""
 ## The default value is ".git-credentials"
 gitCredentialsSecretKey: ""
 
-## pollInterval sets minutes between git pull
-pollInterval: 20
+## The path relative to the root of the git repo where the docs are located.
+gitPath: "docs"
 
-# cacert - add custom CA certificate
+## pollInterval sets minutes between git pull
+pollInterval: 5
+
+# cacert - add custom CA certificate in-line
 # cacert: |-
 #   -----BEGIN CERTIFICATE-----
 #   MIIDGDCCAgCgAwIBAgIUPO57TE7AQJRsMEtzii2SYwZ9TRIwDQYJKoZIhvcNAQEL
 #   BQAwJDEiMCAGA1UEAxMZRm91bmRyeSBBcHBsaWFuY2UgUm9vdCBDQTAeFw0yMTAz
 #   …
 #   -----END CERTIFICATE-----
+
+# If this deployment needs to trust custom ca certificates,
+# create a configMap with the needed certificates and specify
+# the configMap name here
+# certificateMap: "ca-map"
 
 ######################
 # Non-Git deployment #
@@ -78,19 +101,19 @@ pollInterval: 20
 ##   site_url: The value provided here will override the value in the git repo
 ##   site_dir: The value provided here will be used to set the mapping in the nginx container to this path
 ##             instead of the default value of "site". You should set this to the value that is in your mkdocs.yml file
-mkdocs: 
-  site_name: Crucible 
-  theme:
-    name: material
+mkdocs: {}
+  # site_name: My Site
+  # theme:
+  #   name: material
 
 ## files populates text files inside /docs
-files: 
-  index.md: |
-    Crucible Documentation
-  
-  page2.md: |
-    Apps
-    - crucible
+files: {}
+  # index.md: |
+  #   Welcome to My Site
+  #
+  # page2.md: |
+  #   More content goes here.
 
 # binaryFiles populates binary files inside /docs
 binaryFiles: {}
+
