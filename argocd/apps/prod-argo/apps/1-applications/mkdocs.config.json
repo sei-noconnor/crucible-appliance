@@ -2,11 +2,11 @@
     "app": {
         "project_name" : "mkdocs",
         "project_branch" : "main",
-        "namespace" : "default",
+        "namespace" : "mkdocs",
         "manifest_type": "kustomize",
-        "helm_repo" : "https://helm.cmusei.dev/charts",
+        "helm_repo" : "",
         "helm_chart" : "",
-        "helm_chart_version" : "0.2.3",
+        "helm_chart_version" : "",
         "values_file" : "",
         "helm_args" : "",
         "kustomize_dir" : "mkdocs/kustomize/overlays/appliance"
