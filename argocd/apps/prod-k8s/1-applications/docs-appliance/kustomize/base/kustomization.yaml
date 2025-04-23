@@ -8,6 +8,7 @@ helmCharts:
   version: 0.2.3
   repo: https://helm.cmusei.dev/charts
   releaseName: appliance
+  namespace: default
   valuesFile: files/mkdocs-appliance.values.yaml
 
 secretGenerator:
