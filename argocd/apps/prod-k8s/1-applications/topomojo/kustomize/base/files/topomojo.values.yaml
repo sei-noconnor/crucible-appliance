@@ -24,18 +24,18 @@ topomojo-api:
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
       kubernetes.io/ingress.class: nginx
     hosts:
-    - host: <path:fortress-prod/data/shared#domain>
+    - host: topomojo.<path:fortress-prod/data/shared#domain>
       paths:
-      - path: /topomojo/api
+      - path: /api
         pathType: ImplementationSpecific
-      - path: /topomojo/hub
+      - path: /hub
         pathType: ImplementationSpecific
-      - path: /topomojo/docs
+      - path: /docs
         pathType: ImplementationSpecific
     tls:
-    - secretName: <path:fortress-prod/data/shared#domain>-tls
+    - secretName: topomojo.<path:fortress-prod/data/shared#domain>-tls
       hosts:
-      - <path:fortress-prod/data/shared#domain>
+      - topomojo.<path:fortress-prod/data/shared#domain>
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
@@ -71,7 +71,7 @@ topomojo-api:
   # Those most likely needing values are listed. For others,
   # see https://github.com/cmu-sei/TopoMojo/blob/main/src/TopoMojo.Api/appsettings.conf
   env:
-    PathBase: "/topomojo"
+    PathBase: "/"
     Database__Provider: PostgreSQL
     Database__ConnectionString: <path:fortress-prod/data/topomojo#topomojo-api-connection-string>
     Database__AdminId: <path:fortress-prod/data/shared#oauth-admin-guid>
@@ -90,7 +90,7 @@ topomojo-api:
     ApiKeyClients__0__Id: gameengine
     ApiKeyClients__0__Key: crucible
     ApiKeyClients__0__Scope: gameboard
-    Core__ConsoleHost: https://<path:fortress-prod/data/shared#domain>/console
+    Core__ConsoleHost: https://console.<path:fortress-prod/data/shared#domain>
     Pod__Url: https://<path:fortress-prod/data/vsphere#vsphere-server>
     Pod__User: <path:fortress-prod/data/vsphere#vsphere-user>
     Pod__Password: <path:fortress-prod/data/vsphere#vsphere-pass>
@@ -108,7 +108,7 @@ topomojo-api:
     Logging__Console__DisableColors: false
     Logging__LogLevel__Default: Debug
     # Headers__LogHeaders: false
-    Headers__Cors__Origins__0: https://<path:fortress-prod/data/shared#domain>
+    Headers__Cors__Origins__0: https://topomojo.<path:fortress-prod/data/shared#domain>
     # Headers__Cors__Methods__[0]: ""
     # Headers__Cors__Headers__[0]: ""
     # Headers__Cors__AllowAnyOrigin: false
@@ -176,14 +176,14 @@ topomojo-ui:
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
       # kubernetes.io/tls-acme: "true"
     hosts:
-    - host: <path:fortress-prod/data/shared#domain>
+    - host: topomojo.<path:fortress-prod/data/shared#domain>
       paths:
-      - path: /topomojo
+      - path: /
         pathType: ImplementationSpecific
     tls:
-    - secretName: <path:fortress-prod/data/shared#domain>-tls
+    - secretName: topomojo.<path:fortress-prod/data/shared#domain>-tls
       hosts:
-      - <path:fortress-prod/data/shared#domain>
+      - topomojo.<path:fortress-prod/data/shared#domain>
 
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -207,7 +207,7 @@ topomojo-ui:
   
 
   ## basehref is path to the app
-  basehref: "/topomojo"
+  basehref: "/"
 
   ## openGraph is string of html head metadata (single line!)
   # openGraph: >-
