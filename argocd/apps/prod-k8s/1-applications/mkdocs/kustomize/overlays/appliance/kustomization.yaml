@@ -3,16 +3,16 @@ kind: Kustomization
 resources:
 - ../../base
 
-patches:
-  - target:
-      kind: CronJob
-      name: appliance-cron
-    path: cronjob.yaml
-  - target:
-      kind: Deployment
-      name: appliance-mkdocs-material
-    path: deployment.yaml
-  - target:
-      kind: ConfigMap
-      name: appliance-mkdocs-material-entry
-    path: configmap-entry.yaml
+# patches:
+#   - target:
+#       kind: CronJob
+#       name: appliance-cron
+#     path: cronjob.yaml
+#   - target:
+#       kind: Deployment
+#       name: appliance-mkdocs-material
+#     path: deployment.yaml
+#   - target:
+#       kind: ConfigMap
+#       name: appliance-mkdocs-material-entry
+#     path: configmap-entry.yaml
