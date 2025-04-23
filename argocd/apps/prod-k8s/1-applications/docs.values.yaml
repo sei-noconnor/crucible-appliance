@@ -52,12 +52,12 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 ## giturl is the url of an MkDocs git repository
-giturl: "https://gitlab.imcite.net/docs/docs.pages.imcite.net.git"
+giturl: "https://github.com/cmu-sei/crucible.git"
 
 ## gitbranch sets which repo branch to publish
-gitbranch: "phl-onprem"
+gitbranch: "main"
 
-gitCredentialsSecret: "imcite-gitlab-docs-secret"
+gitCredentialsSecret: ""
 
 ## pollInterval sets minutes between git pull
 pollInterval: 5
