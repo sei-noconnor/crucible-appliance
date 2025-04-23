@@ -9,7 +9,7 @@ helmCharts:
   repo: https://helm.cmusei.dev/charts
   releaseName: appliance
   namespace: default
-  valuesFile: files/mkdocs-appliance.values.yaml
+  valuesFile: files/docs-appliance.values.yaml
 
 secretGenerator:
 - name: crucible-certs
