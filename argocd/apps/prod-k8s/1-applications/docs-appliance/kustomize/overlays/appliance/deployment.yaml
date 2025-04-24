@@ -6,21 +6,21 @@
       name: appliance-mkdocs-material-entry
       defaultMode: 0775 
 
-# - op: add
-#   path: /spec/template/spec/volumes/-
-#   value:
-#     name: crucible-ssl-vol
-#     secret:
-#       secretName: crucible-certs
-#       items:
-#       - key: crucible-ca.crt
+- op: add
+  path: /spec/template/spec/volumes/-
+  value:
+    name: crucible-ssl-vol
+    secret:
+      secretName: crucible-certs
+      items:
+      - key: crucible-ca.crt
 
-# - op: add
-#   path: /spec/template/spec/containers/0/volumeMounts/-
-#   value:
-#     name: crucible-ssl-vol
-#     mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
-#     subPath: crucible-ca.crt
+- op: add
+  path: /spec/template/spec/containers/0/volumeMounts/-
+  value:
+    name: crucible-ssl-vol
+    mountPath: /usr/local/share/ca-certificates/crucible-ca.crt
+    subPath: crucible-ca.crt
 
 # - op: replace
 #   path: /spec/template/spec/volumes/
