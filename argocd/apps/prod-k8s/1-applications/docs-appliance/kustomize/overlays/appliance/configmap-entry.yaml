@@ -2,7 +2,6 @@
   path: /data/git-pull.sh
   value: |-
     #!/bin/sh
-    echo "Nic Test!"
     update-ca-certificates
     
     giturl=$GITURL
