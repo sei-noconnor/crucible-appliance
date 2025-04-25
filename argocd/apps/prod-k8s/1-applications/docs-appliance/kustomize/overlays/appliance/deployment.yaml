@@ -14,6 +14,7 @@
       secretName: crucible-certs
       items:
       - key: crucible-ca.crt
+        path: crucible-ca.crt
 
 - op: add
   path: /spec/template/spec/containers/0/volumeMounts/-
