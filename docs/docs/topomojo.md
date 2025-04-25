@@ -14,10 +14,10 @@ The following Foundry applications are loaded on this appliance:
 The appliance comes preloaded with a sample challenge from _President's Cup 2020_. Run the following commands to download the virtual machine images (~20 GB) to ESXi and load the challenge into TopoMojo.
 
 ```
-cd ~/foundry/topomojo
-./import-content content/pc2-d01.json
-```
+cd ~/crucible-appliance
+TODO: Document importing topomojo content
 
+```
 ## Connecting VMware ESXi
 
 TopoMojo requires a VMware ESXi hypervisor to deploy lab virtual machines. For testing, the easiest way to install ESXi is with William Lam's [ESXi virtual appliance](https://vmwa.re/nestedesxi).
@@ -40,6 +40,6 @@ Here's how to deploy ESXi as a virtual machine:
       This will enable the ESXi SSH daemon and create a new VMFS datastore from the largest disk in the appliance.
 
 4.  Boot the ESXi appliance and note the IP address it receives (via DHCP by default).
-5.  On the Foundry Appliance run `~/foundry/setup-esxi <esxi IP address>` to configure ESXi appropriately. The script configures **esxi.crucible.io** to point to the ESXi server, installs a certificate for the same hostname, and mounts an NFS datastore from the Foundry Appliance.
+TODO: Update VMWare ESXi Instructions
 
 ![CMU SEI Unitmark](assets/cmu-sei-unitmark.png){: style="width:400px;margin:40px 0px 0px"}

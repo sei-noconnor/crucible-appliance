@@ -15,8 +15,8 @@ To get started using the virtual appliance:
    | key      | value                         |
    | -------- | ----------------------------- |
    | username | `administrator@crucible.io` |
-   | password | `foundry`                     |
-   | code     | `123456`                      |
+   | password | `${ADMIN_PASS}`                     |
+   
 
 ## Common apps
 
@@ -24,7 +24,7 @@ The following Foundry applications are loaded on this appliance:
 
 | location               | api                  | description                                                                                                      |
 | ---------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| [/identity](/identity) | [api](/identity/api) | _Identity_ manages logins/credentials across all of the apps. It can integrate with any OAuth2/OIDC application. |
+| TODO: Document Common Apps | | |
 
 ## Third-party apps
 
@@ -32,20 +32,17 @@ The following third-party applications are loaded on this appliance:
 
 | location                 | description                                                                                                             |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| [/dashboard](/dashboard) | _Kubernetes Dashboard_ provides details regarding the container deployment for the appliance.                           |
 | [/gitea](/gitea)         | _Gitea_ provides a user interface for editing the web content on the appliance (including this page).                   |
-| [/pgadmin](/pgadmin)     | _pgAdmin_ provides a GUI for managing the PostgreSQL databases for each app.                                            |
-| [/vscode](/vscode)       | _code-server_ runs a browser version of [Visual Studio Code](https://code.visualstudio.com) to configure the appliance. |
 
 ## Under the hood
 
 For command line access to the appliance:
 
 ```
-ssh foundry@crucible.io
+ssh crucible@crucible.io
 ```
 
-The SSH password is `foundry`. Then you can run normal Kubernetes commands via `kubectl`.
+The SSH password is `${ADMIN_PASS}$`. Then you can run normal Kubernetes commands via `kubectl`.
 
 ```
 kubectl get pods

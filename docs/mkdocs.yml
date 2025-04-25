@@ -29,8 +29,8 @@ theme:
         name: Switch to light mode
   logo: assets/f-icon.svg
   favicon: assets/favicon.png
-repo_url: https://github.com/cmu-sei/foundry-appliance
-repo_name: cmu-sei/foundry-appliance
+repo_url: https://github.com/sei-noconnor/crucible-appliance
+repo_name: sei-noconnor/crucible-appliance
 edit_uri: ""
 copyright: Copyright &copy; 2024 Carnegie Mellon University
 extra:

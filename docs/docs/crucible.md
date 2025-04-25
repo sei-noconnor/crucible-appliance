@@ -15,16 +15,9 @@ To get started using the virtual appliance:
    | key      | value                         |
    | -------- | ----------------------------- |
    | username | `administrator@crucible.io` |
-   | password | `foundry`                     |
+   | password | `${ADMIN_PASS}`                     |
    | code     | `123456`                      |
 
-## Setup vCenter
-
-Crucible and its supporting apps require vCenter, This appliance provides a helper script to configure Crucible to use your vCenter infrastructure.
-
-1. SSH into the foundry appliance
-2. `cd ~/foundry/crucible`
-3. `./setup-vcenter`
 
 you will be asked a series of questions about your vCenter environment, additionally you will be asked if you would like to import example data.
 
@@ -34,9 +27,9 @@ Crucible is a powerful and complex application stack, to help get you started we
 
 **WARNING: This is a destructive operation all current data will be replaced** {:style="color:red;"}
 
-1. SSH into the foundry appliance
-2. `cd ~/foundry/crucible`
-3. `./import-content`
+1. SSH into the crucible appliance
+2. `cd ~/crucible-appliance`
+3. TODO: Finish setup instructions
 
 ## Crucible apps
 
@@ -55,7 +48,6 @@ The following third-party applications are loaded on this appliance:
 
 | location                               | description                             |
 | -------------------------------------- | --------------------------------------- |
-| [gitlab](https://gitlab.crucible.io) | _Gitlab_ Module repo for caster         |
 | [/stackstorm](/stackstorm)             | _Gitea_ Task processing for steamfitter |
 
 ![CMU SEI Unitmark](assets/cmu-sei-unitmark.png){: style="width:400px;margin:40px 0px 0px"}
