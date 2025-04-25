@@ -12,6 +12,3 @@ helmCharts:
   releaseName: appliance
   namespace: mkdocs
   valuesFile: files/docs-appliance.values.yaml
-
-generatorOptions:
-  disableNameSuffixHash: true

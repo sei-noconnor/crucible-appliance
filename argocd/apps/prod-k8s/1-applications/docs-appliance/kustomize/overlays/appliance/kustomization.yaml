@@ -22,3 +22,6 @@ patches:
   #     kind: ConfigMap
   #     name: appliance-mkdocs-material-entry
   #   path: configmap-entry.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
