@@ -8,7 +8,7 @@ The appliance advertises the _crucible.io_ domain via mDNS. All apps are served 
 
 To get started using the virtual appliance:
 
-1. Download [root-ca.crt](root-ca.crt) and trust it in your keychain/certificate store. This removes browser certificate warnings.
+1. Download [root-ca.pem](root-ca.pem) and trust it in your keychain/certificate store. This removes browser certificate warnings.
 2. Navigate to any of the apps in the following two sections.
 3. Unless otherwise noted, the default credentials are:
 
