@@ -12,7 +12,7 @@ helmCharts:
 secretGenerator:
   - name: root-ca
     files: 
-    - tls.crt=files/root-chain.pem
+    - tls.crt=files/root-ca.pem
     - tls.key=files/intermediate-ca.key
 configMapGenerator:
 - name: root-ca
