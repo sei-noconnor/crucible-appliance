@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mkdocs
+  name: docs-appliance
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
