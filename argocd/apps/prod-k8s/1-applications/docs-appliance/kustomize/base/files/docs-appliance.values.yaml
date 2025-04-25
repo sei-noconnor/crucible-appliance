@@ -23,7 +23,10 @@ ingress:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/start)$ $1/ redirect;
     cert-manager.io/cluster-issuer: ca-issuer
-  paths:
+
+  hosts:
+    - host: <path:fortress-prod/data/shared#domain>
+      paths:
         - path: /start(/|$)(.*)
           pathType: ImplementationSpecific
   tls:
