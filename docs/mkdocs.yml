@@ -39,7 +39,5 @@ extra:
       link: https://github.com/cmu-sei
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/u/cmusei
-    - icon: fontawesome/brands/x-twitter
-      link: https://x.com/sei_cmu
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/company/software-engineering-institute/
