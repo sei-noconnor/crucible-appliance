@@ -1,6 +1,6 @@
 # Crucible
 
-Welcome to the **Foundry Appliance**. This virtual machine hosts workforce development apps from the [Software Engineering Institute](https://sei.cmu.edu) at [Carnegie Mellon University](https://cmu.edu).
+Welcome to the **Crucible Appliance**. This virtual machine hosts workforce development apps from the [Software Engineering Institute](https://sei.cmu.edu) at [Carnegie Mellon University](https://cmu.edu).
 
 ## Getting started
 
@@ -33,7 +33,7 @@ Crucible is a powerful and complex application stack, to help get you started we
 
 ## Crucible apps
 
-The following Foundry applications are loaded on this appliance:
+The following Crucible applications are loaded on this appliance:
 
 | location                     | api                     | description                                                                                                                                                      |
 | ---------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -1,6 +1,6 @@
-# Foundry Appliance {version}
+# Crucible Appliance {version}
 
-Welcome to the **Foundry Appliance**. This virtual machine hosts workforce development apps from the [Software Engineering Institute](https://sei.cmu.edu) at [Carnegie Mellon University](https://cmu.edu).
+Welcome to the **Crucible Appliance**. This virtual machine hosts workforce development apps from the [Software Engineering Institute](https://sei.cmu.edu) at [Carnegie Mellon University](https://cmu.edu).
 
 ## Getting started
 
@@ -20,7 +20,7 @@ To get started using the virtual appliance:
 
 ## Common apps
 
-The following Foundry applications are loaded on this appliance:
+The following Crucible applications are loaded on this appliance:
 
 | location               | api                  | description                                                                                                      |
 | ---------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------- |

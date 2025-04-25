@@ -2,7 +2,7 @@
 
 ## TopoMojo apps
 
-The following Foundry applications are loaded on this appliance:
+The following Crucible applications are loaded on this appliance:
 
 | location                 | api                   | description                                                                     |
 | ------------------------ | --------------------- | ------------------------------------------------------------------------------- |
