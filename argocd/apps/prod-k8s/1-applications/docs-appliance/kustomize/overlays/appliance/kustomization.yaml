@@ -4,21 +4,26 @@ namespace: mkdocs
 resources:
 - ../../base
 
+configMapGenerator:
+  - name: crucible-certs
+    files:
+    - files/root-ca.pem=files/root-ca.pem
+
 secretGenerator:
 - name: crucible-certs
   files:
   - crucible-ca.crt=files/root-ca.pem
 
-patches:
-  - target:
-      kind: Deployment
-      name: appliance-mkdocs-material
-    path: deployment.yaml
+# patches:
+#   - target:
+#       kind: Deployment
+#       name: appliance-mkdocs-material
+#     path: deployment.yaml
 
-  - target:
-      kind: CronJob
-      name: appliance-cron
-    path: cronjob.yaml
+#   - target:
+#       kind: CronJob
+#       name: appliance-cron
+#     path: cronjob.yaml
   
   # - target:
   #     kind: ConfigMap

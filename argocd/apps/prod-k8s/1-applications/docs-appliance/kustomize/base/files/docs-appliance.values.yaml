@@ -27,9 +27,9 @@ ingress:
         - path: /start(/|$)(.*)
           pathType: ImplementationSpecific
   tls:
-    - secretName: mkdocs-crucible-tls
+    - secretName: mkdocs-<path:fortress-prod/data/shared#domain>-tls
       hosts:
-        - crucible.io
+        - <path:fortress-prod/data/shared#domain>
 
 # storage - either an existing pvc, the size for a new pvc, or emptyDir (git requires a pvc)
 storage:
@@ -39,26 +39,22 @@ storage:
   size: "1Gi"
   mode: ReadWriteOnce
   class: longhorn
-
+  
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
+  # minReplicas: 1
+  # maxReplicas: 3
+  # targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
 
-tolerations: []
-
-affinity: {}
 
 ##################
 # Git deployment #
 ##################
 
 ## giturl is the url of an MkDocs git repository
-giturl: "https://crucible.io/gitea/fortress-manifests/crucible-appliance"
+giturl: "https://<path:fortress-prod/data/shared#domain>/gitea/fortress-manifests/crucible-appliance"
 
 ## gitbranch sets which repo branch to publish
 gitbranch: "main"
@@ -77,18 +73,10 @@ gitPath: "docs"
 ## pollInterval sets minutes between git pull
 pollInterval: 5
 
-# cacert - add custom CA certificate in-line
-# cacert: |-
-#   -----BEGIN CERTIFICATE-----
-#   MIIDGDCCAgCgAwIBAgIUPO57TE7AQJRsMEtzii2SYwZ9TRIwDQYJKoZIhvcNAQEL
-#   BQAwJDEiMCAGA1UEAxMZRm91bmRyeSBBcHBsaWFuY2UgUm9vdCBDQTAeFw0yMTAz
-#   …
-#   -----END CERTIFICATE-----
-
 # If this deployment needs to trust custom ca certificates,
 # create a configMap with the needed certificates and specify
 # the configMap name here
-# certificateMap: "ca-map"
+certificateMap: "crucible-certs"
 
 ######################
 # Non-Git deployment #
