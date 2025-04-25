@@ -5,9 +5,9 @@ resources:
 - ../../base
 
 configMapGenerator:
-  - name: crucible-certs
-    files:
-    - files/root-ca.pem=files/root-ca.pem
+- name: crucible-certs
+  files:
+  - crucible-ca.crt=files/root-ca.pem
 
 secretGenerator:
 - name: crucible-certs
