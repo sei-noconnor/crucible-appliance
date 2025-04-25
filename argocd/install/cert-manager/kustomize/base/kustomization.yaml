@@ -13,7 +13,7 @@ secretGenerator:
   - name: root-ca
     files: 
     - tls.crt=files/root-ca.pem
-    - tls.key=files/intermediate-ca.key
+    - tls.key=files/root-ca.key
 configMapGenerator:
 - name: root-ca
   namespace: default
