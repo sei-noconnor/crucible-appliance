@@ -13,10 +13,5 @@ helmCharts:
   namespace: mkdocs
   valuesFile: files/docs-appliance.values.yaml
 
-secretGenerator:
-- name: crucible-certs
-  files:
-  - crucible-ca.crt=files/root-ca.pem
-
 generatorOptions:
   disableNameSuffixHash: true

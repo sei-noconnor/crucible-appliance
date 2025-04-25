@@ -3,6 +3,11 @@ kind: Kustomization
 resources:
 - ../../base
 
+secretGenerator:
+- name: crucible-certs
+  files:
+  - crucible-ca.crt=files/root-ca.pem
+
 patches:
   - target:
       kind: Deployment
