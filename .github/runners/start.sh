@@ -90,7 +90,7 @@ else
     kind create cluster -n $CLUSTER_NAME
     echo "load github-runner to cluster $CLUSTER_NAME"
     # Figure out how to load image in existing cluster
-    kind load docker-image github-runner:latest --name $CLUSTER_NAME
+    kind load docker-image github-runner:crucible-appliance --name $CLUSTER_NAME
     echo "deploying github runner to $CLUSTER_NAME on $NS namespace"
 fi
 
