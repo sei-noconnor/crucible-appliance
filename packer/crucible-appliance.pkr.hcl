@@ -79,7 +79,7 @@ source "vsphere-iso" "crucible-appliance" {
   insecure_connection = true
   vm_name       = "crucible-appliance-iso-${var.appliance_version}"
   guest_os_type = "ubuntu64Guest"
-  CPUs            = 8
+  CPUs            = 4
   RAM             = 12288
   RAM_reserve_all = true
   ssh_username = var.ssh_username
@@ -105,7 +105,7 @@ source "vsphere-iso" "crucible-appliance" {
     disk_size             = 61440
     disk_thin_provisioned = true
   }
-  iso_paths = ["[ISO] ubuntu-22.04-live-server-amd64.iso"]
+  iso_paths = ["[iso] ubuntu-22.04.5-live-server-amd64.iso"]
   network_adapters {
     network = var.network_name
   }

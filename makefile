@@ -25,7 +25,7 @@ sudo-deps: generate_certs
 	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
 	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
 	make snapshot -- -n "BEFORE-CRUCIBLE-BASE" -c 
-	make gitea-import-images
+	
 
 add-coredns-hosts-entry:
 	./scripts/add-coredns-hosts-entry.sh $(filter-out $@,$(MAKECMDGOALS))
