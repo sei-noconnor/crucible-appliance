@@ -1177,14 +1177,14 @@ imagePullSecrets: []
 # -- TCP service key-value pairs
 ## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md
 ##
-tcp: {}
-#  "8080": "default/example-tcp-svc:9000"
+tcp:
+ "2049": "nfs-server/appliance-nfs-server-provisioner:2049"
 
 # -- UDP service key-value pairs
 ## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md
 ##
-udp: {}
-#  "53": "kube-system/kube-dns:53"
+udp:
+  "2049": "nfs-server/appliance-nfs-server-provisioner:2049"
 
 # -- Prefix for TCP and UDP ports names in ingress controller service
 ## Some cloud providers, like Yandex Cloud may have a requirements for a port name regex to support cloud load balancer integration
