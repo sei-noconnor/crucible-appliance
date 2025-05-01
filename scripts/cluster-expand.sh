@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 #
 # This script is used to expand a cluster by cloning and configuring virtual machines (VMs) based on the configuration
 # specified in the appliance.yaml file. It ensures that the required tool 'yq' is installed, reads configuration values
@@ -25,8 +25,10 @@ then
     exit
 fi
 
+# source variables from appliance.yaml
 if [ -f ./appliance.yaml ]; then
-    export $(yq '.vars | to_entries | .[] | "\(.key | upcase)=\(.value)"' ./appliance.yaml | xargs)
+  source ./packer/scripts/lib/functions.sh
+  yaml_to_env "./appliance.yaml"
 fi
 export GOVC_URL="https://${VSPHERE_USER}:${VSPHERE_PASSWORD}@${VSPHERE_SERVER}"
 export GOVC_INSECURE=1
@@ -74,5 +76,5 @@ for node in $NODES; do
     else
         NODE_TYPE="worker"
     fi
-    ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k $(cidr2mask $DEFAULT_NETMASK) --deploy
+    ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k 255.255.255.0 --deploy 
 done

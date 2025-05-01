@@ -98,12 +98,25 @@ echo "Memory: $NODE_MEM MB"
 echo "IP Address: $NODE_IP"
 echo "Gateway: $NODE_GATEWAY"
 echo "Netmask: $NODE_NETMASK"
+echo "Datastore: $VSPHERE_DATASTORE"
+echo "Cluster: $VSPHERE_CLUSTER"
+echo "Portgroup: $VSPHERE_PORTGROUP"
+echo "Template: $VSPHERE_TEMPLATE"
+echo "Domain: $DOMAIN"
+echo "Sudo Username: $SUDO_USERNAME"
+echo "Sudo Password: $SUDO_PASSWORD"
+
 
 if [ "$DEPLOY" = true ]; then
     # Example command to add the node (replace with actual implementation)
+    echo "Deploying $NODE_NAME..."
     govc vm.clone -vm "$VSPHERE_TEMPLATE" -on=false -c "$NODE_CPUS" -m "$NODE_MEM" -net="$VSPHERE_PORTGROUP" -folder="/$VSPHERE_DATACENTER/vm" -pool="/$VSPHERE_DATACENTER/host/$VSPHERE_CLUSTER/Resources" -ds="$VSPHERE_DATASTORE" -link=true "$NODE_NAME"
+    echo "Customizing $NODE_NAME..."
     govc vm.customize -vm $NODE_NAME -type=Linux -ip $NODE_IP -netmask $NODE_NETMASK -gateway $NODE_GATEWAY -dns-server $DNS_01 -name $NODE_NAME
+    # sleep 10
+    echo "Powering on $NODE_NAME..."
     govc vm.power -on $NODE_NAME
+    
     # Wait for the VM to be accessible
     echo "Waiting for $NODE_NAME to be accessible..."
     while ! ping -c 1 -W 1 "$NODE_IP" &> /dev/null; do
@@ -122,9 +135,6 @@ if [ "$DEPLOY" = true ]; then
         echo -n "."
         sleep 5
     done
-    echo "I am le tired, take a NAP"
-    sleep 10
-    echo "Fire the missles!"
 fi
 
 if [ "$INSTALL" = true ]; then

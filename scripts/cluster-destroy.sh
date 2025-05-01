@@ -21,8 +21,10 @@ then
     exit
 fi
 
+# source variables from appliance.yaml
 if [ -f ./appliance.yaml ]; then
-    export $(yq '.vars | to_entries | .[] | "\(.key | upcase)=\(.value)"' ./appliance.yaml | xargs)
+  source ./packer/scripts/lib/functions.sh
+  yaml_to_env "./appliance.yaml"
 fi
 export GOVC_URL="https://${VSPHERE_USER}:${VSPHERE_PASSWORD}@${VSPHERE_SERVER}"
 export GOVC_INSECURE=1

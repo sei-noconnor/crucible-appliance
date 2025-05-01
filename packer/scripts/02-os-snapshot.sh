@@ -36,7 +36,10 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Get vars from appliance.yaml
-source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+if [ -f ./appliance.yaml ]; then
+  source ./packer/scripts/lib/functions.sh
+  yaml_to_env "./appliance.yaml"
+fi
 
 # Take base cluster snapshot
 echo "Sleeping for 20 seconds for snapshot"

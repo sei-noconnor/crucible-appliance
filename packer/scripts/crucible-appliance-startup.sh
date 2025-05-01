@@ -9,13 +9,18 @@ function crucible_log {
     tag=crucible-appliance
     logger -i -t "$tag" "$msg"
 }
+# source variables from appliance.yaml
+if [ -f ./appliance.yaml ]; then
+  source ./lib/functions.sh
+  yaml_to_env ./appliance.yaml
+fi
+SSH_USERNAME=${SSH_USERNAME:-crucible}
 
 # Check if the IP has changed, if the IP has changed the cluster needs the following: 
 # - Reset cluster from snapshot, this recreates the k3s certificates. 
 #   It does not re-create the appliance root CA certificates all 
 #   CAs and Intermediate CAs will remain the same
 # 
-
 msg="Crucible appliance startup script for version: $APPLIANCE_VERSION"
 crucible_log "$msg"
 source /etc/profile.d/crucible-env.sh

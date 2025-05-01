@@ -24,7 +24,8 @@
 
 # Get vars from appliamce.yaml
 if [ -f ./appliance.yaml ]; then
-  source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+  source ./packer/scripts/lib/functions.sh
+  yaml_to_env "./appliance.yaml"
 fi
 
 # Defaults

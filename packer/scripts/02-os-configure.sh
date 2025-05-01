@@ -8,7 +8,10 @@
 # Get vars from appliamce.yaml
 
 
-source <(yq '.vars | to_entries | .[] | (.key | upcase) + "=" + .value' ./appliance.yaml | xargs)
+if [ -f ./appliance.yaml ]; then
+  source ./packer/scripts/lib/functions.sh
+  yaml_to_env "./appliance.yaml"
+fi
 
 IS_ONLINE=$(curl -s --max-time 5 ifconfig.me >/dev/null && echo true || echo false)
 echo "IS_ONLINE: $IS_ONLINE"

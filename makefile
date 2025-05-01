@@ -205,6 +205,7 @@ template:
 
 ca-check-trusted:
 	./scripts/check-trusted-os-certs.sh	$(filter-out $@,$(MAKECMDGOALS)) 
+
 cluster-expand:
 	./scripts/cluster-expand.sh $(filter-out $@,$(MAKECMDGOALS))
 
