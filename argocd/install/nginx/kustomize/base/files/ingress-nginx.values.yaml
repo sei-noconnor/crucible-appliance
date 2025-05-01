@@ -1179,13 +1179,14 @@ imagePullSecrets: []
 ##
 tcp:
  "2049": "nfs-server/appliance-nfs-server-provisioner:2049"
+ "111": "nfs-server/appliance-nfs-server-provisioner:111"
 
 # -- UDP service key-value pairs
 ## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md
 ##
 udp:
   "2049": "nfs-server/appliance-nfs-server-provisioner:2049"
-
+  "111": "nfs-server/appliance-nfs-server-provisioner:111"
 # -- Prefix for TCP and UDP ports names in ingress controller service
 ## Some cloud providers, like Yandex Cloud may have a requirements for a port name regex to support cloud load balancer integration
 portNamePrefix: ""
