@@ -1,0 +1,30 @@
+dependencies:
+- name: argo-cd
+  repository: https://argoproj.github.io/argo-helm
+  version: 7.6.2
+- name: cert-manager
+  repository: https://charts.jetstack.io
+  version: v1.16.1
+- name: gitea
+  repository: https://dl.gitea.io/charts/
+  version: 10.6.0
+- name: ingress-nginx
+  repository: https://kubernetes.github.io/ingress-nginx
+  version: 4.12.2
+- name: keycloak
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 24.6.4
+- name: nfs-server-provisioner
+  repository: https://kvaps.github.io/charts
+  version: 1.8.0
+- name: pgadmin4
+  repository: https://helm.runix.net
+  version: 1.42.1
+- name: postgresql
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 16.6.7
+- name: vault
+  repository: https://helm.releases.hashicorp.com
+  version: 0.27.0
+digest: sha256:11a03b4fb5188e26a968acc96991f69d3fb30707f1a064163a52068b7c664fd7
+generated: "2025-05-08T17:26:09.309345194-05:00"

@@ -1,0 +1,1422 @@
+credentials:
+  postgresPassword: ${ADMIN_PASS}
+keycloak:
+  image:
+    registry: docker.io
+    repository: bitnami/keycloak
+    tag: 21.0.2-debian-11-r0
+    pullPolicy: IfNotPresent
+    debug: true
+  auth:
+    adminUser: admin
+    adminPassword: "${ADMIN_PASS}"
+  production: true
+  proxy: edge
+  httpRelativePath: "/keycloak/"
+  extraStartupArgs: >
+    --log-level=INFO --import-realm
+
+  extraEnvVars:
+    - name: KC_HOSTNAME
+      value: ${DOMAIN}
+    - name: KC_HOSTNAME_STRICT
+      value: "false"
+    - name: KC_HOSTNAME_STRICT_HTTPS
+      value: "false"
+    - name: KC_HTTPS_CLIENT_AUTH
+      value: "request"
+    - name: PROXY_ADDRESS_FORWARDING
+      value: "true"
+    - name: DOMAIN
+      value: "${DOMAIN}"
+  extraVolumes: |-
+    - name: realm
+      configMap:
+        name: keycloak-import
+        items:
+        - key: realm.json
+          path: realm.json
+  extraVolumeMounts: |-
+    - name: realm
+      mountPath: /opt/bitnami/keycloak/data/import/realm.json
+      subPath: realm.json
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    pathType: ImplementationSpecific
+    hostname: ${DOMAIN}
+    path: "/(keycloak)(/|$)(.*)"
+    servicePort: http
+    annotations:
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$1$2$3
+      nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
+      nginx.ingress.kubernetes.io/auth-tls-verify-client: "optional"
+      nginx.ingress.kubernetes.io/auth-tls-verify-depth: "2"
+      kubernetes.io/class.name: nginx
+      cert-manager.io/cluster-issuer: ca-issuer
+    tls: true
+  postgresql:
+    enabled: false
+  externalDatabase:
+    host: "appliance-postgresql.postgres.svc.cluster.local"
+    port: 5432
+    user: "postgres"
+    database: keycloak
+    password: "${ADMIN_PASS}"
+    existingSecret: ""
+    existingSecretPasswordKey: ""
+  logging:
+    output: default
+    level: ERROR
+argo-cd:
+  global:
+    additionalLabels: {}
+    domain: cd.${DOMAIN}
+    revisionHistoryLimit: 3
+    addPrometheusAnnotations: true
+  configs:
+    cm:
+      create: true
+      application.instanceLabelKey: argocd.argoproj.io/instance
+      server.rbac.log.enforce.enable: false
+      exec.enabled: false
+      admin.enabled: true
+      timeout.reconciliation: 180s
+      timeout.hard.reconciliation: 0s
+      kustomize.buildOptions: --enable-helm
+      resource.customizations: "argoproj.io/Application: \n  health.lua: | \n    hs = {}\n    hs.status = \"Progressing\" \n    hs.message = \"\" \n    if obj.status ~= nil then \n      if obj.status.health ~= nil then \n        hs.status = obj.status.health.status \n        if obj.status.health.message ~= nil then \n          hs.message = obj.status.health.message \n        end \n      end \n    end \n    return hs\n"
+    params:
+      create: true
+      annotations: {}
+      otlp.address: ''
+      controller.status.processors: 20
+      controller.operation.processors: 10
+      controller.self.heal.timeout.seconds: 5
+      controller.repo.server.timeout.seconds: 60
+      server.insecure: true
+      server.basehref: /
+      server.rootpath: ''
+      server.staticassets: /shared/app
+      server.disable.auth: false
+      server.enable.gzip: true
+      server.x.frame.options: sameorigin
+      reposerver.parallelism.limit: 0
+      applicationsetcontroller.policy: sync
+      applicationsetcontroller.enable.progressive.syncs: false
+      application.namespaces: ""
+    ssh:
+      annotations: {}
+      knownHosts: |
+        [ssh.github.com]:443 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+        [ssh.github.com]:443 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+        [ssh.github.com]:443 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+        github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+        github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+        github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+      extraHosts: ''
+    tls:
+      annotations: {}
+      certificates:
+        fortress.sei.cmu.edu: |
+          <ADD CERTS HERE>
+        code.fortress.sei.cmu.edu: |
+          <ADD CERT HERE>
+    cmp:
+      create: true
+      annotations: {}
+      plugins:
+        argocd-vault-plugin:
+          allowConcurrency: true
+          generate:
+            command:
+              - bash
+              - "-c"
+              - >
+                if [[ $ARGOCD_ENV_MANIFEST_TYPE == "yaml" ]]; then
+
+
+
+
+
+
+
+
+
+                  cat $ARGOCD_ENV_VALUES_FILE | argocd-vault-plugin generate -
+                elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "helm" ]]; then
+
+
+
+
+
+
+
+
+
+                  helm template --version $ARGOCD_ENV_CHART_VERSION --repo $ARGOCD_ENV_HELM_REPO $ARGOCD_ENV_HELM_CHART --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE -f $ARGOCD_ENV_VALUES_FILE $ARGOCD_ENV_ADDITIONAL_ARGS | argocd-vault-plugin generate -
+                elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "helm-oci" ]]; then
+
+
+
+
+
+
+
+
+
+                  helm template $ARGOCD_ENV_HELM_CHART --version $ARGOCD_ENV_CHART_VERSION --name-template $ARGOCD_ENV_HELM_RELEASE_NAME --namespace $ARGOCD_ENV_NAMESPACE --values $ARGOCD_ENV_VALUES_FILE $ARGOCD_ENV_ADDITIONAL_ARGS | argocd-vault-plugin generate -
+                elif [[ $ARGOCD_ENV_MANIFEST_TYPE == "kustomize" ]]; then
+
+
+
+
+
+
+
+
+
+                  kustomize build $ARGOCD_ENV_KUSTOMIZE_DIR --enable-helm | argocd-vault-plugin generate -
+                fi
+
+    secret:
+      createSecret: true
+      labels: {}
+      annotations: {}
+      githubSecret: ""
+      gitlabSecret: ""
+      bitbucketServerSecret: ""
+      bitbucketUUID: ""
+      gogsSecret: ""
+      extra: {}
+      argocdServerAdminPassword: "$2a$10$cHePvHFi0l2cB7wl3eELquhc0eApid82h5MMRLWQhDWS8zV3lOEEC%"
+      argocdServerAdminPasswordMtime: ""
+    styles: ""
+  extraObjects: []
+  redis:
+    enabled: true
+    name: redis
+    pdb:
+      enabled: false
+      labels: {}
+      annotations: {}
+      minAvailable: ""
+      maxUnavailable: ""
+    image:
+      repository: public.ecr.aws/docker/library/redis
+      tag: 7.2.4-alpine
+      imagePullPolicy: ""
+    exporter:
+      enabled: false
+      env: []
+      image:
+        repository: public.ecr.aws/bitnami/redis-exporter
+        tag: 1.58.0
+        imagePullPolicy: ""
+      containerSecurityContext:
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+  controller:
+    volumeMounts:
+      - name: custom-ca-certificates
+        mountPath: /etc/ssl/certs/custom-ca-certificates.crt
+        subPath: custom-ca-certificates.crt
+    volumes:
+      - name: custom-ca-certificates
+        secret:
+          defaultMode: 420
+          secretName: custom-ca-certificates
+  server:
+    name: server
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: ca-issuer
+      ingressClassName: "nginx"
+      hostname: cd.${DOMAIN}
+      hosts:
+        - cd.${DOMAIN}
+      paths:
+        - backend:
+            service:
+              name: appliance-argocd-server
+              port:
+                number: 443
+      pathType: Prefix
+      extraPaths: []
+      tls:
+        - secretName: argocd-tls
+          hosts:
+            - cd.${DOMAIN}
+      https: false
+    volumeMounts:
+      - name: custom-ca-certificates
+        mountPath: /etc/ssl/certs/custom-ca-certificates.crt
+        subPath: custom-ca-certificates.crt
+    volumes:
+      - name: custom-ca-certificates
+        secret:
+          defaultMode: 420
+          secretName: custom-ca-certificates
+  repoServer:
+    name: repo-server
+    replicas: 1
+    envFrom:
+      - secretRef:
+          name: vault-configuration
+    lifecycle: {}
+    extraContainers:
+      - name: argocd-vault-plugin
+        command: [/var/run/argocd/argocd-cmp-server]
+        image: quay.io/argoproj/argocd:v2.12.3
+        envFrom:
+          - secretRef:
+              name: vault-configuration
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 999
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+            subPath: argocd-vault-plugin.yaml
+            name: argocd-cmp-cm
+          - name: custom-tools
+            subPath: argocd-vault-plugin
+            mountPath: /usr/local/bin/argocd-vault-plugin
+          - name: custom-ca-certificates
+            mountPath: /etc/ssl/certs/custom-ca-certificates.crt
+            subPath: custom-ca-certificates.crt
+          - mountPath: /tmp
+            name: cmp-tmp
+    initContainers:
+      - name: download-tools
+        env:
+          - name: AVP_VERSION
+            value: 1.17.0
+        image: docker.io/alpine/curl:8.9.1
+        command: [sh, -c]
+        args:
+          - >-
+            /usr/sbin/update-ca-certificates && curl -L https://${DOMAIN}/gitea/api/packages/fortress-manifests/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin && chmod +x argocd-vault-plugin && mv argocd-vault-plugin /custom-tools/
+        volumeMounts:
+          - name: custom-tools
+            mountPath: /custom-tools
+          - name: custom-ca-certificates
+            mountPath: /usr/local/share/ca-certificates/custom-ca-certificates.crt
+            subPath: custom-ca-certificates.crt
+    volumeMounts:
+      - name: custom-ca-certificates
+        mountPath: /etc/ssl/certs/custom-ca-certificates.crt
+        subPath: custom-ca-certificates.crt
+    volumes:
+      - name: argocd-cmp-cm
+        configMap:
+          name: argocd-cmp-cm
+      - name: cmp-tmp
+        emptyDir: {}
+      - name: custom-tools
+        emptyDir: {}
+      - name: custom-ca-certificates
+        secret:
+          defaultMode: 420
+          secretName: custom-ca-certificates
+vault:
+  server:
+    ingress:
+      enabled: true
+      labels: {}
+      annotations:
+        nginx.ingress.kubernetes.io/ssl-redirect: "false"
+        nginx.ingress.kubernetes.io/use-regex: "true"
+        cert-manager.io/cluster-issuer: ca-issuer
+      ingressClassName: "nginx"
+      pathType: Prefix
+      activeService: true
+      hosts:
+        - host: keystore.${DOMAIN}
+          paths: []
+      tls:
+        - secretName: vault-tls
+          hosts:
+            - keystore.${DOMAIN}
+    dataStorage:
+      enabled: true
+      size: 10Gi
+      mountPath: "/vault/data"
+      storageClass: longhorn
+      accessMode: ReadWriteOnce
+  standalone:
+    enabled: "-"
+    config: |-
+      ui = true
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      storage "file" {
+        path = "/mnt/vault/data"
+      }
+nfs-server-provisioner:
+  replicaCount: 1
+  image:
+    repository: registry.k8s.io/sig-storage/nfs-provisioner
+    tag: v4.0.8
+    pullPolicy: IfNotPresent
+  extraArgs: {}
+  service:
+    type: ClusterIP
+    nfsPort: 2049
+    nlockmgrPort: 32803
+    mountdPort: 20048
+    rquotadPort: 875
+    rpcbindPort: 111
+    statdPort: 662
+    externalIPs:
+  persistence:
+    enabled: true
+    storageClass: "longhorn"
+    accessMode: ReadWriteOnce
+    size: 35Gi
+  storageClass:
+    create: true
+    defaultClass: false
+    name: nfs
+    allowVolumeExpansion: true
+    parameters: {}
+    mountOptions:
+      - vers=3
+      - retrans=2
+      - timeo=30
+    reclaimPolicy: Retain
+  rbac:
+    create: true
+    serviceAccountName: default
+  securityContext:
+    capabilities:
+      add:
+        - DAC_READ_SEARCH
+        - SYS_RESOURCE
+  priorityClass:
+    create: false
+    name: ""
+    value: 5
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+longhorn:
+  global:
+    cattle:
+      systemDefaultRegistry: ""
+      windowsCluster:
+        enabled: false
+        tolerations:
+          - key: "cattle.io/os"
+            value: "linux"
+            effect: "NoSchedule"
+            operator: "Equal"
+        nodeSelector:
+          kubernetes.io/os: "linux"
+        defaultSetting:
+          taintToleration: cattle.io/os=linux:NoSchedule
+          systemManagedComponentsNodeSelector: kubernetes.io/os:linux
+  networkPolicies:
+    enabled: false
+    type: "k3s"
+  image:
+    longhorn:
+      engine:
+        repository: longhornio/longhorn-engine
+        tag: v1.6.0
+      manager:
+        repository: longhornio/longhorn-manager
+        tag: v1.6.0
+      ui:
+        repository: longhornio/longhorn-ui
+        tag: v1.6.0
+      instanceManager:
+        repository: longhornio/longhorn-instance-manager
+        tag: v1.6.0
+      shareManager:
+        repository: longhornio/longhorn-share-manager
+        tag: v1.6.0
+      backingImageManager:
+        repository: longhornio/backing-image-manager
+        tag: v1.6.0
+      supportBundleKit:
+        repository: longhornio/support-bundle-kit
+        tag: v0.0.33
+    csi:
+      attacher:
+        repository: longhornio/csi-attacher
+        tag: v4.4.2
+      provisioner:
+        repository: longhornio/csi-provisioner
+        tag: v3.6.2
+      nodeDriverRegistrar:
+        repository: longhornio/csi-node-driver-registrar
+        tag: v2.9.2
+      resizer:
+        repository: longhornio/csi-resizer
+        tag: v1.9.2
+      snapshotter:
+        repository: longhornio/csi-snapshotter
+        tag: v6.3.2
+      livenessProbe:
+        repository: longhornio/livenessprobe
+        tag: v2.11.0
+    openshift:
+      oauthProxy:
+        repository: quay.io/openshift/origin-oauth-proxy
+        tag: 4.14
+    pullPolicy: IfNotPresent
+  service:
+    ui:
+      type: ClusterIP
+      nodePort: null
+    manager:
+      type: ClusterIP
+      nodePort: ""
+  persistence:
+    defaultClass: true
+    defaultFsType: ext4
+    defaultMkfsParams: ""
+    defaultClassReplicaCount: 1
+    defaultDataLocality: disabled
+    reclaimPolicy: Retain
+    migratable: false
+    nfsOptions: ""
+    recurringJobSelector:
+      enable: false
+      jobList: []
+    backingImage:
+      enable: false
+      name: ~
+      dataSourceType: ~
+      dataSourceParameters: ~
+      expectedChecksum: ~
+    defaultNodeSelector:
+      enable: false
+      selector: ""
+    removeSnapshotsDuringFilesystemTrim: ~
+  preUpgradeChecker:
+    jobEnabled: true
+    upgradeVersionCheck: true
+  csi:
+    kubeletRootDir: ~
+    attacherReplicaCount: 1
+    provisionerReplicaCount: 1
+    resizerReplicaCount: 1
+    snapshotterReplicaCount: 1
+  defaultSettings:
+    backupTarget: ~
+    backupTargetCredentialSecret: ~
+    allowRecurringJobWhileVolumeDetached: ~
+    createDefaultDiskLabeledNodes: ~
+    defaultDataPath: ~
+    defaultDataLocality: best-effort
+    replicaSoftAntiAffinity: ~
+    replicaAutoBalance: least-effort
+    storageOverProvisioningPercentage: 300
+    storageMinimalAvailablePercentage: 5
+    storageReservedPercentageForDefaultDisk: 5
+    upgradeChecker: ~
+    defaultReplicaCount: 1
+    defaultLonghornStaticStorageClass: ~
+    backupstorePollInterval: ~
+    failedBackupTTL: ~
+    restoreVolumeRecurringJobs: ~
+    recurringSuccessfulJobsHistoryLimit: ~
+    recurringFailedJobsHistoryLimit: ~
+    recurringJobMaxRetention: ~
+    supportBundleFailedHistoryLimit: ~
+    taintToleration: ~
+    systemManagedComponentsNodeSelector: ~
+    priorityClass: &defaultPriorityClassNameRef "longhorn-critical"
+    autoSalvage: ~
+    autoDeletePodWhenVolumeDetachedUnexpectedly: ~
+    disableSchedulingOnCordonedNode: ~
+    replicaZoneSoftAntiAffinity: ~
+    replicaDiskSoftAntiAffinity: ~
+    nodeDownPodDeletionPolicy: ~
+    nodeDrainPolicy: ~
+    detachManuallyAttachedVolumesWhenCordoned: ~
+    replicaReplenishmentWaitInterval: ~
+    concurrentReplicaRebuildPerNodeLimit: ~
+    concurrentVolumeBackupRestorePerNodeLimit: ~
+    disableRevisionCounter: ~
+    systemManagedPodsImagePullPolicy: ~
+    allowVolumeCreationWithDegradedAvailability: ~
+    autoCleanupSystemGeneratedSnapshot: ~
+    autoCleanupRecurringJobBackupSnapshot: ~
+    concurrentAutomaticEngineUpgradePerNodeLimit: ~
+    backingImageCleanupWaitInterval: ~
+    backingImageRecoveryWaitInterval: ~
+    guaranteedInstanceManagerCPU: ~
+    kubernetesClusterAutoscalerEnabled: ~
+    orphanAutoDeletion: ~
+    storageNetwork: ~
+    deletingConfirmationFlag: ~
+    engineReplicaTimeout: ~
+    snapshotDataIntegrity: ~
+    snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: ~
+    snapshotDataIntegrityCronjob: ~
+    removeSnapshotsDuringFilesystemTrim: ~
+    fastReplicaRebuildEnabled: ~
+    replicaFileSyncHttpClientTimeout: ~
+    logLevel: ~
+    backupCompressionMethod: ~
+    backupConcurrentLimit: ~
+    restoreConcurrentLimit: ~
+    v1DataEngine: ~
+    v2DataEngine: ~
+    v2DataEngineHugepageLimit: ~
+    offlineReplicaRebuilding: ~
+    v2DataEngineGuaranteedInstanceManagerCPU: ~
+    allowEmptyNodeSelectorVolume: ~
+    allowEmptyDiskSelectorVolume: ~
+    allowCollectingLonghornUsageMetrics: ~
+    disableSnapshotPurge: ~
+  privateRegistry:
+    createSecret: ~
+    registryUrl: ~
+    registryUser: ~
+    registryPasswd: ~
+    registrySecret: ~
+  longhornManager:
+    log:
+      format: plain
+    priorityClass: *defaultPriorityClassNameRef
+    tolerations: []
+    nodeSelector: {}
+    serviceAnnotations: {}
+  longhornDriver:
+    priorityClass: *defaultPriorityClassNameRef
+    tolerations: []
+    nodeSelector: {}
+  longhornUI:
+    replicas: 1
+    priorityClass: *defaultPriorityClassNameRef
+    tolerations: []
+    nodeSelector: {}
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    host: ${DOMAIN}
+    tls: true
+    secureBackends: false
+    tlsSecret: longhorn-tls
+    path: /longhorn
+    annotations:
+      cert-manager.io/cluster-issuer: ca-issuer
+    secrets:
+  enablePSP: false
+  namespaceOverride: ""
+  annotations: {}
+  serviceAccount:
+    annotations: {}
+  metrics:
+    serviceMonitor:
+      enabled: false
+  openshift:
+    enabled: false
+    ui:
+      route: "longhorn-ui"
+      port: 443
+      proxy: 8443
+  enableGoCoverDir: false
+cert-manager:
+  global:
+    imagePullSecrets: []
+    commonLabels: {}
+    priorityClassName: ""
+    rbac:
+      create: true
+      aggregateClusterRoles: true
+    podSecurityPolicy:
+      enabled: false
+      useAppArmor: true
+    logLevel: 2
+    leaderElection:
+      namespace: "cert-manager"
+  installCRDs: true
+  crds:
+    enabled: false
+    keep: true
+  replicaCount: 1
+  strategy: {}
+  podDisruptionBudget:
+    enabled: false
+  featureGates: ""
+  maxConcurrentChallenges: 60
+  image:
+    repository: quay.io/jetstack/cert-manager-controller
+    pullPolicy: IfNotPresent
+  clusterResourceNamespace: ""
+  namespace: ""
+  serviceAccount:
+    create: true
+    automountServiceAccountToken: true
+  enableCertificateOwnerRef: false
+  config: {}
+  dns01RecursiveNameservers: ""
+  dns01RecursiveNameserversOnly: false
+  disableAutoApproval: false
+  approveSignerNames:
+    - issuers.cert-manager.io/*
+    - clusterissuers.cert-manager.io/*
+  extraArgs: []
+  extraEnv: []
+  resources: {}
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+  volumes: []
+  volumeMounts: []
+  podLabels: {}
+  hostAliases: []
+  nodeSelector:
+    kubernetes.io/os: linux
+  ingressShim: {}
+  affinity: {}
+  tolerations: []
+  topologySpreadConstraints: []
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 15
+    successThreshold: 1
+    failureThreshold: 8
+  enableServiceLinks: false
+  prometheus:
+    enabled: true
+    servicemonitor:
+      enabled: false
+      prometheusInstance: default
+      targetPort: 9402
+      path: /metrics
+      interval: 60s
+      scrapeTimeout: 30s
+      labels: {}
+      annotations: {}
+      honorLabels: false
+      endpointAdditionalProperties: {}
+    podmonitor:
+      enabled: false
+      prometheusInstance: default
+      path: /metrics
+      interval: 60s
+      scrapeTimeout: 30s
+      labels: {}
+      annotations: {}
+      honorLabels: false
+      endpointAdditionalProperties: {}
+  webhook:
+    replicaCount: 1
+    timeoutSeconds: 30
+    config: {}
+    strategy: {}
+    securityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+    podDisruptionBudget:
+      enabled: false
+    validatingWebhookConfiguration:
+      namespaceSelector:
+        matchExpressions:
+          - key: "cert-manager.io/disable-validation"
+            operator: "NotIn"
+            values:
+              - "true"
+    mutatingWebhookConfiguration:
+      namespaceSelector: {}
+    extraArgs: []
+    extraEnv: []
+    featureGates: ""
+    resources: {}
+    livenessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    readinessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    affinity: {}
+    tolerations: []
+    topologySpreadConstraints: []
+    podLabels: {}
+    serviceLabels: {}
+    serviceIPFamilyPolicy: ""
+    serviceIPFamilies: []
+    image:
+      repository: quay.io/jetstack/cert-manager-webhook
+      pullPolicy: IfNotPresent
+    serviceAccount:
+      create: true
+      automountServiceAccountToken: true
+    securePort: 10250
+    hostNetwork: false
+    serviceType: ClusterIP
+    url: {}
+    networkPolicy:
+      enabled: false
+      ingress:
+        - from:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+      egress:
+        - ports:
+            - port: 80
+              protocol: TCP
+            - port: 443
+              protocol: TCP
+            - port: 53
+              protocol: TCP
+            - port: 53
+              protocol: UDP
+            - port: 6443
+              protocol: TCP
+          to:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+    volumes: []
+    volumeMounts: []
+    enableServiceLinks: false
+  cainjector:
+    enabled: true
+    replicaCount: 1
+    config: {}
+    strategy: {}
+    securityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+    podDisruptionBudget:
+      enabled: false
+    extraArgs: []
+    extraEnv: []
+    featureGates: ""
+    resources: {}
+    nodeSelector:
+      kubernetes.io/os: linux
+    affinity: {}
+    tolerations: []
+    topologySpreadConstraints: []
+    podLabels: {}
+    serviceLabels: {}
+    image:
+      repository: quay.io/jetstack/cert-manager-cainjector
+      pullPolicy: IfNotPresent
+    serviceAccount:
+      create: true
+      automountServiceAccountToken: true
+    volumes: []
+    volumeMounts: []
+    enableServiceLinks: false
+  acmesolver:
+    image:
+      repository: quay.io/jetstack/cert-manager-acmesolver
+      pullPolicy: IfNotPresent
+  startupapicheck:
+    enabled: true
+    securityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+    timeout: 1m
+    backoffLimit: 4
+    jobAnnotations:
+      helm.sh/hook: post-install
+      helm.sh/hook-weight: "1"
+      helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    extraArgs:
+      - -v
+    extraEnv: []
+    resources: {}
+    nodeSelector:
+      kubernetes.io/os: linux
+    affinity: {}
+    tolerations: []
+    podLabels: {}
+    image:
+      repository: quay.io/jetstack/cert-manager-startupapicheck
+      pullPolicy: IfNotPresent
+    rbac:
+      annotations:
+        helm.sh/hook: post-install
+        helm.sh/hook-weight: "-5"
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    serviceAccount:
+      create: true
+      annotations:
+        helm.sh/hook: post-install
+        helm.sh/hook-weight: "-5"
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+      automountServiceAccountToken: true
+    volumes: []
+    volumeMounts: []
+    enableServiceLinks: false
+  extraObjects: []
+  creator: "helm"
+  enabled: true
+ingress-nginx:
+  global:
+    image:
+      registry: registry.k8s.io
+  namespaceOverride: ""
+  commonLabels: {}
+  controller:
+    name: controller
+    enableAnnotationValidations: true
+    image:
+      chroot: false
+      image: ingress-nginx/controller
+      tag: "v1.12.1"
+      digest:
+      digestChroot:
+      pullPolicy: IfNotPresent
+      runAsNonRoot: true
+      runAsUser: 101
+      runAsGroup: 82
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      readOnlyRootFilesystem: false
+    containerName: controller
+    containerPort:
+      http: 80
+      https: 443
+    config:
+      hsts: false
+      annotations-risk-level: Critical
+    configAnnotations: {}
+    proxySetHeaders: {}
+    addHeaders: {}
+    dnsConfig: {}
+    hostAliases: []
+    hostname: {}
+    dnsPolicy: ClusterFirst
+    reportNodeInternalIp: false
+    watchIngressWithoutClass: false
+    ingressClassByName: false
+    enableTopologyAwareRouting: false
+    disableLeaderElection: false
+    electionTTL: ""
+    allowSnippetAnnotations: true
+    hostNetwork: false
+    hostPort:
+      enabled: false
+      ports:
+        http: 80
+        https: 443
+    networkPolicy:
+      enabled: false
+    electionID: ""
+    ingressClassResource:
+      name: nginx
+      enabled: true
+      default: true
+      annotations: {}
+      controllerValue: k8s.io/ingress-nginx
+      aliases: []
+      parameters: {}
+    ingressClass: nginx
+    podLabels: {}
+    podSecurityContext: {}
+    sysctls: {}
+    containerSecurityContext: {}
+    publishService:
+      enabled: true
+      pathOverride: ""
+    scope:
+      enabled: false
+      namespace: ""
+      namespaceSelector: ""
+    configMapNamespace: ""
+    tcp:
+      configMapNamespace: ""
+      annotations: {}
+    udp:
+      configMapNamespace: ""
+      annotations: {}
+    maxmindLicenseKey: ""
+    extraArgs: {}
+    extraEnvs: []
+    kind: Deployment
+    annotations: {}
+    labels: {}
+    updateStrategy: {}
+    progressDeadlineSeconds: 0
+    minReadySeconds: 0
+    tolerations: []
+    affinity: {}
+    topologySpreadConstraints: []
+    terminationGracePeriodSeconds: 300
+    nodeSelector:
+      kubernetes.io/os: linux
+    livenessProbe:
+      httpGet:
+        path: "/healthz"
+        port: 10254
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 5
+    readinessProbe:
+      httpGet:
+        path: "/healthz"
+        port: 10254
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 3
+    healthCheckPath: "/healthz"
+    healthCheckHost: ""
+    podAnnotations: {}
+    replicaCount: 1
+    minAvailable: 1
+    unhealthyPodEvictionPolicy: ""
+    resources:
+      requests:
+        cpu: 100m
+        memory: 90Mi
+    autoscaling:
+      enabled: false
+      annotations: {}
+      minReplicas: 1
+      maxReplicas: 11
+      targetCPUUtilizationPercentage: 50
+      targetMemoryUtilizationPercentage: 50
+      behavior: {}
+    autoscalingTemplate: []
+    keda:
+      apiVersion: "keda.sh/v1alpha1"
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 11
+      pollingInterval: 30
+      cooldownPeriod: 300
+      restoreToOriginalReplicaCount: false
+      scaledObject:
+        annotations: {}
+      triggers: []
+      behavior: {}
+    enableMimalloc: true
+    customTemplate:
+      configMapName: ""
+      configMapKey: ""
+    service:
+      enabled: true
+      external:
+        enabled: true
+      annotations: {}
+      labels: {}
+      type: LoadBalancer
+      clusterIP: ""
+      externalIPs: []
+      loadBalancerIP: ""
+      loadBalancerSourceRanges: []
+      loadBalancerClass: ""
+      externalTrafficPolicy: ""
+      sessionAffinity: ""
+      ipFamilyPolicy: SingleStack
+      ipFamilies:
+        - IPv4
+      enableHttp: true
+      enableHttps: true
+      ports:
+        http: 80
+        https: 443
+      targetPorts:
+        http: http
+        https: https
+      appProtocol: true
+      nodePorts:
+        http: ""
+        https: ""
+        tcp: {}
+        udp: {}
+      internal:
+        enabled: false
+        annotations: {}
+        type: ""
+        clusterIP: ""
+        externalIPs: []
+        loadBalancerIP: ""
+        loadBalancerSourceRanges: []
+        loadBalancerClass: ""
+        externalTrafficPolicy: ""
+        sessionAffinity: ""
+        ipFamilyPolicy: SingleStack
+        ipFamilies:
+          - IPv4
+        ports: {}
+        targetPorts: {}
+        appProtocol: true
+        nodePorts:
+          http: ""
+          https: ""
+          tcp: {}
+          udp: {}
+    shareProcessNamespace: false
+    extraContainers: []
+    extraVolumeMounts: []
+    extraVolumes: []
+    extraInitContainers: []
+    extraModules: []
+    admissionWebhooks:
+      name: admission
+      annotations: {}
+      enabled: true
+      extraEnvs: []
+      failurePolicy: Fail
+      port: 8443
+      certificate: "/usr/local/certificates/cert"
+      key: "/usr/local/certificates/key"
+      namespaceSelector: {}
+      objectSelector: {}
+      labels: {}
+      service:
+        annotations: {}
+        externalIPs: []
+        loadBalancerSourceRanges: []
+        servicePort: 443
+        type: ClusterIP
+      createSecretJob:
+        name: create
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65532
+          runAsGroup: 65532
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+        resources: {}
+      patchWebhookJob:
+        name: patch
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65532
+          runAsGroup: 65532
+          allowPrivilegeEscalation: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+        resources: {}
+      patch:
+        enabled: true
+        image:
+          image: ingress-nginx/kube-webhook-certgen
+          tag: v1.5.2
+          digest:
+          pullPolicy: IfNotPresent
+        priorityClassName: ""
+        podAnnotations: {}
+        networkPolicy:
+          enabled: false
+        nodeSelector:
+          kubernetes.io/os: linux
+        tolerations: []
+        labels: {}
+        securityContext: {}
+        rbac:
+          create: true
+        serviceAccount:
+          create: true
+          name: ""
+          automountServiceAccountToken: true
+      certManager:
+        enabled: false
+        rootCert:
+          duration: ""
+        admissionCert:
+          duration: ""
+    metrics:
+      port: 10254
+      portName: metrics
+      enabled: false
+      service:
+        enabled: true
+        annotations: {}
+        labels: {}
+        externalIPs: []
+        loadBalancerSourceRanges: []
+        servicePort: 10254
+        type: ClusterIP
+      serviceMonitor:
+        enabled: false
+        additionalLabels: {}
+        annotations: {}
+        namespace: ""
+        namespaceSelector: {}
+        scrapeInterval: 30s
+        targetLabels: []
+        relabelings: []
+        metricRelabelings: []
+      prometheusRule:
+        enabled: false
+        additionalLabels: {}
+        annotations: {}
+        rules: []
+    lifecycle:
+      preStop:
+        exec:
+          command:
+            - /wait-shutdown
+    priorityClassName: ""
+  revisionHistoryLimit: 10
+  defaultBackend:
+    enabled: false
+    name: defaultbackend
+    image:
+      image: defaultbackend-amd64
+      tag: "1.5"
+      pullPolicy: IfNotPresent
+      runAsNonRoot: true
+      runAsUser: 65534
+      runAsGroup: 65534
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      readOnlyRootFilesystem: true
+    extraArgs: {}
+    serviceAccount:
+      create: true
+      name: ""
+      automountServiceAccountToken: true
+    extraEnvs: []
+    port: 8080
+    livenessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    readinessProbe:
+      failureThreshold: 6
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 5
+    updateStrategy: {}
+    minReadySeconds: 0
+    tolerations: []
+    affinity: {}
+    topologySpreadConstraints: []
+    podSecurityContext: {}
+    containerSecurityContext: {}
+    podLabels: {}
+    nodeSelector:
+      kubernetes.io/os: linux
+    podAnnotations: {}
+    replicaCount: 1
+    minAvailable: 1
+    unhealthyPodEvictionPolicy: ""
+    resources: {}
+    extraVolumeMounts: []
+    extraVolumes: []
+    extraConfigMaps: []
+    autoscaling:
+      annotations: {}
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPUUtilizationPercentage: 50
+      targetMemoryUtilizationPercentage: 50
+    networkPolicy:
+      enabled: false
+    service:
+      annotations: {}
+      externalIPs: []
+      loadBalancerSourceRanges: []
+      servicePort: 80
+      type: ClusterIP
+    priorityClassName: ""
+    labels: {}
+  rbac:
+    create: true
+    scope: false
+  serviceAccount:
+    create: true
+    name: ""
+    automountServiceAccountToken: true
+    annotations: {}
+  imagePullSecrets: []
+  tcp:
+    "2049": "nfs-server/appliance-nfs-server-provisioner:2049"
+    "111": "nfs-server/appliance-nfs-server-provisioner:111"
+  udp:
+    "2049": "nfs-server/appliance-nfs-server-provisioner:2049"
+    "111": "nfs-server/appliance-nfs-server-provisioner:111"
+  portNamePrefix: ""
+  dhParam: ""
+postgresql:
+  global:
+    imageRegistry: ""
+    imagePullSecrets: []
+    storageClass: "longhorn"
+    postgresql:
+      auth:
+        postgresPassword: "${ADMIN_PASS}"
+        username: ""
+        password: ""
+        database: "postgres"
+        existingSecret: ""
+      service:
+        ports:
+          postgresql: ""
+  image:
+    pullPolicy: IfNotPresent
+  architecture: standalone
+  primary:
+    extendedConfiguration: |
+      max_connections=150
+    initdb:
+      scripts:
+        init.sql: |
+          CREATE EXTENSION "uuid-ossp";
+          CREATE DATABASE keycloak;
+          GRANT ALL PRIVILEGES ON DATABASE keycloak TO postgres;
+  metrics:
+    enabled: false
+gitea:
+  redis-cluster:
+    enabled: false
+  redis:
+    enabled: false
+  postgresql:
+    enabled: false
+  postgresql-ha:
+    enabled: false
+  image:
+    repository: gitea/gitea
+    tag: "1.23.1"
+    rootless: false
+  ingress:
+    enabled: true
+    apiVersion: networking.k8s.io/v1
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      cert-manager.io/cluster-issuer: ca-issuer
+      nginx.ingress.kubernetes.io/proxy-body-size: 6g
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location ~ ^/(gitea|v2)($|/) {
+          client_max_body_size 6g;
+          rewrite ^ $request_uri;
+          rewrite ^/(gitea($|/))?(.*) /$3 break;
+          proxy_pass http://appliance-gitea-http.gitea.svc.cluster.local:3000$uri;
+
+          proxy_set_header Connection $http_connection;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    hosts:
+      - host: ${DOMAIN}
+        paths:
+          - path: /(gitea|v2)(/|$)
+            pathType: ImplementationSpecific
+    tls:
+      - secretName: gitea-tls
+        hosts:
+          - ${DOMAIN}
+  persistence:
+    enabled: true
+  initPreScript: ""
+  actions:
+    enabled: true
+    statefulset:
+      actRunner:
+        config: "log: \n  level: debug\ncache: \n  enabled: false\nrunner:\n  labels:\n    - \"crucible:docker://${DOMAIN}/fortress-manifests/node:20-bookworm-slim\"\n    - \"ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04\"\n    - \"builder:host\"\ncontainer:\n  options: \"-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt\"\n  valid_volumes: \n    - \"/etc/ssl/certs/ca-certificates.crt\"\n  force_pull: false\n  force_rebuild: false\n"
+    provisioning:
+      enabled: true
+  gitea:
+    admin:
+      username: administrator
+      password: ${ADMIN_PASS}
+      email: "administrator@${DOMAIN}"
+    config:
+      APP_NAME: Crucible Gitea
+      server:
+        DOMAIN: ${DOMAIN}
+        ROOT_URL: https://${DOMAIN}/gitea
+      database:
+        DB_TYPE: postgres
+        HOST: appliance-postgresql.postgres.svc.cluster.local:5432
+        NAME: gitea
+        USER: postgres
+        PASSWD: ${ADMIN_PASS}
+        SCHEMA: public
+      indexer:
+        ISSUE_INDEXER_TYPE: bleve
+        REPO_INDEXER_ENABLED: true
+      cache:
+        ADAPTER: memory
+      actions:
+        ENABLED: true
+      security:
+        PASSWORD_COMPLEXITY: "off"
+      repository:
+        DEFAULT_BRANCH: main
+        DEFAULT_PUSH_CREATE_PRIVATE: false
+        ENABLE_PUSH_CREATE_USER: true
+        ENABLE_PUSH_CREATE_ORG: true

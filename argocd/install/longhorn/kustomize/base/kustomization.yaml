@@ -7,7 +7,7 @@ helmCharts:
   version: 1.6.0
   repo: https://charts.longhorn.io
   releaseName: appliance
-  valuesFile: files/longhorn.values.1.6.0.yaml
+  valuesFile: files/longhorn.values.yaml
 resources: 
 - namespace.yaml
 
