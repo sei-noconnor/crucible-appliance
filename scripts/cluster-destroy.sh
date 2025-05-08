@@ -26,12 +26,4 @@ if [ -f ./appliance.yaml ]; then
   source ./packer/scripts/lib/functions.sh
   yaml_to_env "./appliance.yaml"
 fi
-export GOVC_URL="https://${VSPHERE_USER}:${VSPHERE_PASSWORD}@${VSPHERE_SERVER}"
-export GOVC_INSECURE=1
-
-export NODES=$(yq '.cluster | to_entries | .[] | .key' ./appliance.yaml | xargs)
-
-# Clone the nodes
-for node in $NODES; do
-    govc vm.destroy $node
-done
+terraform -chdir=./terraform destroy -auto-approve

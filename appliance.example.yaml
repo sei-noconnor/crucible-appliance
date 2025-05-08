@@ -21,31 +21,71 @@ vars:
   docs_repo_secret: ~
   
 cluster:
+  crucible-ctrl-01:
+    ip: 15
+    cpus: 8
+    memory: 12288
+    extra_config: {}
   crucible-ctrl-02:
-    ip:
-    cpus:
-    memory:
+    ip: 16
+    cpus: 8
+    memory: 12288
     extra_config: {}
   crucible-ctrl-03:
-    ip:
-    cpus:
-    memory:
+    ip: 17
+    cpus: 8
+    memory: 12288
     extra_config: {}
   crucible-wrkr-01:
-    ip:
-    cpus:
-    memory:
+    ip: 18
+    cpus: 8
+    memory: 12288
     extra_config: {}
   crucible-wrkr-02:
-    ip:
-    cpus:
-    memory:
+    ip: 19
+    cpus: 8 
+    memory: 12288
     extra_config: {}
   crucible-wrkr-03:
-    ip:
-    cpus:
-    memory:
+    ip: 21
+    cpus: 8
+    memory: 12288
     extra_config: {}
+  # crucible-wrkr-04:
+  #   ip: 22
+  #   cpus: 8
+  #   memory: 12288
+  #   extra_config: {}
+  # crucible-wrkr-05:
+  #   ip: 23
+  #   cpus: 8
+  #   memory: 12288
+  #   extra_config: {}
+  # crucible-wrkr-06:
+  #   ip: 24
+  #   cpus: 8
+  #   memory: 12288
+  #   extra_config: {}
+  # crucible-wrkr-07:
+  #   ip: 25
+  #   cpus: 8
+  #   memory: 12288
+  #   extra_config: {}
+  # crucible-wrkr-08:
+  #   ip: 26
+  #   cpus: 8
+  #   memory: 12288
+  #   extra_config: {}
+  # crucible-wrkr-09:
+  #   ip: 27
+  #   cpus: 8
+  #   memory: 12288
+  #   extra_config: {}
+  # crucible-wrkr-10:
+  #   ip: 28
+  #   cpus: 8
+  #   memory: 12288
+  #   extra_config: {}
 apps:
 features:
   # Allows the appliance to work in an air-gapped environment by downloading 

@@ -53,7 +53,7 @@ if $IS_ONLINE; then
     curl -C - -Lo $DIST_DIR/generic/govc_Linux_x86_64.tar.gz https://github.com/vmware/govmomi/releases/download/v0.46.2/govc_Linux_x86_64.tar.gz
     curl -C - -Lo $DIST_DIR/generic/k3sup https://github.com/alexellis/k3sup/releases/download/0.13.8/k3sup
     curl -C - -Lo $DIST_DIR/generic/nerdctl-2.0.3-linux-amd64.tar.gz https://github.com/containerd/nerdctl/releases/download/v2.0.3/nerdctl-2.0.3-linux-amd64.tar.gz
-    curl -C - -Lo $DIST_DIR/generic/hauler_1.2.0-dev.2_linux_amd64.tar.gz https://github.com/hauler-dev/hauler/releases/download/v1.2.0-dev.2/hauler_1.2.0-dev.2_linux_amd64.tar.gz
+    curl -C - -Lo $DIST_DIR/generic/hauler_1.2.4_linux_amd64.tar.gz https://github.com/hauler-dev/hauler/releases/download/v1.2.4/hauler_1.2.4_linux_amd64.tar.gz
     curl -C - -Lo $DIST_DIR/generic/terraform_1.10.5_linux_amd64.zip https://releases.hashicorp.com/terraform/1.10.5/terraform_1.10.5_linux_amd64.zip
     curl -C - -Lo $DIST_DIR/generic/packer_1.12.0_linux_amd64.zip https://releases.hashicorp.com/packer/1.12.0/packer_1.12.0_linux_amd64.zip
     curl -C - -Lo $DIST_DIR/generic/podman-linux-amd64.tar.gz https://github.com/containers/podman/releases/download/v5.4.0/podman-remote-static-linux_amd64.tar.gz
@@ -124,7 +124,7 @@ sudo chmod +x /usr/local/bin/podman
 podman version
 
 # Install Hauler
-sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/hauler_1.2.0-dev.2_linux_amd64.tar.gz
+sudo tar -C /usr/local/bin -xzf $DIST_DIR/generic/hauler_1.2.4_linux_amd64.tar.gz
 sudo chown root:root /usr/local/bin/hauler
 sudo chmod +x /usr/local/bin/hauler
 

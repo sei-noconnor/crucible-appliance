@@ -41,7 +41,7 @@ helm:
   repoUrl: https://argoproj.github.io/argo-helm
   giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
   items:
-  - argocd:7.6.2
+  - argo-cd:7.6.2
 - name: stackstorm
   repoUrl: https://helm.stackstorm.com
   giteaUrl: https://${DOMAIN}/api/packages/${OWNER}/helm/api/charts
@@ -77,6 +77,7 @@ containers:
   giteaUrl: http://${DOMAIN}/api/v1/packages/${OWNER}/container/${ITEM}/${VERSION}
   items:
   - oci://registry-1.docker.io/bitnamicharts/mongodb:14.8.0
+
 debian:
 - distro: jammy
   os: ubuntu

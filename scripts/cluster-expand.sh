@@ -30,8 +30,6 @@ if [ -f ./appliance.yaml ]; then
   source ./packer/scripts/lib/functions.sh
   yaml_to_env "./appliance.yaml"
 fi
-export GOVC_URL="https://${VSPHERE_USER}:${VSPHERE_PASSWORD}@${VSPHERE_SERVER}"
-export GOVC_INSECURE=1
 
 # Function to convert subnet mask to CIDR notation
 mask2cidr() {
@@ -61,6 +59,7 @@ cidr2mask() {
 
 # Calculate BASE_IP
 export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
+
 export NODES=$(yq '.cluster | to_entries | .[] | .key' ./appliance.yaml | xargs)
 
 # Clone the nodes
@@ -76,5 +75,9 @@ for node in $NODES; do
     else
         NODE_TYPE="worker"
     fi
-    ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k 255.255.255.0 --deploy 
+    # ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k 255.255.255.0 --deploy 
 done
+./scripts/update_tfvars.py
+terraform -chdir=./terraform init
+terraform -chdir=./terraform plan
+terraform -chdir=./terraform apply -auto-approve

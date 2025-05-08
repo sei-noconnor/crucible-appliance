@@ -208,6 +208,8 @@ ca-check-trusted:
 
 cluster-expand:
 	./scripts/cluster-expand.sh $(filter-out $@,$(MAKECMDGOALS))
+cluster-destroy:
+	./scripts/cluster-destroy.sh $(filter-out $@,$(MAKECMDGOALS))
 
 .PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
 

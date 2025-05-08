@@ -59,6 +59,28 @@ resource "vsphere_virtual_machine" "vms" {
   extra_config = try(each.value.extra_config, {})
 }
 
+# resource "ansible_host" "ubuntu-ctrl" {
+#   count  = length(vsphere_virtual_machine.vms)
+#   name   = vsphere_virtual_machine.vms[count.index].name
+#   groups = ["ubuntu", "node"]
+#   variables = {
+#     ansible_user     = "crucible"
+#     ansible_password = "crucible"
+#   }
+# }
+
 output "vms" {
   value = var.vms
+}
+
+resource "ansible_host" "vms" {
+  for_each = var.vms
+  name     = each.key
+  groups   = can(regex("ctrl", each.key)) ? ["ubuntu", "ctrl"] : ["ubuntu", "wrkr"]
+  variables = {
+    ansible_host     = each.value.ip
+    ansible_user     = "crucible"
+    ansible_password = "crucible"
+    ansible_become_password = "crucible"
+  }
 }
