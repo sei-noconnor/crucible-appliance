@@ -1,5 +1,5 @@
 credentials:
-  postgresPassword: ${ADMIN_PASS}
+  postgresPassword: {{ requiredEnv "ADMIN_PASS" }}
 keycloak:
   image:
     registry: docker.io
@@ -18,7 +18,7 @@ keycloak:
 
   extraEnvVars:
     - name: KC_HOSTNAME
-      value: ${DOMAIN}
+      value: {{ requiredEnv "DOMAIN" }}
     - name: KC_HOSTNAME_STRICT
       value: "false"
     - name: KC_HOSTNAME_STRICT_HTTPS
@@ -28,7 +28,8 @@ keycloak:
     - name: PROXY_ADDRESS_FORWARDING
       value: "true"
     - name: DOMAIN
-      value: "${DOMAIN}"
+      value: {{ requiredEnv "DOMAIN" }}
+
   extraVolumes: |-
     - name: realm
       configMap:
@@ -44,7 +45,7 @@ keycloak:
     enabled: true
     ingressClassName: "nginx"
     pathType: ImplementationSpecific
-    hostname: ${DOMAIN}
+    hostname: {{ requiredEnv "DOMAIN" }}
     path: "/(keycloak)(/|$)(.*)"
     servicePort: http
     annotations:
@@ -72,7 +73,7 @@ keycloak:
 argo-cd:
   global:
     additionalLabels: {}
-    domain: cd.${DOMAIN}
+    domain: cd.{{ requiredEnv "DOMAIN" }}
     revisionHistoryLimit: 3
     addPrometheusAnnotations: true
   configs:
@@ -239,9 +240,9 @@ argo-cd:
       annotations:
         cert-manager.io/cluster-issuer: ca-issuer
       ingressClassName: "nginx"
-      hostname: cd.${DOMAIN}
+      hostname: cd.{{ requiredEnv "DOMAIN" }}
       hosts:
-        - cd.${DOMAIN}
+        - cd.{{ requiredEnv "DOMAIN" }}
       paths:
         - backend:
             service:
@@ -253,7 +254,7 @@ argo-cd:
       tls:
         - secretName: argocd-tls
           hosts:
-            - cd.${DOMAIN}
+            - cd.{{ requiredEnv "DOMAIN" }}
       https: false
     volumeMounts:
       - name: custom-ca-certificates
@@ -306,7 +307,7 @@ argo-cd:
         command: [sh, -c]
         args:
           - >-
-            /usr/sbin/update-ca-certificates && curl -L https://${DOMAIN}/gitea/api/packages/fortress-manifests/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin && chmod +x argocd-vault-plugin && mv argocd-vault-plugin /custom-tools/
+            /usr/sbin/update-ca-certificates && curl -L https://{{ requiredEnv "DOMAIN" }}/gitea/api/packages/fortress-manifests/generic/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64/0.0.0/argocd-vault-plugin_$(AVP_VERSION)_linux_amd64 -o argocd-vault-plugin && chmod +x argocd-vault-plugin && mv argocd-vault-plugin /custom-tools/
         volumeMounts:
           - name: custom-tools
             mountPath: /custom-tools
@@ -342,17 +343,17 @@ vault:
       pathType: Prefix
       activeService: true
       hosts:
-        - host: keystore.${DOMAIN}
+        - host: keystore.{{ requiredEnv "DOMAIN" }}
           paths: []
       tls:
         - secretName: vault-tls
           hosts:
-            - keystore.${DOMAIN}
+            - keystore.{{ requiredEnv "DOMAIN" }}
     dataStorage:
       enabled: true
       size: 10Gi
       mountPath: "/vault/data"
-      storageClass: longhorn
+      storageClass: {{ requiredEnv "STORAGE_CLASS" }}
       accessMode: ReadWriteOnce
   standalone:
     enabled: "-"
@@ -384,7 +385,7 @@ nfs-server-provisioner:
     externalIPs:
   persistence:
     enabled: true
-    storageClass: "longhorn"
+    storageClass: {{ requiredEnv "STORAGE_CLASS" }}
     accessMode: ReadWriteOnce
     size: 35Gi
   storageClass:
@@ -612,7 +613,7 @@ longhorn:
   ingress:
     enabled: true
     ingressClassName: nginx
-    host: ${DOMAIN}
+    host: {{ requiredEnv "DOMAIN" }}
     tls: true
     secureBackends: false
     tlsSecret: longhorn-tls
@@ -1309,7 +1310,7 @@ postgresql:
   global:
     imageRegistry: ""
     imagePullSecrets: []
-    storageClass: "longhorn"
+    storageClass: {{ requiredEnv "STORAGE_CLASS" }}
     postgresql:
       auth:
         postgresPassword: "${ADMIN_PASS}"
@@ -1371,14 +1372,14 @@ gitea:
           proxy_set_header X-Forwarded-Proto $scheme;
         }
     hosts:
-      - host: ${DOMAIN}
+      - host: {{ requiredEnv "DOMAIN" }}
         paths:
           - path: /(gitea|v2)(/|$)
             pathType: ImplementationSpecific
     tls:
       - secretName: gitea-tls
         hosts:
-          - ${DOMAIN}
+          - {{ requiredEnv "DOMAIN" }}
   persistence:
     enabled: true
   initPreScript: ""
@@ -1386,19 +1387,19 @@ gitea:
     enabled: true
     statefulset:
       actRunner:
-        config: "log: \n  level: debug\ncache: \n  enabled: false\nrunner:\n  labels:\n    - \"crucible:docker://${DOMAIN}/fortress-manifests/node:20-bookworm-slim\"\n    - \"ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04\"\n    - \"builder:host\"\ncontainer:\n  options: \"-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt\"\n  valid_volumes: \n    - \"/etc/ssl/certs/ca-certificates.crt\"\n  force_pull: false\n  force_rebuild: false\n"
+        config: "log: \n  level: debug\ncache: \n  enabled: false\nrunner:\n  labels:\n    - \"crucible:docker://{{ requiredEnv "DOMAIN" }}/fortress-manifests/node:20-bookworm-slim\"\n    - \"ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04\"\n    - \"builder:host\"\ncontainer:\n  options: \"-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt\"\n  valid_volumes: \n    - \"/etc/ssl/certs/ca-certificates.crt\"\n  force_pull: false\n  force_rebuild: false\n"
     provisioning:
       enabled: true
   gitea:
     admin:
       username: administrator
       password: ${ADMIN_PASS}
-      email: "administrator@${DOMAIN}"
+      email: "administrator@{{ requiredEnv "DOMAIN" }}"
     config:
       APP_NAME: Crucible Gitea
       server:
-        DOMAIN: ${DOMAIN}
-        ROOT_URL: https://${DOMAIN}/gitea
+        DOMAIN: {{ requiredEnv "DOMAIN" }}
+        ROOT_URL: https://{{ requiredEnv "DOMAIN" }}/gitea
       database:
         DB_TYPE: postgres
         HOST: appliance-postgresql.postgres.svc.cluster.local:5432

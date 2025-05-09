@@ -3,28 +3,30 @@ if [ -f ./appliance.yaml ]; then
   source ./packer/scripts/lib/functions.sh
   yaml_to_env "./appliance.yaml"
 fi
-CHART_DIR="./argocd/local-charts/crucible"
-DEPENDENCYS_CHART_DIR="${SRCT_DIR}/charts"
+
 TMP_DIR=$(mktemp -d)
-OP=$1
-#trap 'rm -rf "$TMP_DIR"' EXIT
+cat <<EOF > config.patch
+- op: add
+  path: /cluster/apiServer/admissionControl/0/configuration/exemptions/namespaces/-
+  value: longhorn-system
+EOF
 
-cp -R ${CHART_DIR}/* ${TMP_DIR}/
+CLUSTER_NAME=talos-default
 
-cat ${CHART_DIR}/values.yaml | envsubst > ${TMP_DIR}/values.yaml
-kubectl create namespace crucible || true
-kubectl create namespace cert-manager|| true
+# talosctl cluster create --name $CLUSTER_NAME --talosconfig talosconfig --config-patch-control-plane @$TMP_DIR/control.patch --config-patch-worker @$TMP_DIR/config.patch --force
+# talosctl config nodes 10.5.0.2 10.5.0.3 --talosconfig talosconfig
+# talosctl patch mc --patch @controlplane.yaml --nodes 10.5.0.2 --talosconfig talosconfig
+# talosctl patch mc --patch @worker.yaml --nodes 10.5.0.3 --talosconfig talosconfig
+# export GOVC_URL="${VCENTER_URL}"
+# export GOVC_USERNAME="${VCENTER_USER}"
+# export GOVC_PASSWORD="${VCENTER_PASSWORD}"
+# export GOVC_INSECURE=truedocker ps 
+# export GOVC_DATACENTER="${VCENTER_DATACENTER}"
+# export GOVC_DATASTORE="${VCENTER_DATASTORE}"
+# export GOVC_NETWORK="${VCENTER_PORTGROUP}"
+# helmfile sync --skip-deps 
 
-helm template ${TMP_DIR} \
-  --include-crds \
-  --output-dir ${TMP_DIR}/generated \
-  --name-template crucible \
-  --values ${TMP_DIR}/values.yaml
+TMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TMP_DIR"' EXIT
 
-#find crd folders and apply them first
-find ${TMP_DIR}/generated -type d -name crds | while read -r dir; do
-  echo "${OP}ing CRDs from $dir"
-  kubectl apply -R -f "$dir"
-done
-
-kubectl $OP -R -f ${TMP_DIR}/generated
+helmfile sync --skip-deps
