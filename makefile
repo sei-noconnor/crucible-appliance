@@ -1,222 +1,164 @@
-# VARS
+# =============================================
+# Configuration & Variables
+# =============================================
 SHELL := /bin/bash
 DOMAIN ?= crucible.io
-SSH_USERNAME ?= crucible
 ADMIN_PASS ?= crucible
 SSL_DIR ?= /home/crucible/crucible-appliance/dist/ssl
 APPS_DIR ?= argocd/apps
-APPLIANCE_ENVIRONMENT ?= DEV
-APPLIANCE_IP ?= $(ip route get 1 | awk '{print $(NF-2);exit}')
+APPLIANCE_IP ?= $(shell ip route get 1 | awk '{print $$(NF-2);exit}')
 
-export SSL_DIR
-export APPS_DIR
-export ADMIN_PASS
-export DOMAIN
+export DOMAIN ADMIN_PASS SSL_DIR APPS_DIR APPLIANCE_IP
 
+# =============================================
+# Phony Targets
+# =============================================
+.PHONY: help all init clean \
+        certs deps configure \
+        argo-init argo-reset \
+        gitea-init gitea-reset \
+        cluster-manage image-manage \
+        vault-manage systemd-manage
 
-generate_certs:
+# =============================================
+# Main Targets
+# =============================================
+help:
+	@echo "Crucible Appliance Management"
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Core:"
+	@echo "  init        Full initialization (certs + deps + argo)"
+	@echo "  clean       Remove all build artifacts"
+	@echo ""
+	@echo "Certificates:"
+	@echo "  certs       Generate and distribute certificates"
+	@echo ""
+	@echo "System Setup:"
+	@echo "  deps        Install OS and user dependencies"
+	@echo "  configure   Configure system settings"
+	@echo ""
+	@echo "ArgoCD:"
+	@echo "  argo-init   Initialize ArgoCD and dependencies"
+	@echo "  argo-reset  Reset ArgoCD configuration"
+	@echo ""
+	@echo "Gitea:"
+	@echo "  gitea-init  Initialize Gitea service"
+	@echo "  gitea-reset Reset Gitea database and deployment"
+	@echo ""
+	@echo "Cluster:"
+	@echo "  cluster-manage  Expand/destroy cluster (ARGS=action)"
+	@echo ""
+	@echo "Vault:"
+	@echo "  vault-manage    Manage Vault (ARGS=action)"
+	@echo ""
+	@echo "Systemd:"
+	@echo "  systemd-manage  Manage appliance service (ARGS=action)"
+
+all: init
+
+# =============================================
+# Certificate Management
+# =============================================
+certs:
+	@echo "Generating certificates..."
 	./scripts/generate_root_ca.sh
 	./scripts/k3s-ca-gen.sh
 	./scripts/distribute_certs.sh $(SSL_DIR)
-	
-sudo-deps: generate_certs 
-	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-vars.sh
-	make add-hosts-entry -- -f /etc/hosts -r ${DOMAIN} -a upsert
-	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-configure.sh
-	echo "${ADMIN_PASS}" | SUDO_USERNAME="${SUDO_USERNAME}" sudo -E -S bash ./packer/scripts/02-os-apps.sh
-	make snapshot -- -n "BEFORE-CRUCIBLE-BASE" -c 
-	
 
-add-coredns-hosts-entry:
-	./scripts/add-coredns-hosts-entry.sh $(filter-out $@,$(MAKECMDGOALS))
-%:
-	@true
+# =============================================
+# System Setup
+# =============================================
+deps: certs
+	@echo "Installing dependencies..."
+	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/02-os-vars.sh
+	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/02-os-configure.sh
+	echo "${ADMIN_PASS}" | sudo -E -S bash ./packer/scripts/02-os-apps.sh
 
-add-hosts-entry:
-	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/add-hosts-entry.sh $(filter-out $@,$(MAKECMDGOALS))
-%:
-	@true
+configure:
+	@echo "Configuring system..."
+	./scripts/add-hosts-entry.sh -f /etc/hosts -r ${DOMAIN} -a upsert
+	./packer/scripts/04-user-deps.sh
 
-init: 
-	./packer/scripts/00-check-domain.sh
-	make sudo-deps
-	SUDO_USERNAME="${SUDO_USERNAME}" ./packer/scripts/04-user-deps.sh
-	make init-argo
-	make snapshot
-	
-init-argo: 
-	make ca-check-trusted -- -f $(SSL_DIR)/server/tls/root-ca.crt
-	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN},alloy.${DOMAIN},auth.${DOMAIN},blueprint.${DOMAIN},caster.${DOMAIN},cd.${DOMAIN},cite.${DOMAIN},console.${DOMAIN},docs.${DOMAIN},gallery.${DOMAIN},gameboard.${DOMAIN},keystore.${DOMAIN},misp.${DOMAIN},moodle.${DOMAIN},player.${DOMAIN},steamfitter.${DOMAIN},topomojo.${DOMAIN},topomojo.${DOMAIN},vm.${DOMAIN} -a upsert
-	make repo-sync
+# =============================================
+# ArgoCD Management
+# =============================================
+argo-init: certs
+	@echo "Initializing ArgoCD..."
+	./scripts/check-trusted-os-certs.sh -f $(SSL_DIR)/server/tls/root-ca.crt
+	./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r ${DOMAIN}
 	./packer/scripts/03-argo-deps.sh
-	make unseal-vault
-	make vault-argo-role
-	make vault-app-vars
-	make gitea-init
-	make repo-sync
 	./packer/scripts/03-init-argo.sh
-	
-	
-unseal-vault:
-	./packer/scripts/09-unseal-vault.sh
 
-vault-app-vars:
-	./packer/scripts/08-vault-app-vars.sh
-
-vault-reset-app-vars:
-	rm -rf ./argocd/install/vault/kustomize/base/files/app-vars.yaml
-	./packer/scripts/08-vault-app-vars.sh
-
-vault-argo-role:
-	./packer/scripts/08-vault-argo-args.sh
-	
-gitea-init:
-	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'create database gitea;'" || true 
-	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f - || true
-	echo "sleep 10"; sleep 10
-	kubectl -n gitea scale --replicas=0 deployment/appliance-gitea && echo "sleep 5"; sleep 5 && kubectl -n gitea scale --replicas=1 deployment/appliance-gitea
-	./packer/scripts/05-setup-gitea.sh
-	make download-packages
-	# make gitea-init-repos
-	# make gitea-replace-repos
-	
-
-gitea-init-repos:
-	./packer/scripts/05-init-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
-
-gitea-replace-repos:
-	./packer/scripts/05-replace-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
-
-gitea-reset:
-	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f - || true
-	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
-
-gitea-export-images:
-	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/package-export-images.sh 
-
-gitea-import-images:
-	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-import-images.sh
-
-repo-sync:
-	./packer/scripts/05-repo-sync.sh
-
-download-packages:
-	./packer/scripts/05-download-packages.sh ./argocd/install/gitea/kustomize/base/files/packages.yaml
-%:
-	@true
-
-build:
-	rm -rf ./packer/output && \
-	rm -rf ./output && \
-	rm -rf ./dist/output
-	./packer/scripts/01-build-update-vars.sh ./appliance.yaml
-	./packer/scripts/01-build-appliance.sh $(filter-out $@,$(MAKECMDGOALS)) -on-error=abort -force
-%:
-	@true
-
-shrink:
-	# make gitea-export-images
-	echo "${ADMIN_PASS}" | sudo -E -S ./scripts/shrink.sh
-
-package-ova:
-	./scripts/package-ova.sh
-
-offline-reset:
-	@echo "${ADMIN_PASS}" | sudo -S -E ./scripts/offline-reset.sh $(filter-out $@,$(MAKECMDGOALS))
-%:
-	@true
-
-reset:
+argo-reset:
+	@echo "Resetting ArgoCD..."
 	./packer/scripts/98-reset-argo.sh
 
-clean:
-	rm -rf ./dist && \
-	rm -rf ./cache
-	rm -rf ./packer/output
-
-clean-certs:
-	rm -rf ./dist/ssl
-	rm -rf ./argocd/apps/cert-manager/kustomize/base/files/{root-*,intermediate-*}
-
-snapshot:
-	@echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/02-os-snapshot.sh $(filter-out $@,$(MAKECMDGOALS)) 
-%:
-	@true
-
-keycloak-realm-export:
-	./scripts/keycloak-realm-export.sh
-
-deploy-runner:
-	.github/runners/start.sh $(filter-out $@,$(MAKECMDGOALS))
-%:
-	@true	
-
-delete-runner:
-	.github/runners/start.sh -d $(filter-out $@,$(MAKECMDGOALS))
-%:
-	@true
-
-uninstall:
-	kubectl scale deployment --all -n gitea --replicas=0 || true
-	kubectl scale deployment --all -n argocd --replicas=0 || true
-	kubectl scale statefulsets --all -n argocd --replicas=0 || true
-	kubectl scale statefulsets --all -n postgres --replicas=0 || true
-	kubectl scale statefulsets --all -n vault --replicas=0 || true
+# =============================================
+# Gitea Management
+# =============================================
+gitea-init:
+	@echo "Initializing Gitea..."
+	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -U postgres -c 'CREATE DATABASE gitea;'" || true
+	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance | kubectl apply -f -
 	sleep 10
-	kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag || true
-	kubectl -n longhorn-system delete job longhorn-uninstall || true
-	kubectl -n longhorn-system delete serviceaccount longhorn-uninstall-service-account || true
-	kubectl delete clusterrole longhorn-uninstall-role || true
-	kubectl delete clusterrolebinding longhorn-uninstall-bind || true
-	kubectl create -f ./argocd/install/longhorn/kustomize/base/files/uninstall-longhorn.yaml || true
-	sleep 60
-	echo "${ADMIN_PASS}" | sudo -E -S k3s-uninstall.sh && sudo rm -rf /tmp/crucible-appliance || true
-	sudo rm -rf /var/lib/longhorn/*
-	sudo rm -rf /dev/longhorn
-	rm -rf ./argocd/install/argocd/kustomize/base/files/argo-*-id
-	rm -rf ./argocd/install/argocd/kustomize/appliance/files/argo-*-id
-	rm -rf ./argocd/install/vault/kustomize/base/files/argo-*-id*
-	rm -rf ./argocd/install/vault/kustomize/base/files/vault-keys*
-	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-role-id
-	rm -rf ./argocd/install/argocd/kustomize/overlays/appliance/files/argo-secret-id
-	sudo ./scripts/reset-root-certs.sh
-	
-startup-logs:
-	journalctl --unit crucible-appliance-startup
+	kubectl -n gitea scale deployment/appliance-gitea --replicas=0
+	sleep 5
+	kubectl -n gitea scale deployment/appliance-gitea --replicas=1
+	./packer/scripts/05-setup-gitea.sh
 
-startup-tail-logs:
-	journalctl --follow --unit crucible-appliance-startup
-	
-startup-update-script:
-	sudo cp ./packer/scripts/crucible-appliance-startup.sh /usr/local/bin/crucible-appliance-startup.sh
-	sudo chmod +x /usr/local/bin/crucible-appliance-startup.sh
+gitea-reset:
+	@echo "Resetting Gitea..."
+	kubectl delete -n gitea --all resources
+	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -U postgres -c 'DROP DATABASE gitea;'"
 
-startup-restart:
-	echo "${ADMIN_PASS}" | sudo -E -S systemctl restart crucible-appliance-startup
+# =============================================
+# Cluster Management
+# =============================================
+cluster-manage:
+	@if [ -z "$(ARGS)" ]; then \
+		echo "Usage: make cluster-manage ARGS='expand|destroy'"; \
+		exit 1; \
+	fi
+	./scripts/cluster-$(ARGS).sh
 
-tmp:
-	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE keycloak WITH (FORCE);'" || true
-	argocd --core app sync prod-argo
-	argocd --core app delete -y keycloak
-	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE keycloak;'"
+# =============================================
+# Vault Management
+# =============================================
+vault-manage:
+	@if [ -z "$(ARGS)" ]; then \
+		echo "Usage: make vault-manage ARGS='unseal|configure|reset'"; \
+		exit 1; \
+	fi
+	./packer/scripts/09-vault-$(ARGS).sh
 
-template:
-	./packer/scripts/template.sh $(filter-out $@,$(MAKECMDGOALS))
+# =============================================
+# Systemd Service Management
+# =============================================
+systemd-manage:
+	@if [ -z "$(ARGS)" ]; then \
+		echo "Usage: make systemd-manage ARGS='restart|logs|update'"; \
+		exit 1; \
+	fi
+	@case "$(ARGS)" in \
+		restart) systemctl restart crucible-appliance-startup ;; \
+		logs) journalctl -u crucible-appliance-startup ;; \
+		update) sudo cp ./packer/scripts/crucible-appliance-startup.sh /usr/local/bin/ ;; \
+		*) echo "Invalid action"; exit 1 ;; \
+	esac
 
-ca-check-trusted:
-	./scripts/check-trusted-os-certs.sh	$(filter-out $@,$(MAKECMDGOALS)) 
+# =============================================
+# Cleanup
+# =============================================
+clean:
+	@echo "Cleaning build artifacts..."
+	rm -rf ./dist ./cache ./packer/output
+	rm -rf ./argocd/install/*/files/*-id
 
-cluster-expand:
-	./scripts/cluster-expand.sh $(filter-out $@,$(MAKECMDGOALS))
-cluster-destroy:
-	./scripts/cluster-destroy.sh $(filter-out $@,$(MAKECMDGOALS))
+init: deps configure argo-init gitea-init
 
-hauler-images:
-	./scripts/hauler-images.sh $(filter-out $@,$(MAKECMDGOALS))
-
-chart-install:
-	./scripts/chart-install.sh $(filter-out $@,$(MAKECMDGOALS))
-
-.PHONY: all clean clean-certs init build argo offline-reset reset snapshot package-ova
-
-all: init
+# =============================================
+# Argument Handling
+# =============================================
+%:
+	@:
