@@ -3,16 +3,17 @@
   become: yes
   vars:
   tasks:
-    # - name: Update all packages
-    #   apt:
-    #     update_cache: yes
-    #     upgrade: no
-    #   when: ansible_os_family == "Debian"
+    - name: Update all packages
+      apt:
+        update_cache: yes
+        upgrade: no
+      when: ansible_os_family == "Debian"
 
     - name: Install required dependencies
       apt:
         name:
           - curl
+          - open-iscsi
           - apt-transport-https
           - ca-certificates
           - nfs-common
@@ -71,7 +72,7 @@
         curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.3+k3s1" \
         K3S_KUBECONFIG_MODE="644" \
         K3S_TOKEN="crucible" \
-        INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --prefer-bundled-bin --node-name {{ inventory_hostname }} --tls-san {{ domain }} --cluster-init" \
+        INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics --prefer-bundled-bin --node-name {{ inventory_hostname }} --tls-san {{domain}} --cluster-init" \
         sh -
       args:
         executable: /bin/bash
@@ -96,12 +97,12 @@
       ansible.builtin.replace:
         path: /etc/rancher/k3s/k3s.yaml
         regexp: 'default'
-        replace: 'krates-crucible-appliance'
+        replace: 'crucible-appliance-{{domain}}'
       become: yes
 
     - name: use yq to rename cluster, cluster user, and context
       ansible.builtin.command:
-        cmd: yq -i '.clusters[0].cluster.server = "https://{{ansible_default_ipv4.address}}:6443" ' /etc/rancher/k3s/k3s.yaml
+        cmd: yq -i '.clusters[0].cluster.server = "https://{{domain}}:6443" ' /etc/rancher/k3s/k3s.yaml
       become: yes
 
     - name: move kubectl config
@@ -113,7 +114,6 @@
         group: "{{ansible_user_id}}"
         mode: '0644'
       become: yes
-      become_user: crucible
       changed_when: false
     
     - name: Copy kubeconfig to local machine
@@ -141,7 +141,7 @@
         curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.3+k3s1" \
         K3S_KUBECONFIG_MODE="644" \
         K3S_TOKEN="{{ hostvars[groups['ctrl'][0]].k3s_token.stdout }}" \
-        INSTALL_K3S_EXEC="server --server https://{{ hostvars[groups['ctrl'][0]].ansible_default_ipv4.address }}:6443 --disable traefik --embedded-registry --etcd-expose-metrics --prefer-bundled-bin --node-name {{ inventory_hostname }}" \
+        INSTALL_K3S_EXEC="server --server https://{{ domain }}:6443 --disable traefik --embedded-registry --etcd-expose-metrics --prefer-bundled-bin --node-name {{ inventory_hostname }}" \
         sh -
       args:
         executable: /bin/bash
@@ -159,38 +159,3 @@
       args:
         executable: /bin/bash
       become: yes
-# - hosts: "{{ groups['ctrl'][0] }}"
-#   become: yes
-#   tasks:
-#     - name: Install k3s Controller (First)
-#       shell: |
-#         curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644"  K3S_TOKEN="crucible" INSTALL_K3S_EXEC="server --disable traefik --embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --node-name crucible-ctrl-01 --tls-san crucible.io --cluster-init" sh - 
-        
-#       args:
-#         executable: /bin/bash
-#       become: yes
-#       when: groups['ctrl'][0]
-
-#     - name: Get Controller Host Debug 
-#       debug:
-#         msg: "{{ groups['ctrl'][0] }}"  
-
-#     - name: Install k3s Controller (Others)
-#       shell: |
-#         curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644"  K3S_TOKEN="crucible" INSTALL_K3S_EXEC="server --server {{ groups['ctrl'][0] }} --disable traefik --embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --node-name crucible-ctrl-01 --tls-san crucible.io" sh - 
-#       args:
-#         executable: /bin/bash
-#       become: yes
-      
-
-
-#     - name: Wait for k3s to be ready
-#       command: kubectl get nodes
-#       register: k3s_nodes
-#       until: k3s_nodes.rc == 0
-#       retries: 5
-#       delay: 10
-
-#     - name: Get the k3s token
-#       command: cat /var/lib/rancher/k3s/server/node-token
-#       register: k3s_token

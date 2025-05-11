@@ -81,6 +81,7 @@ resource "ansible_host" "vms" {
     ansible_host     = each.value.ip
     ansible_user     = "crucible"
     ansible_password = "crucible"
+    domain = var.domain
     ansible_become_password = "crucible"
   }
 }

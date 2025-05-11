@@ -86,7 +86,8 @@ configure:
 argo-init: certs
 	@echo "Initializing ArgoCD..."
 	./scripts/check-trusted-os-certs.sh -f $(SSL_DIR)/server/tls/root-ca.crt
-	./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r ${DOMAIN}
+	DOMAINS=auth.crucible.io,cd.crucible.io,cite.crucible.io,code.crucible.io,console.crucible.io,gallery.crucible.io,gameboard.crucible.io,keystore.crucible.io,misp.crucible.io,moodle.crucible.io,player.crucible.io,steamfitter.crucible.io,topomojo.crucible.io,vcsa.crucible.io,vm.crucible.io
+	./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r ${DOMAINS}
 	./packer/scripts/03-argo-deps.sh
 	./packer/scripts/03-init-argo.sh
 
@@ -146,7 +147,14 @@ systemd-manage:
 		update) sudo cp ./packer/scripts/crucible-appliance-startup.sh /usr/local/bin/ ;; \
 		*) echo "Invalid action"; exit 1 ;; \
 	esac
-
+# =============================================
+# Packer Build
+# =============================================
+.PHONY: build
+build:
+	@echo "Building the appliance with Packer..."
+	./packer/scripts/01-build-update-vars.sh ./appliance.yaml
+	./packer/scripts/01-build-appliance.sh $(filter-out $@,$(MAKECMDGOALS)) -on-error=abort -force
 # =============================================
 # Cleanup
 # =============================================

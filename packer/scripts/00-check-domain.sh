@@ -17,5 +17,5 @@ if [ ${DOMAIN} != crucible.io ]; then
     find . -type f -exec sed -i "s/foundry.local/${DOMAIN}/g" {} \;
     # commit the code
     git add --all
-    git commit -m " to ${DOMAIN}"    
+    git commit -m " to ${DOMAIN}"
 fi
