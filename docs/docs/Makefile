@@ -4,7 +4,7 @@
 SHELL := /bin/bash
 DOMAIN ?= crucible.io
 ADMIN_PASS ?= crucible
-SSL_DIR ?= /home/crucible/crucible-appliance/dist/ssl
+SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps
 APPLIANCE_IP ?= $(shell ip route get 1 | awk '{print $$(NF-2);exit}')
 

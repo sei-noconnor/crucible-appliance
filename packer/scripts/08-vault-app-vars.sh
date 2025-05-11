@@ -8,7 +8,7 @@ localport=8200
 typename=service/appliance-vault
 remoteport=8200
 export VAULT_ADDR='http://127.0.0.1:8200'
-REPO_DIR=/home/crucible/crucible-appliance
+REPO_DIR="$1"
 VAULT_DIR=argocd/install/vault/kustomize/base/files
 VAULT_FILE="${REPO_DIR}/${VAULT_DIR}/vault-keys.yaml"
 # Extract root token

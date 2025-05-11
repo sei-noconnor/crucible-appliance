@@ -85,7 +85,7 @@ else
 fi
 # Unseal the vault on startup 
 crucible_log "Attempting to unseal the vault"
-/home/${SSH_USERNAME}/crucible-appliance/crucible-appliance/packer/scripts/09-unseal-vault.sh
+/home/${SSH_USERNAME}/crucible-appliance/crucible-appliance/packer/scripts/09-unseal-vault.sh /home/${SSH_USERNAME}/crucible-appliance
 
 image_count=$(sudo k3s ctr images ls | awk 'END{print NR'})
 if [[ ! "$IS_ONLINE" && -f "$DIST_DIR/containers/images-amd64.tar.zst" ]]; then

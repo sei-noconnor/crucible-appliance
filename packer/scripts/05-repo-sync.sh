@@ -11,7 +11,7 @@ fi
 # fi
 
 # set all config dirs to absolute paths
-REPO_DIR="/home/crucible/crucible-appliance"
+REPO_DIR="$1"
 REPO_DEST="/tmp/crucible-appliance"
 DOMAIN=${DOMAIN:-crucible.io}
 GITEA_SERVER="${2:-https://$DOMAIN/gitea}"

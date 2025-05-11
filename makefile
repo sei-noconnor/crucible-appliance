@@ -3,7 +3,7 @@ SHELL := /bin/bash
 DOMAIN ?= crucible.io
 SSH_USERNAME ?= crucible
 ADMIN_PASS ?= crucible
-SSL_DIR ?= /home/crucible/crucible-appliance/dist/ssl
+SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps
 APPLIANCE_ENVIRONMENT ?= DEV
 APPLIANCE_IP ?= $(ip route get 1 | awk '{print $(NF-2);exit}')
@@ -58,24 +58,24 @@ init-argo:
 	
 	
 unseal-vault:
-	./packer/scripts/09-unseal-vault.sh
+	./packer/scripts/09-unseal-vault.sh ${PWD}
 
 vault-app-vars:
-	./packer/scripts/08-vault-app-vars.sh
+	./packer/scripts/08-vault-app-vars.sh ${PWD}
 
 vault-reset-app-vars:
 	rm -rf ./argocd/install/vault/kustomize/base/files/app-vars.yaml
-	./packer/scripts/08-vault-app-vars.sh
+	./packer/scripts/08-vault-app-vars.sh ${PWD}
 
 vault-argo-role:
-	./packer/scripts/08-vault-argo-args.sh
+	./packer/scripts/08-vault-argo-args.sh ${PWD}
 	
 gitea-init:
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'create database gitea;'" || true 
 	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl apply -f - || true
 	echo "sleep 10"; sleep 10
 	kubectl -n gitea scale --replicas=0 deployment/appliance-gitea && echo "sleep 5"; sleep 5 && kubectl -n gitea scale --replicas=1 deployment/appliance-gitea
-	./packer/scripts/05-setup-gitea.sh
+	./packer/scripts/05-setup-gitea.sh ${PWD}
 	make download-packages
 	# make gitea-init-repos
 	# make gitea-replace-repos
@@ -98,7 +98,7 @@ gitea-import-images:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/10-import-images.sh
 
 repo-sync:
-	./packer/scripts/05-repo-sync.sh
+	./packer/scripts/05-repo-sync.sh ${PWD}
 
 download-packages:
 	./packer/scripts/05-download-packages.sh ./argocd/install/gitea/kustomize/base/files/packages.yaml

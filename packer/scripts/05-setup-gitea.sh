@@ -9,7 +9,7 @@ CURL_OPTS=( --user "administrator:${ADMIN_PASS}" --header "accept: application/j
 echo "Waiting for gitea to become available"
 timeout 60s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' https://crucible.io/gitea)" != "200" ]]; do sleep 5; done'
 
-REPO_DIR=/home/crucible/crucible-appliance
+REPO_DIR="$1"
 REPO_DEST=/tmp/crucible-appliance
 GITEA_ORG=fortress-manifests
 
