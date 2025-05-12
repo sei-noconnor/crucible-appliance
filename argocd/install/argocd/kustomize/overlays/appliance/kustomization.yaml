@@ -27,7 +27,7 @@ secretGenerator:
   literals:
   - AVP_TYPE=vault
   - AVP_AUTH_TYPE=approle
-  - VAULT_ADDR=https://keystore.crucible.io
+  - VAULT_ADDR=https://keystore.onprem.twn-imcite.net
   files:
   - AVP_ROLE_ID=files/argo-role-id
   - AVP_SECRET_ID=files/argo-secret-id

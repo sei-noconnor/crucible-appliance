@@ -4,7 +4,7 @@ Welcome to the **Crucible Appliance**. This virtual machine hosts workforce deve
 
 ## Getting started
 
-The appliance uses the _crucible.io_ domain, you'll need to place an entry in your DNS server or HOSTS file to access the appliance.
+The appliance uses the _onprem.twn-imcite.net_ domain, you'll need to place an entry in your DNS server or HOSTS file to access the appliance.
 
 To get started using the virtual appliance:
 
@@ -14,7 +14,7 @@ To get started using the virtual appliance:
 
    | key      | value                       |
    | -------- | --------------------------- |
-   | username | `administrator@crucible.io` |
+   | username | `administrator@onprem.twn-imcite.net` |
    | password | `${ADMIN_PASS}`             |
 
 ## Crucible apps
@@ -23,10 +23,10 @@ The following Crucible applications are loaded on this appliance:
 
 | location                                       | api                                        | description                                                                                                                                                      |
 | ---------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [player](https://player.crucible.io)          | [api](https://player.crucibhle.io/api)     | _Player_ is the centralized interface where users, teams, and administrators go to participate in the cyber exercise.                                            |
-| [alloy](https://alloy.crucible.io)             | [api](https://player.crucible.io/api)      | _Alloy_ joins the other independent Crucible apps together to provide a complete Crucible experience (i.e. labs, on-demand exercises, exercises, etc.).          |
-| [caster](https://caster.crucible.io)           | [api](https://caster.crucibl.io/api)       | _Caster_ provides a web interface that gives exercise developers a way to create, share, and manage topology configurations.                                     |
-| [steamfitter](https://steamfitter.crucible.io) | [api](https://steamfitter.crucible.io/api) | _Steamfitter_ creates scenarios consisting of a series of scheduled tasks, manual tasks, and injects which run against virtual machines in an exercise.delivery. |
+| [player](https://player.onprem.twn-imcite.net)          | [api](https://player.crucibhle.io/api)     | _Player_ is the centralized interface where users, teams, and administrators go to participate in the cyber exercise.                                            |
+| [alloy](https://alloy.onprem.twn-imcite.net)             | [api](https://player.onprem.twn-imcite.net/api)      | _Alloy_ joins the other independent Crucible apps together to provide a complete Crucible experience (i.e. labs, on-demand exercises, exercises, etc.).          |
+| [caster](https://caster.onprem.twn-imcite.net)           | [api](https://caster.crucibl.io/api)       | _Caster_ provides a web interface that gives exercise developers a way to create, share, and manage topology configurations.                                     |
+| [steamfitter](https://steamfitter.onprem.twn-imcite.net) | [api](https://steamfitter.onprem.twn-imcite.net/api) | _Steamfitter_ creates scenarios consisting of a series of scheduled tasks, manual tasks, and injects which run against virtual machines in an exercise.delivery. |
 
 ## Third-party apps
 

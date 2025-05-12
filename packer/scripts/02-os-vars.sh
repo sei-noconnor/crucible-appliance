@@ -15,7 +15,7 @@ fi
 ###############
 #### VARS #####
 ###############
-APPLIANCE_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
+APPLIANCE_IP=${APPLIANCE_IP:-0.0.0.0}
 MIRRORS=$(cat <<EOF
 mirrors:
   docker.io:
@@ -81,9 +81,9 @@ fi
 
 
 
-CURRENT_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
+CURRENT_IP=10.4.196.15
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
-DOMAIN=${DOMAIN:-crucible.io}
+DOMAIN=${DOMAIN:-onprem.twn-imcite.net}
 
 # Delete Ubuntu machine ID for proper DHCP operation on deploy
 #echo -n > /etc/machine-id

@@ -9,7 +9,7 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
+      repoURL: https://onprem.twn-imcite.net/gitea/fortress-manifests/crucible-appliance.git
       revision: main
       files:
       - path: "argocd/apps/prod-argo/apps/1-applications/*.json"
@@ -19,7 +19,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
+        repoURL: https://onprem.twn-imcite.net/gitea/fortress-manifests/crucible-appliance.git
         targetRevision: 'main'
         path: "argocd/apps/prod-k8s/1-applications"
         plugin:

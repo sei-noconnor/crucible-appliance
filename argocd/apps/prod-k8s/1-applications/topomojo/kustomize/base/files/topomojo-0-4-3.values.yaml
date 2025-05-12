@@ -61,7 +61,7 @@ topomojo-api:
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
       kubernetes.io/ingress.class: nginx
     hosts:
-      - host: topomojo.crucible.io
+      - host: topomojo.onprem.twn-imcite.net
         paths:
           - path: /api
             pathType: ImplementationSpecific
@@ -70,9 +70,9 @@ topomojo-api:
           - path: /docs
             pathType: ImplementationSpecific
     tls:
-      - secretName: topomojo.crucible.io-tls
+      - secretName: topomojo.onprem.twn-imcite.net-tls
         hosts:
-          - topomojo.crucible.io
+          - topomojo.onprem.twn-imcite.net
 
   consoleIngress:
     deployConsoleProxy: true
@@ -94,12 +94,12 @@ topomojo-api:
           proxy_ssl_session_reuse on;
         }
     hosts:
-      - host: topomojo.crucible.io
+      - host: topomojo.onprem.twn-imcite.net
         paths: []
     tls:
-      - secretName: topomojo.crucible.io-tls
+      - secretName: topomojo.onprem.twn-imcite.net-tls
         hosts:
-          - topomojo.crucible.io
+          - topomojo.onprem.twn-imcite.net
 
   # storage - either an existing pvc, the size for a new pvc, or emptyDir
   storage:
@@ -184,9 +184,9 @@ topomojo-api:
     ApiKeyClients__0__Id: gameengine
     ApiKeyClients__0__Key: crucible
     ApiKeyClients__0__Scope: gameboard
-    Core__ConsoleHost: topomojo.crucible.io/connect
-    Pod__ConsoleUrl: topomojo.crucible.io/connect
-    Pod__Host: topomojo.crucible.io
+    Core__ConsoleHost: topomojo.onprem.twn-imcite.net/connect
+    Pod__ConsoleUrl: topomojo.onprem.twn-imcite.net/connect
+    Pod__Host: topomojo.onprem.twn-imcite.net
     Pod__Url: https://<path:fortress-prod/data/vsphere#vsphere-server>
     Pod__IgnoreCertificateErrors: true
     Pod__User: <path:fortress-prod/data/vsphere#vsphere-user>
@@ -205,7 +205,7 @@ topomojo-api:
     Logging__Console__DisableColors: false
     Logging__LogLevel__Default: Debug
     # Headers__LogHeaders: false
-    Headers__Cors__Origins__0: https://topomojo.crucible.io
+    Headers__Cors__Origins__0: https://topomojo.onprem.twn-imcite.net
     # Headers__Cors__Methods__[0]: ""
     # Headers__Cors__Headers__[0]: ""
     # Headers__Cors__AllowAnyOrigin: false
@@ -273,14 +273,14 @@ topomojo-ui:
       nginx.ingress.kubernetes.io/proxy-body-size: 6g
       kubernetes.io/ingress.class: <path:fortress-prod/data/shared#ingress-class>
     hosts:
-      - host: topomojo.crucible.io
+      - host: topomojo.onprem.twn-imcite.net
         paths:
           - path: /
             pathType: ImplementationSpecific
     tls:
-      - secretName: topomojo.crucible.io-tls
+      - secretName: topomojo.onprem.twn-imcite.net-tls
         hosts:
-          - topomojo.crucible.io
+          - topomojo.onprem.twn-imcite.net
 
   resources:
     {}
@@ -334,9 +334,9 @@ topomojo-ui:
       "oidc": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
         "client_id": "topomojo-ui",
-        "redirect_uri": "https://topomojo.crucible.io/oidc",
-        "silent_redirect_uri": "https://topomojo.crucible.io/oidc-silent.html",
-        "post_logout_redirect_uri": "https://topomojo.crucible.io",
+        "redirect_uri": "https://topomojo.onprem.twn-imcite.net/oidc",
+        "silent_redirect_uri": "https://topomojo.onprem.twn-imcite.net/oidc-silent.html",
+        "post_logout_redirect_uri": "https://topomojo.onprem.twn-imcite.net",
         "response_type": "code",
         "scope": "openid profile topomojo-api",
         "automaticSilentRenew": true,

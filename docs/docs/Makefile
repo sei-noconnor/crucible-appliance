@@ -2,11 +2,11 @@
 # Configuration & Variables
 # =============================================
 SHELL := /bin/bash
-DOMAIN ?= crucible.io
+DOMAIN ?= onprem.twn-imcite.net
 ADMIN_PASS ?= crucible
 SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps
-APPLIANCE_IP ?= $(shell ip route get 1 | awk '{print $$(NF-2);exit}')
+APPLIANCE_IP ?= 10.4.196.15
 
 export DOMAIN ADMIN_PASS SSL_DIR APPS_DIR APPLIANCE_IP
 
@@ -86,7 +86,7 @@ configure:
 argo-init: certs
 	@echo "Initializing ArgoCD..."
 	./scripts/check-trusted-os-certs.sh -f $(SSL_DIR)/server/tls/root-ca.crt
-	DOMAINS=auth.crucible.io,cd.crucible.io,cite.crucible.io,code.crucible.io,console.crucible.io,gallery.crucible.io,gameboard.crucible.io,keystore.crucible.io,misp.crucible.io,moodle.crucible.io,player.crucible.io,steamfitter.crucible.io,topomojo.crucible.io,vcsa.crucible.io,vm.crucible.io
+	DOMAINS=auth.onprem.twn-imcite.net,cd.onprem.twn-imcite.net,cite.onprem.twn-imcite.net,code.onprem.twn-imcite.net,console.onprem.twn-imcite.net,gallery.onprem.twn-imcite.net,gameboard.onprem.twn-imcite.net,keystore.onprem.twn-imcite.net,misp.onprem.twn-imcite.net,moodle.onprem.twn-imcite.net,player.onprem.twn-imcite.net,steamfitter.onprem.twn-imcite.net,topomojo.onprem.twn-imcite.net,vcsa.onprem.twn-imcite.net,vm.onprem.twn-imcite.net
 	./scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r ${DOMAINS}
 	./packer/scripts/03-argo-deps.sh
 	./packer/scripts/03-init-argo.sh

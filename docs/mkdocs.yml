@@ -1,5 +1,5 @@
 site_name: Crucible Appliance
-site_url: https://crucible.io/start
+site_url: https://onprem.twn-imcite.net/start
 markdown_extensions:
   - attr_list
   - md_in_html
