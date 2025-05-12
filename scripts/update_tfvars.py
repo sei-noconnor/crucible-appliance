@@ -4,9 +4,9 @@ import re
 import os  # Added to handle environment variables
 
 # File paths
-yaml_file = "/home/ubuntu/work/crucible-appliance/appliance.yaml"
-tfvars_template = "/home/ubuntu/work/crucible-appliance/terraform/variables.auto.tfvars.tpl"
-tfvars_output = "/home/ubuntu/work/crucible-appliance/terraform/variables.auto.tfvars"
+yaml_file = "./appliance.yaml"
+tfvars_template = "./devops/terraform/variables.auto.tfvars.tpl"
+tfvars_output = "./devops/terraform/variables.auto.tfvars"
 
 # Load appliance.yaml
 with open(yaml_file, "r") as file:

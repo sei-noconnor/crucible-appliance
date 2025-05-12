@@ -74,7 +74,7 @@ if [[ "$APPLIANCE_IP" != "$CURRENT_IP" ]]; then
     # Add NodeHosts entry to coredns
     /home/${SSH_USERNAME}/crucible-appliance/scripts/add-coredns-hosts-entry.sh -n kube-system -c coredns-custom -r $DOMAIN,cd.$DOMAIN,keystore.$DOMAIN,id.$DOMAIN,code.$DOMAIN,topomojo.$DOMAIN,caster.$DOMAIN,player.$DOMAIN,vm.$DOMAIN,console.$DOMAIN,gameboard.$DOMAIN,cite.$DOMAIN -a upsert
     echo "Waiting for Cluster deployments 'Status: Avaialble' This may cause a timeout."
-    k3s kubectl wait deployment \
+    kubectl wait deployment \
     --all \
     --for=condition=available \
     --all-namespaces=true \

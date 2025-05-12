@@ -25,11 +25,11 @@ VARS_FILE="${REPO_DIR}/${VAULT_DIR}/app-vars.yaml"
 # wait for $localport to become available
 while ! nc -vz localhost $localport > /dev/null 2>&1 ; do
   echo "waiting for pod to be running"
-  sudo k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
+  kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
   echo "sleeping"
   sleep 5
   echo "Forwarding port..."
-  sudo k3s kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
+  kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
   pid=$!
   echo "pid: $pid"
 done

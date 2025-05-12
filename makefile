@@ -49,7 +49,7 @@ init-argo:
 	make argo-init
 argo-init:
 	make ca-check-trusted -- -f $(SSL_DIR)/server/tls/root-ca.crt
-	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN},alloy.${DOMAIN},auth.${DOMAIN},blueprint.${DOMAIN},caster.${DOMAIN},cd.${DOMAIN},cite.${DOMAIN},console.${DOMAIN},docs.${DOMAIN},gallery.${DOMAIN},gameboard.${DOMAIN},keystore.${DOMAIN},misp.${DOMAIN},moodle.${DOMAIN},player.${DOMAIN},steamfitter.${DOMAIN},topomojo.${DOMAIN},topomojo.${DOMAIN},vm.${DOMAIN} -a upsert
+	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN},alloy.${DOMAIN},auth.${DOMAIN},blueprint.${DOMAIN},caster.${DOMAIN},cd.${DOMAIN},cite.${DOMAIN},console.${DOMAIN},docs.${DOMAIN},gallery.${DOMAIN},gameboard.${DOMAIN},keystore.${DOMAIN},misp.${DOMAIN},moodle.${DOMAIN},player.${DOMAIN},steamfitter.${DOMAIN},topomojo.${DOMAIN},vm.${DOMAIN} -a upsert
 	make repo-sync
 	./packer/scripts/03-argo-deps.sh
 	make unseal-vault
@@ -93,7 +93,7 @@ gitea-replace-repos:
 	./packer/scripts/05-replace-repos.sh ./argocd/install/gitea/kustomize/base/files/repos
 
 gitea-reset:
-	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f - || true
+	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
 
 gitea-export-images:

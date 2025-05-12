@@ -21,9 +21,9 @@ kubectl config set-context --current --namespace argocd
 argocd --core app delete apps --cascade -y
 
 echo "Deleting APP[argocd]"
-kubectl kustomize $INSTALL_DIR/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
-echo "Deleting 'argocd' namespace..."
-kubectl delete namespace argocd 
+kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+log_pretty "Deleting APP[argocd]" "lightblue"
+kubectl kustomize $REPO_DEST/argocd/install/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f - --wait
 log_pretty "Deleting ArgoCD Dependencies" "lightblue"
 
 kubectl kustomize $REPO_DEST/argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
@@ -39,9 +39,4 @@ log_pretty "sleeping 60 seconds to allow longhorn to uninstall" "lightblue"
 sleep 60
 kubectl kustomize $REPO_DEST/argocd/install/nginx/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
 
-
 echo "Script completed."  # Final success message
-:pvc
-
-
-

@@ -129,11 +129,11 @@ awk '!seen[$0]++' "$CONFIGMAP_FILE" > "$CONFIGMAP_FILE.tmp" && mv "$CONFIGMAP_FI
 cat "$CONFIGMAP_FILE"
 
 # Apply the modified configmap
-k3s kubectl apply -n $NAMESPACE -f "$CONFIGMAP_FILE"
+kubectl apply -n $NAMESPACE -f "$CONFIGMAP_FILE"
 echo "Debug: Applied ConfigMap $CONFIGMAP_FILE"
 
 # Restart CoreDNS pods to apply the new config
-k3s kubectl rollout restart deployment coredns -n $NAMESPACE
+kubectl rollout restart deployment coredns -n $NAMESPACE
 echo "Debug: Restarted CoreDNS pods"
 
 echo "CoreDNS NodeHosts updated and pods restarted successfully."
