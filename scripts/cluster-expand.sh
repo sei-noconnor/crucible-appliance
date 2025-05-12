@@ -74,6 +74,7 @@ cidr2mask() {
 export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
 
 export NODES=$(yq '.cluster | to_entries | .[] | .key' ./appliance.yaml | xargs)
+echo "$NODES"
 
 # Terraform steps
 if [ "$SKIP_TERRAFORM" = false ]; then
@@ -89,7 +90,7 @@ fi
 # Ansible configuration
 if [ "$SKIP_ANSIBLE" = false ]; then
     log_pretty "Sleeping 10 Seconds" "green"
-    Sleep 10
+    sleep 10
     repo_dir=${PWD}
     cd devops/terraform
     ansible-playbook -i inventory.yaml deploy.yaml --extra-vars "ansible_sudo_pass=${ADMIN_PASS}"
