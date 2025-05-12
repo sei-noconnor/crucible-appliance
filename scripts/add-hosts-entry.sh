@@ -54,9 +54,9 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 
-export IP=$IP
+
+export IP=${APPLIANCE_IP}
 
 # Perform the specified action only on the hosts file
 for RECORD in "${RECORDS[@]}"; do

@@ -61,7 +61,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 CONFIGMAP_FILE="/tmp/core-dns-$RANDOM.yaml"
-IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
+IP=${APPLIANCE_IP}
 
 export IP=$IP
 export CONFIGMAP_NAME=$CONFIGMAP_NAME

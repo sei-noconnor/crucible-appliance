@@ -31,6 +31,19 @@ if [ -f ./appliance.yaml ]; then
   yaml_to_env "./appliance.yaml"
 fi
 
+# Parse arguments
+SKIP_TERRAFORM=false
+SKIP_ANSIBLE=false
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --skip-terraform) SKIP_TERRAFORM=true ;;
+        --skip-ansible) SKIP_ANSIBLE=true ;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
+
 # Function to convert subnet mask to CIDR notation
 mask2cidr() {
     local x=${1##*255.}
@@ -62,22 +75,26 @@ export BASE_IP=$(echo $DEFAULT_NETWORK |cut -d"." -f1-3)
 
 export NODES=$(yq '.cluster | to_entries | .[] | .key' ./appliance.yaml | xargs)
 
-# Clone the nodes
-for node in $NODES; do
-    export NODE_CPUS=$(yq ".cluster.$node.cpus" ./appliance.yaml)
-    export NODE_MEM=$(yq ".cluster.$node.memory" ./appliance.yaml)
-    export NODE_IP=$BASE_IP.$(yq ".cluster.$node.ip" ./appliance.yaml)
-    export NODE_EXTRA_CONFIG=$(yq ".cluster.$node.extra_config" ./appliance.yaml)
-    export NODE_NAME="$node"
-    # TODO: get type of node ctrl or wrkr
-    if [[ $node == *"ctrl"* ]]; then
-        NODE_TYPE="controller"
-    else
-        NODE_TYPE="worker"
-    fi
-    # ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k 255.255.255.0 --deploy 
-done
-./scripts/update_tfvars.py
-terraform -chdir=./devops/terraform init
-terraform -chdir=./devops/terraform plan
-terraform -chdir=./devops/terraform apply -auto-approve
+# Terraform steps
+if [ "$SKIP_TERRAFORM" = false ]; then
+    ./scripts/update_tfvars.py
+    terraform -chdir=./devops/terraform init
+    terraform -chdir=./devops/terraform plan
+    terraform -chdir=./devops/terraform apply -auto-approve
+    log_pretty "Cluster expansion completed successfully. Preparing for Ansible configuration" "green"
+else
+    log_pretty "Skipping Terraform steps as per user request" "yellow"
+fi
+
+# Ansible configuration
+if [ "$SKIP_ANSIBLE" = false ]; then
+    log_pretty "Sleeping 10 Seconds" "green"
+    Sleep 10
+    repo_dir=${PWD}
+    cd devops/terraform
+    ansible-playbook -i inventory.yaml deploy.yaml --extra-vars "ansible_sudo_pass=${ADMIN_PASS}"
+    cd $repo_dir
+    log_pretty "Ansible Configuration Finished" "green"
+else
+    log_pretty "Skipping Ansible configuration as per user request" "yellow"
+fi
