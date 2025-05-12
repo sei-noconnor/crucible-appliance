@@ -78,6 +78,6 @@ for node in $NODES; do
     # ./scripts/cluster-add-node.sh -t $NODE_TYPE -n $NODE_NAME -c $NODE_CPUS -m $NODE_MEM -i $NODE_IP -g $DEFAULT_GATEWAY -k 255.255.255.0 --deploy 
 done
 ./scripts/update_tfvars.py
-terraform -chdir=./terraform init
-terraform -chdir=./terraform plan
-terraform -chdir=./terraform apply -auto-approve
+terraform -chdir=./devops/terraform init
+terraform -chdir=./devops/terraform plan
+terraform -chdir=./devops/terraform apply -auto-approve

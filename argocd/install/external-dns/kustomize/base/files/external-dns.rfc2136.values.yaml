@@ -1,0 +1,42 @@
+provider:
+  name: rfc2136
+env:
+  # Windows DNS Server Configuration
+  - name: EXTERNAL_DNS_RFC2136_HOST
+    value: "twn-dc-01.ad.twn-imcite.net"  # Windows DNS server host
+  - name: EXTERNAL_DNS_RFC2136_PORT
+    value: "53"
+  - name: EXTERNAL_DNS_RFC2136_ZONE
+    value: "onprem.twn-imcite.net"
+  - name: EXTERNAL_DNS_RFC2136_TSIG_AXFR
+    value: "true"
+  # GSS-TSIG Authentication for Windows AD
+  - name: EXTERNAL_DNS_RFC2136_GSS_TSIG
+    value: "true"
+  - name: EXTERNAL_DNS_RFC2136_KERBEROS_USERNAME
+    value: "administrator@AD.TWN-IMCITE.NET"  # AD service account
+  - name: EXTERNAL_DNS_RFC2136_KERBEROS_REALM
+    value: "onprem.twn-imcite.net"  # AD domain
+    # kubectl create secret generic externaldns-secrets --from-literal=ad-password='P@ssw0rd123!#@'
+  - name: EXTERNAL_DNS_RFC2136_KERBEROS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: externaldns-secrets
+        key: ad-password
+domainFilters:
+  - "onprem.twn-imcite.net"
+policy: sync
+registry: noop
+sources: 
+  - service
+  - ingress
+  - crd
+extraArgs:
+
+serviceAccount:
+  create: true
+  
+  
+podSecurityContext:
+  fsGroup: 65534
+  

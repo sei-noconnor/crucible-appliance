@@ -16,6 +16,6 @@ spec:
     - CreateNamespace=true
   source:
     path: argocd/install/external-dns/kustomize/overlays/appliance
-    repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
+    repoURL: https://onprem.twn-imcite.net/gitea/fortress-manifests/crucible-appliance.git
     targetRevision: main
 

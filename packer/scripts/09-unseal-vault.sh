@@ -12,11 +12,11 @@ YAML_DIR="argocd/install/vault/kustomize/base/files"
 
 while ! nc -vz localhost $localport > /dev/null 2>&1 ; do
   echo "waiting for pod to be running"
-  k3s kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
+  kubectl wait --for=condition=running pod -l app.kubernetes.io/name=vault -n vault --timeout=5s
   echo "sleeping"
   sleep 5
   echo "Forwarding port..."
-  k3s kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
+  kubectl port-forward -n vault $typename $localport:$remoteport > /dev/null 2>&1 &
   pid=$!
   echo "pid: $pid"
 done
@@ -93,4 +93,4 @@ done
 
 echo "Logining in to vault with root_key"
 vault login ${ROOT_TOKEN}
-k3s kubectl -n vault delete jobs --all
+kubectl -n vault delete jobs --all

@@ -1,0 +1,16 @@
+domainFilters:
+  - "${DOMAIN}"
+policy: sync
+registry: noop
+sources: 
+  - service
+  - ingress
+  - crd
+provider:
+  name: pihole
+
+extraArgs:
+  - --pihole-server=https://192.168.1.153
+podSecurityContext:
+  fsGroup: 65534
+  

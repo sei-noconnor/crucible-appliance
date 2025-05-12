@@ -54,6 +54,6 @@ appliance.yaml
 **/*/argo-secret-id*
 **/*/app-vars.yaml
 !**/*/issuers-dod-certs.crt
-
-!**/*/root-ca.pem
-!**/*/root-ca.key
+*/**/*.key
+*/**/*.pem
+*/**/*.crt

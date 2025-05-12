@@ -26,4 +26,4 @@ if [ -f ./appliance.yaml ]; then
   source ./packer/scripts/lib/functions.sh
   yaml_to_env "./appliance.yaml"
 fi
-terraform -chdir=./terraform destroy -auto-approve
+terraform -chdir=./devops/terraform destroy -auto-approve

@@ -45,6 +45,8 @@ init:
 	make snapshot
 	
 init-argo: 
+	make argo-init
+argo-init:
 	make ca-check-trusted -- -f $(SSL_DIR)/server/tls/root-ca.crt
 	make add-coredns-hosts-entry -- -n kube-system -c coredns-custom -r ${DOMAIN},alloy.${DOMAIN},auth.${DOMAIN},blueprint.${DOMAIN},caster.${DOMAIN},cd.${DOMAIN},cite.${DOMAIN},console.${DOMAIN},docs.${DOMAIN},gallery.${DOMAIN},gameboard.${DOMAIN},keystore.${DOMAIN},misp.${DOMAIN},moodle.${DOMAIN},player.${DOMAIN},steamfitter.${DOMAIN},topomojo.${DOMAIN},topomojo.${DOMAIN},vm.${DOMAIN} -a upsert
 	make repo-sync
@@ -55,7 +57,9 @@ init-argo:
 	make gitea-init
 	make repo-sync
 	./packer/scripts/03-init-argo.sh
-	
+
+argo-reset:
+	./packer/scripts/98-reset-argo.sh ${PWD}
 	
 unseal-vault:
 	./packer/scripts/09-unseal-vault.sh ${PWD}

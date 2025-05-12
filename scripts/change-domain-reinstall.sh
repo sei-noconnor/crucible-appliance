@@ -70,12 +70,24 @@ echo "DOMAIN: $DOMAIN"
 echo "NEW DOMAIN: $NEW_DOMAIN"
 echo "GIT BRANCH: $GIT_BRANCH"
 
+if [ ${DOMAIN} != crucible.io ]; then
+    echo "Changing domain from crucible.io to ${DOMAIN}"
+    find . -path ./.git -prune -o -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} +
+    find . -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} \;
+    echo "Changing legacy appliance domains"
+    find . -type f -exec sed -i "s/crucible.dev/${DOMAIN}/g" {} \;
+    find . -type f -exec sed -i "s/foundry.local/${DOMAIN}/g" {} \;
+    # commit the code
+    git add --all
+    git commit -m " to ${DOMAIN}"
+fi
+
 echo "$SSH_PASSWORD" | sudo -E -S ./scripts/add-hosts-entry.sh -f /etc/hosts -r $NEW_DOMAIN,cd.$NEW_DOMAIN,keystore.$NEW_DOMAIN,id.$NEW_DOMAIN,code.$NEW_DOMAIN -a upsert
 
 # backup container images
-if [ ! -f ./dist/containers/images-amd64.tar.zst ]; then 
-    make gitea-export-images
-fi
+# if [ ! -f ./dist/containers/images-amd64.tar.zst ]; then 
+#     make gitea-export-images
+# fi
 
 # Update domain variable in appliance.yaml
 if [ -f ./appliance.yaml ]; then
@@ -83,7 +95,7 @@ if [ -f ./appliance.yaml ]; then
 fi
 
 # uninstall K3s
-make uninstall
-echo "Sleeping 10 seconds"
-sleep 10
-make init
+# make uninstall
+# echo "Sleeping 10 seconds"
+# sleep 10
+# make init

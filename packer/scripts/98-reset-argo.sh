@@ -4,31 +4,44 @@
 # Released under a BSD (SEI)-style license, please see LICENSE.md in the
 # project root or contact permission@sei.cmu.edu for full terms.
 #
-
+if [ -f ./appliance.yaml ]; then
+  source ./packer/scripts/lib/functions.sh
+  yaml_to_env "./appliance.yaml"
+fi
 ###############
 #### VARS #####
 ###############
 
 # Change to the current directory and inform the user
-echo "Changing to script directory..."
-DIR=$(dirname "${BASH_SOURCE[0]}")
-cd "$DIR" || exit  # Handle potential errors with directory change
-SCRIPTS_DIR="${PWD}"
-APPS_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/apps)"
-INSTALL_DIR="$(readlink -m ${SCRIPTS_DIR}/../../argocd/install)"
+REPO_DEST="$1"
+APPS_DIR="$(readlink -m $REPO_DEST/argocd/apps)"
+INSTALL_DIR="$(readlink -m $REPO_DEST/argocd/install)"
 
-echo "Current directory: ${SCRIPTS_DIR}"  # Additional feedback
 kubectl config set-context --current --namespace argocd
-argocd login --core
-argocd app delete apps --cascade -y
+argocd --core app delete apps --cascade -y
 
 echo "Deleting APP[argocd]"
 kubectl kustomize $INSTALL_DIR/argocd/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
-# argocd --core app delete http-echo -y --wait 
 echo "Deleting 'argocd' namespace..."
 kubectl delete namespace argocd 
+log_pretty "Deleting ArgoCD Dependencies" "lightblue"
+
+kubectl kustomize $REPO_DEST/argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+kubectl kustomize $REPO_DEST/argocd/install/vault/kustomize/overlays/appliance --enable-helm | kubectl delete -f - 
+kubectl kustomize $REPO_DEST/argocd/install/cert-manager/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+kubectl kustomize $REPO_DEST/argocd/install/postgres/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+kubectl kustomize $REPO_DEST/argocd/install/nfs-server/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+log_pretty "Patching longhorn so it can be uninstalled" "lightblue"
+kubectl -n longhorn-system patch -p '{"value": "true"}' --type=merge lhs deleting-confirmation-flag
+kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v1.6.0/uninstall/uninstall.yaml
+# kubectl kustomize $REPO_DEST/argocd/install/longhorn/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
+log_pretty "sleeping 60 seconds to allow longhorn to uninstall" "lightblue"
+sleep 60
+kubectl kustomize $REPO_DEST/argocd/install/nginx/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
 
 
 echo "Script completed."  # Final success message
+:pvc
+
 
 

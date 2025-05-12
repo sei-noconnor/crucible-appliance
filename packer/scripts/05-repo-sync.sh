@@ -4,11 +4,11 @@ readlink_cmd="readlink -m"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   readlink_cmd="greadlink -m"  
 fi
-# # Get vars from appliamce.yaml
-# if [ -f ./appliance.yaml ]; then
-#   source ./packer/scripts/lib/functions.sh
-#   yaml_to_env "./appliance.yaml"
-# fi
+# Get vars from appliamce.yaml
+if [ -f ./appliance.yaml ]; then
+  source ./packer/scripts/lib/functions.sh
+  yaml_to_env "./appliance.yaml"
+fi
 
 # set all config dirs to absolute paths
 REPO_DIR="$1"
