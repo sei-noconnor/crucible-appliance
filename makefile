@@ -1,17 +1,18 @@
 # VARS
 SHELL := /bin/bash
-DOMAIN ?= crucible.io
+DOMAIN ?= onprem.twn-imcite.net
 SSH_USERNAME ?= crucible
 ADMIN_PASS ?= crucible
 SSL_DIR ?= dist/ssl
 APPS_DIR ?= argocd/apps
 APPLIANCE_ENVIRONMENT ?= DEV
-APPLIANCE_IP ?= $(ip route get 1 | awk '{print $(NF-2);exit}')
+APPLIANCE_IP ?= 10.4.196.15
 
 export SSL_DIR
 export APPS_DIR
 export ADMIN_PASS
 export DOMAIN
+export APPLIANCE_IP
 
 
 generate_certs:
