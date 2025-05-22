@@ -55,16 +55,17 @@ topomojo-api:
   ## customStart overrides the default start process.  Files are mounted in `/start`
   # Disabling in favor of kustomization generated configmap
   customStart:
-    command: ['/bin/sh']
-    args: ['/start/start.sh']
+    command: ["/bin/sh"]
+    args: ["/home/app/start/start.sh"]
     binaryFiles: {}
-    files: 
+    files:
       start.sh: |
         #!/bin/sh
-        cp /start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
-        cd /app && dotnet TopoMojo.Api.dll
+        cp /home/app/start/*.crt /usr/local/share/ca-certificates && update-ca-certificates
+        cd /home/app && dotnet TopoMojo.Api.dll
       cacert.crt: |-
         <path:fortress-prod/data/shared#fortress-tls-fullchain>
+
 
 
   # Config app settings with environment vars.

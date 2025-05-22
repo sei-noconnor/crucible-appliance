@@ -8,7 +8,7 @@ helmCharts:
   version: 0.4.6
   repo: https://helm.cmusei.dev/charts
   releaseName: appliance
-  valuesFile: files/topomojo-0-4-3.values.yaml
+  valuesFile: files/topomojo.values.yaml
 
 
 
