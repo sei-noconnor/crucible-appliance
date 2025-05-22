@@ -52,7 +52,6 @@ resource "vsphere_virtual_machine" "vms" {
 
       ipv4_gateway    = var.default_gateway
       dns_server_list = var.dns_servers
-      dns_suffix_list = tolist([var.domain])
     }
   }
 

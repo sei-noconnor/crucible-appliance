@@ -51,6 +51,31 @@
         replace: '# \1'
       become: yes
 
+    - name: Create directory for K3s registries config
+      file:
+        path: /etc/rancher/k3s
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      become: yes
+
+    - name: Place registries.yaml for K3s
+      copy:
+        dest: /etc/rancher/k3s/registries.yaml
+        content: |
+          mirrors:
+            "docker.io":
+              endpoint:
+                - "https://mirror.gcr.io"
+            "*":
+            
+          
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+
     - name: Open required ports for k3s
       ufw:
         rule: allow
