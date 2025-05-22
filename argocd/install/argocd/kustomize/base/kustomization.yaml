@@ -11,6 +11,9 @@ helmCharts:
 resources: 
 - namespace.yaml
 
+transformers:
+  - files/keep-crds.yaml
+
 
 
 

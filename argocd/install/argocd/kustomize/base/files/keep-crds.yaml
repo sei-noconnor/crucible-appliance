@@ -1,0 +1,10 @@
+apiVersion: builtin
+kind: AnnotationsTransformer
+metadata:
+  name: keep-crds
+annotations:
+  helm.sh/resource-policy: keep         # Helm leaves the CRD untouched
+fieldSpecs:
+  - path: metadata/annotations
+    kind: CustomResourceDefinition
+    create: true 
