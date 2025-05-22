@@ -74,10 +74,10 @@ emailMatchAutoJoinGroup:
       - ".mil"
       - ".cert.org"
       - ".sei.cmu.edu"
-      - ".onprem.twn-imcite.net"
+      - ".crucible.io"
 
   - description: DoD IL2 Users
     groups:
       - "/Impact Level 2 Authorized"
     domains:
-      - "@onprem.twn-imcite.net"
+      - "@crucible.io"

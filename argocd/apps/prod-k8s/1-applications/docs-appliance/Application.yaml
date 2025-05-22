@@ -17,7 +17,7 @@ spec:
     - CreateNamespace=true
   sources:
   - path: argocd/prod-k8s/1-applications/docs-appliance/kustomize/overlays/appliance
-    repoURL: https://onprem.twn-imcite.net/gitea/fortress-manifests/crucible-appliance.git
+    repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
     targetRevision: main
     
 

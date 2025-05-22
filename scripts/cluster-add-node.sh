@@ -167,8 +167,8 @@ mkdir -p ~/.kube
 sudo cp /home/$SUDO_USERNAME/registries.yaml > /etc/rancher/k3s/registries.yaml
 echo "Installing k3s"
 INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SKIP_DOWNLOAD=true \
-INSTALL_K3S_EXEC="server --server https://${DOMAIN:-onprem.twn-imcite.net}:6443 --disable traefik \
---embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --tls-san ${DOMAIN:-onprem.twn-imcite.net} \
+INSTALL_K3S_EXEC="server --server https://${DOMAIN:-crucible.io}:6443 --disable traefik \
+--embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.io} \
 --token-file /home/crucible/node-token" /home/crucible/k3s-install.sh
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i "s/default/crucible-appliance/g" ~/.kube/config
@@ -188,8 +188,8 @@ mkdir -p ~/.kube
 sudo cp /home/$SUDO_USERNAME/registries.yaml > /etc/rancher/k3s/registries.yaml
 
 INSTALL_K3S_VERSION="v1.31.3+k3s1" K3S_KUBECONFIG_MODE="644" INSTALL_K3S_SKIP_DOWNLOAD=true \
-INSTALL_K3S_EXEC="agent --server https://${DOMAIN:-onprem.twn-imcite.net}:6443 --disable traefik \
---embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --tls-san ${DOMAIN:-onprem.twn-imcite.net} \
+INSTALL_K3S_EXEC="agent --server https://${DOMAIN:-crucible.io}:6443 --disable traefik \
+--embedded-registry --etcd-expose-metrics  --prefer-bundled-bin --tls-san ${DOMAIN:-crucible.io} \
 --token-file /home/crucible/node-token" /home/crucible/k3s-install.sh
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sed -i "s/default/crucible-appliance/g" ~/.kube/config

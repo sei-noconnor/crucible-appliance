@@ -12,7 +12,7 @@
 # Options:
 #   -n, --namespace        Set the namespace for CoreDNS (default: kube-system)
 #   -c, --configmap_name   Set the configmap name for CoreDNS (default: coredns-custom)
-#   -r, --records          Set the records (comma-separated, default: onprem.twn-imcite.net)
+#   -r, --records          Set the records (comma-separated, default: crucible.io)
 #   -a, --action           Set the action (upsert, delete) (default: upsert)
 #   -h, --help             Display this help message
 #
@@ -39,7 +39,7 @@ usage() {
     echo "Usage: $0 [-n|--namespace <namespace>] [-c|--configmap_name <configmap_name>] [-r|--records <record1,record2,...>] [-a|--action <action>] [-h|--help]"
     echo "  -n, --namespace        Set the namespace for CoreDNS (default: kube-system)"
     echo "  -c, --configmap_name   Set the configmap name for CoreDNS (default: coredns-custom)"
-    echo "  -r, --records          Set the records (comma-separated, default: onprem.twn-imcite.net)"
+    echo "  -r, --records          Set the records (comma-separated, default: crucible.io)"
     echo "  -a, --action           Set the action (upsert, delete) (default: upsert)"
     echo "  -h, --help             Display this help message"
     echo ""
@@ -77,7 +77,7 @@ else
 apiVersion: v1
 data:
   hosts.server: |
-    onprem.twn-imcite.net:53 {
+    crucible.io:53 {
       log
       errors
       hosts {

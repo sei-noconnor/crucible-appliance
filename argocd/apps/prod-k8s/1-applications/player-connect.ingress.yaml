@@ -37,7 +37,7 @@ metadata:
   namespace: default
 spec:
   rules:
-  - host: console.onprem.twn-imcite.net
+  - host: console.crucible.io
     http:
       paths:
       - backend:

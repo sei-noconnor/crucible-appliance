@@ -15,6 +15,6 @@ spec:
       prune: true
   source:
     path: argocd/apps/moodle/kustomize/overlays/appliance
-    repoURL: https://onprem.twn-imcite.net/gitea/fortress-manifests/crucible-appliance.git
+    repoURL: https://crucible.io/gitea/fortress-manifests/crucible-appliance.git
     targetRevision: main
 

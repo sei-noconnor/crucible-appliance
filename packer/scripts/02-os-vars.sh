@@ -83,7 +83,7 @@ fi
 
 CURRENT_IP=10.4.196.15
 APPLIANCE_VERSION=${APPLIANCE_VERSION:-$(cat /etc/appliance_version)}
-DOMAIN=${DOMAIN:-onprem.twn-imcite.net}
+DOMAIN=${DOMAIN:-crucible.io}
 
 # Delete Ubuntu machine ID for proper DHCP operation on deploy
 #echo -n > /etc/machine-id

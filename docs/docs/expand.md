@@ -35,7 +35,7 @@ Expanding a Crucible Appliance cluster involves four key phases: preparing a reu
 ## Step 2: Update DNS Records
 
 - Define cluster nodes in `appliance.yaml` under the `.cluster` key. Controllers should be deployed in odd numbers (1, 3, or 5).
-- For each node, add an A record in your DNS management console. The DNS name is its key + domain `crucible-ctrl-01.onprem.twn-imcite.net`, and the IP is base_network + ip `192.168.1.15`.
+- For each node, add an A record in your DNS management console. The DNS name is its key + domain `crucible-ctrl-01.crucible.io`, and the IP is base_network + ip `192.168.1.15`.
 
 Example:
 ```yaml
@@ -48,12 +48,12 @@ cluster:
     ...
 ```
 DNS:
-- `crucible-ctrl-01.onprem.twn-imcite.net` → `192.168.1.15`
-- `crucible-wrkr-01.onprem.twn-imcite.net` → `192.168.1.18`
+- `crucible-ctrl-01.crucible.io` → `192.168.1.15`
+- `crucible-wrkr-01.crucible.io` → `192.168.1.18`
 
 Verify DNS resolution:
 ```bash
-dig +short crucible-ctrl-01.onprem.twn-imcite.net
+dig +short crucible-ctrl-01.crucible.io
 ```
 
 ---

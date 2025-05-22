@@ -29,8 +29,8 @@ if [ -f ./appliance.yaml ]; then
 fi
 
 # Defaults
-DOMAIN_DEFAULT="${DOMAIN:-onprem.twn-imcite.net}"
-NEW_DOMAIN_DEFAULT="onprem.twn-imcite.net"
+DOMAIN_DEFAULT="${DOMAIN:-crucible.io}"
+NEW_DOMAIN_DEFAULT="crucible.io"
 # Default git branch
 GIT_BRANCH_DEFAULT="main"
 GIT_BRANCH="$GIT_BRANCH_DEFAULT"
@@ -70,10 +70,10 @@ echo "DOMAIN: $DOMAIN"
 echo "NEW DOMAIN: $NEW_DOMAIN"
 echo "GIT BRANCH: $GIT_BRANCH"
 
-if [ ${DOMAIN} != onprem.twn-imcite.net ]; then
-    echo "Changing domain from onprem.twn-imcite.net to ${DOMAIN}"
-    find . -path ./.git -prune -o -type f -exec sed -i "s/onprem.twn-imcite.net/${DOMAIN}/g" {} +
-    find . -type f -exec sed -i "s/onprem.twn-imcite.net/${DOMAIN}/g" {} \;
+if [ ${DOMAIN} != crucible.io ]; then
+    echo "Changing domain from crucible.io to ${DOMAIN}"
+    find . -path ./.git -prune -o -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} +
+    find . -type f -exec sed -i "s/crucible.io/${DOMAIN}/g" {} \;
     echo "Changing legacy appliance domains"
     find . -type f -exec sed -i "s/crucible.dev/${DOMAIN}/g" {} \;
     find . -type f -exec sed -i "s/foundry.local/${DOMAIN}/g" {} \;

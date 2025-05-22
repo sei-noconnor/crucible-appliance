@@ -7,7 +7,7 @@ env:
   - name: EXTERNAL_DNS_RFC2136_PORT
     value: "53"
   - name: EXTERNAL_DNS_RFC2136_ZONE
-    value: "onprem.twn-imcite.net"
+    value: "crucible.io"
   - name: EXTERNAL_DNS_RFC2136_TSIG_AXFR
     value: "true"
   # GSS-TSIG Authentication for Windows AD
@@ -16,7 +16,7 @@ env:
   - name: EXTERNAL_DNS_RFC2136_KERBEROS_USERNAME
     value: "administrator@AD.TWN-IMCITE.NET"  # AD service account
   - name: EXTERNAL_DNS_RFC2136_KERBEROS_REALM
-    value: "onprem.twn-imcite.net"  # AD domain
+    value: "crucible.io"  # AD domain
     # kubectl create secret generic externaldns-secrets --from-literal=ad-password='P@ssw0rd123!#@'
   - name: EXTERNAL_DNS_RFC2136_KERBEROS_PASSWORD
     valueFrom:
@@ -24,7 +24,7 @@ env:
         name: externaldns-secrets
         key: ad-password
 domainFilters:
-  - "onprem.twn-imcite.net"
+  - "crucible.io"
 policy: sync
 registry: noop
 sources: 

@@ -42,15 +42,15 @@ player-api:
       cert-manager.io/cluster-issuer: ca-issuer
 
     hosts:
-      - host: player.onprem.twn-imcite.net
+      - host: player.crucible.io
         paths:
           - path: /(hubs|swagger|api)
             pathType: ImplementationSpecific
 
     tls:
-      - secretName: player.onprem.twn-imcite.net-tls
+      - secretName: player.crucible.io-tls
         hosts:
-          - player.onprem.twn-imcite.net
+          - player.crucible.io
 
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
@@ -89,8 +89,8 @@ player-api:
     # The first entry should be the URL to player
     # The second entry should be the URL to VM App
     # Subsequent entries can be other integrated apps, such as OSTicket
-    CorsPolicy__Origins__0: "https://player.onprem.twn-imcite.net"
-    CorsPolicy__Origins__1: "https://vm.onprem.twn-imcite.net"
+    CorsPolicy__Origins__0: "https://player.crucible.io"
+    CorsPolicy__Origins__1: "https://vm.crucible.io"
     CorsPolicy__Origins__2: "https://<path:fortress-prod/data/shared#domain>"
     CorsPolicy__AllowAnyMethod: true
     CorsPolicy__AllowAnyHeader: true
@@ -130,14 +130,14 @@ player-ui:
       nginx.ingress.kubernetes.io/use-regex: "true"
       cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: player.onprem.twn-imcite.net
+      - host: player.crucible.io
         paths:
           - path: "/"
             pathType: ImplementationSpecific
     tls:
-      - secretName: player.onprem.twn-imcite.net-tls
+      - secretName: player.crucible.io-tls
         hosts:
-          - player.onprem.twn-imcite.net
+          - player.crucible.io
 
   env:
     ## basehref is path to the app
@@ -148,19 +148,19 @@ player-ui:
   # some basic configuration
   settings: |-
     {
-      "ApiUrl": "https://player.onprem.twn-imcite.net",
+      "ApiUrl": "https://player.crucible.io",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
         "client_id": "player-ui",
-        "redirect_uri": "https://player.onprem.twn-imcite.net/auth-callback",
-        "post_logout_redirect_uri": "https://player.onprem.twn-imcite.net",
+        "redirect_uri": "https://player.crucible.io/auth-callback",
+        "post_logout_redirect_uri": "https://player.crucible.io",
         "response_type": "code",
         "scope": "openid profile player-api roles",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://player.onprem.twn-imcite.net/auth-callback-silent"
+        "silent_redirect_uri": "https://player.crucible.io/auth-callback-silent"
       },
       "NotificationsSettings": {
-        "url": "https://player.onprem.twn-imcite.net/hubs",
+        "url": "https://player.crucible.io/hubs",
         "number_to_display": 4
       },
       "AppTitle": "Player",
@@ -203,14 +203,14 @@ vm-api:
       cert-manager.io/cluster-issuer: ca-issuer
 
     hosts:
-      - host: vm.onprem.twn-imcite.net
+      - host: vm.crucible.io
         paths:
           - path: /(notifications|hubs|swagger|api)
             pathType: ImplementationSpecific
     tls:
-      - secretName: vm.onprem.twn-imcite.net-tls
+      - secretName: vm.crucible.io-tls
         hosts:
-          - vm.onprem.twn-imcite.net
+          - vm.crucible.io
     consoleIngress:
       deployConsoleProxy: true
 
@@ -240,15 +240,15 @@ vm-api:
             proxy_ssl_session_reuse on;
         }
     hosts:
-      - host: console.onprem.twn-imcite.net
+      - host: console.crucible.io
         paths:
           - path: /foo
             pathType: ImplementationSpecific
 
     tls:
-      - secretName: console.onprem.twn-imcite.net-tls
+      - secretName: console.crucible.io-tls
         hosts:
-          - console.onprem.twn-imcite.net
+          - console.crucible.io
 
   # If this deployment needs to trust non-public certificates,
   # create a configMap with the needed certifcates and specify
@@ -278,8 +278,8 @@ vm-api:
     # CORS policy settings.
     # The first entry should be the URL to VM App
     # The second entry should be the URL to Console App
-    CorsPolicy__Origins__0: "https://vm.onprem.twn-imcite.net"
-    CorsPolicy__Origins__1: "https://console.onprem.twn-imcite.net"
+    CorsPolicy__Origins__0: "https://vm.crucible.io"
+    CorsPolicy__Origins__1: "https://console.crucible.io"
     CorsPolicy__Origins__2: "https://<path:fortress-prod/data/shared#domain>"
     # CorsPolicy__AllowAnyOrigin: true
     CorsPolicy__AllowAnyMethod: true
@@ -308,7 +308,7 @@ vm-api:
     IdentityClient__Password: "<path:fortress-prod/data/shared#crucible-admin-pass>"
 
     # Crucible Player URL
-    ClientSettings__urls__playerApi: "https://player.onprem.twn-imcite.net/api"
+    ClientSettings__urls__playerApi: "https://player.crucible.io/api"
 
     # VCenter settings
     #
@@ -329,9 +329,9 @@ vm-api:
     # Rewrite Host settings
     # See "consoleIngress" section above for usage
     RewriteHost__RewriteHost: true
-    RewriteHost__RewriteHostUrl: "console.onprem.twn-imcite.net"
+    RewriteHost__RewriteHostUrl: "console.crucible.io"
     RewriteHost__RewriteHostQueryParam: "vmhost"
-    ConsoleUrls__DefaultUrl: "https://console.onprem.twn-imcite.net"
+    ConsoleUrls__DefaultUrl: "https://console.crucible.io"
 
     VmUsageLogging__Enabled: true
     VmUsageLogging__PostgreSQL: "<path:fortress-prod/data/player#player-vm-api-logging-connection-string>"
@@ -356,14 +356,14 @@ vm-ui:
       nginx.ingress.kubernetes.io/use-regex: "true"
       cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: vm.onprem.twn-imcite.net
+      - host: vm.crucible.io
         paths:
           - path: /
             pathType: ImplementationSpecific
     tls:
-      - secretName: vm.onprem.twn-imcite.net-tls
+      - secretName: vm.crucible.io-tls
         hosts:
-          - vm.onprem.twn-imcite.net
+          - vm.crucible.io
 
   env:
     ## basehref is path to the app
@@ -373,20 +373,20 @@ vm-ui:
   # These values correspond to an OpenID connect client
   settings: |-
     {
-       "ApiUrl": "https://vm.onprem.twn-imcite.net/api",
+       "ApiUrl": "https://vm.crucible.io/api",
        "DeployApiUrl": "",
-       "ApiPlayerUrl": "https://player.onprem.twn-imcite.net/api",
+       "ApiPlayerUrl": "https://player.crucible.io/api",
        "WelderUrl": "",
-       "UserFollowUrl": "https://console.onprem.twn-imcite.net/user/{userId}/view/{viewId}/console",
+       "UserFollowUrl": "https://console.crucible.io/user/{userId}/view/{viewId}/console",
        "OIDCSettings": {
            "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
            "client_id": "vm-ui",
-           "redirect_uri": "https://vm.onprem.twn-imcite.net/auth-callback",
-           "post_logout_redirect_uri": "https://vm.onprem.twn-imcite.net",
+           "redirect_uri": "https://vm.crucible.io/auth-callback",
+           "post_logout_redirect_uri": "https://vm.crucible.io",
            "response_type": "code",
            "scope": "openid profile player-api vm-api",
            "automaticSilentRenew": true,
-           "silent_redirect_uri": "https://vm.onprem.twn-imcite.net/auth-callback-silent"
+           "silent_redirect_uri": "https://vm.crucible.io/auth-callback-silent"
        },
        "UseLocalAuthStorage": true
      }
@@ -410,14 +410,14 @@ console-ui:
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
       cert-manager.io/cluster-issuer: ca-issuer
     hosts:
-      - host: console.onprem.twn-imcite.net
+      - host: console.crucible.io
         paths:
           - path: /
             pathType: ImplementationSpecific
     tls:
-      - secretName: console.onprem.twn-imcite.net-tls
+      - secretName: console.crucible.io-tls
         hosts:
-          - console.onprem.twn-imcite.net
+          - console.crucible.io
 
   env:
     ## basehref is path to the app
@@ -427,16 +427,16 @@ console-ui:
   # These values correspond to an OpenID connect client and some basic settings
   settings: |-
     {
-      "ConsoleApiUrl": "https://vm.onprem.twn-imcite.net/api/",
+      "ConsoleApiUrl": "https://vm.crucible.io/api/",
       "OIDCSettings": {
         "authority": "https://<path:fortress-prod/data/shared#domain>/<path:fortress-prod/data/shared#oauth-provider>/<path:fortress-prod/data/shared#oauth-authority-url>",
         "client_id": "console-ui",
-        "redirect_uri": "https://console.onprem.twn-imcite.net/auth-callback",
-        "post_logout_redirect_uri": "https://console.onprem.twn-imcite.net",
+        "redirect_uri": "https://console.crucible.io/auth-callback",
+        "post_logout_redirect_uri": "https://console.crucible.io",
         "response_type": "code",
         "scope": "openid profile player-api vm-api",
         "automaticSilentRenew": true,
-        "silent_redirect_uri": "https://console.onprem.twn-imcite.net/auth-callback-silent"
+        "silent_redirect_uri": "https://console.crucible.io/auth-callback-silent"
       },
       "UseLocalAuthStorage": true,
       "DebugLogging": true,
