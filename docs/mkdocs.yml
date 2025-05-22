@@ -41,3 +41,8 @@ extra:
       link: https://hub.docker.com/u/cmusei
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/company/software-engineering-institute/
+extra_javascript:
+  - assets/js/check-status.js
+  - assets/js/download-cert.js
+extra_css:
+  - assets/css/status.css

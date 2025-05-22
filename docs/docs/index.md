@@ -1,40 +1,55 @@
-# Crucible
+# Crucible Appliance Documentation
 
-Welcome to the **Crucible Appliance**. This virtual machine hosts workforce development apps from the [Software Engineering Institute](https://sei.cmu.edu) at [Carnegie Mellon University](https://cmu.edu).
+## Overview
 
-## Getting started
+The Crucible Appliance is a self-contained virtual machine that delivers the Crucible suite of workforce development applications from the Software Engineering Institute at Carnegie Mellon University. It provides platforms for cyber training, scenario delivery, lab management, and supporting services like version control, identity management, and orchestration.
 
-The appliance uses the _onprem.twn-imcite.net_ domain, you'll need to place an entry in your DNS server or HOSTS file to access the appliance.
+### Core Features
 
-To get started using the virtual appliance:
+* Unified user authentication via Keycloak
+* Secure credential and config management with Vault
+* Deployed on vSphere as an OVA
+* K3s-based Kubernetes cluster
+* Automated configuration with Makefile scripts
+* Distributed storage system with longhorn. 
 
-1. Download [root-ca.pem](root-ca.pem) and trust it in your keychain/certificate store. This removes browser certificate warnings.
-2. Navigate to any of the apps in the following two sections.
-3. Unless otherwise noted, the default credentials are:
+## Getting Started
 
-   | key      | value                       |
-   | -------- | --------------------------- |
-   | username | `administrator@onprem.twn-imcite.net` |
-   | password | `${ADMIN_PASS}`             |
+To begin using the Crucible Appliance, follow these steps to install the root certificate. This certificate ensures secure HTTPS access to all the appliance's web services. This step cannot be skipped you __must__ install the root certificate or the application api calls will fail you cannot accept the exception in the browser
 
-## Crucible apps
+### Step 1: Download Root Certificate
 
-The following Crucible applications are loaded on this appliance:
+* Download Crucible Root Certificate <button onclick="downloadCert()">Download root-ca.crt</button>
 
-| location                                       | api                                        | description                                                                                                                                                      |
-| ---------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [player](https://player.onprem.twn-imcite.net)          | [api](https://player.crucibhle.io/api)     | _Player_ is the centralized interface where users, teams, and administrators go to participate in the cyber exercise.                                            |
-| [alloy](https://alloy.onprem.twn-imcite.net)             | [api](https://player.onprem.twn-imcite.net/api)      | _Alloy_ joins the other independent Crucible apps together to provide a complete Crucible experience (i.e. labs, on-demand exercises, exercises, etc.).          |
-| [caster](https://caster.onprem.twn-imcite.net)           | [api](https://caster.crucibl.io/api)       | _Caster_ provides a web interface that gives exercise developers a way to create, share, and manage topology configurations.                                     |
-| [steamfitter](https://steamfitter.onprem.twn-imcite.net) | [api](https://steamfitter.onprem.twn-imcite.net/api) | _Steamfitter_ creates scenarios consisting of a series of scheduled tasks, manual tasks, and injects which run against virtual machines in an exercise.delivery. |
+### Step 2: Install Certificate
 
-## Third-party apps
+#### Windows
 
-The following third-party applications are loaded on this appliance:
+1. Double-click the downloaded `root-ca.crt` file.
+2. Click "Install Certificate".
+3. Choose "Local Machine" and click "Next".
+4. Select "Place all certificates in the following store" and choose "Trusted Root Certification Authorities".
+5. Click "Next" and then "Finish".
+6. Restart your browser.
 
-| location                                                          | description                                  |
-| ----------------------------------------------------------------- | -------------------------------------------- |
-| [gitea](https://crucibhle.io/gitea) | _stackstorm_ Task processing for steamfitter |
-| [stackstorm](https://crucibhle.io/stackstorm) | _stackstorm_ Task processing for steamfitter |
+#### macOS
 
-![CMU SEI Unitmark](assets/cmu-sei-unitmark.png){: style="width:400px;margin:40px 0px 0px"}
+1. Double-click the `root.crt` file.
+2. Keychain Access will open. Select the "System" keychain.
+3. Drag the certificate into the "System" keychain.
+4. Right-click the certificate, select "Get Info", and set "When using this certificate" to "Always Trust".
+5. Close the dialog and enter your password if prompted.
+6. Restart your browser.
+
+#### Linux
+
+1. Copy `root.crt` to `/usr/local/share/ca-certificates/` (rename to `crucible-root.crt` if desired).
+2. Run:
+
+   ```bash
+   sudo cp root.crt /usr/local/share/ca-certificates/crucible-root.crt
+   sudo update-ca-certificates
+   ```
+3. Restart your browser or relevant services.
+
+---

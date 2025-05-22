@@ -1,0 +1,6 @@
+.reachable {
+  background-color: #d4edda; /* green background */
+}
+.unreachable {
+  background-color: #f8d7da; /* red background */
+}
