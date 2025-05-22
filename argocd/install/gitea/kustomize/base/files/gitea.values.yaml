@@ -98,7 +98,7 @@ initPreScript: |
   
   
 actions:
-  enabled: true
+  enabled: false
   statefulset:
     actRunner:
       config: |
