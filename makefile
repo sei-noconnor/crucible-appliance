@@ -95,7 +95,8 @@ gitea-replace-repos:
 gitea-reset:
 	kubectl kustomize ./argocd/install/gitea/kustomize/overlays/appliance --enable-helm | kubectl delete -f -
 	kubectl -n postgres exec appliance-postgresql-0 -- bash -c "PGPASSWORD=crucible psql -h localhost -p 5432 -U postgres -c 'DROP DATABASE gitea WITH (FORCE);'"
-
+	sleep 10
+	make gitea-init
 gitea-export-images:
 	echo "${ADMIN_PASS}" | sudo -E -S ./packer/scripts/package-export-images.sh 
 
